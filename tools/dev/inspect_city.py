@@ -6,7 +6,7 @@ import csv
 import numpy as np
 import trimesh
 
-CITY = Path("data/source/city.glb")
+CITY = Path("data/raw/scenes/city.glb")
 OUT = Path("generated/city_mesh_report.csv")
 
 if not CITY.exists():

@@ -8,7 +8,7 @@ import numpy as np
 import trimesh
 from pathlib import Path
 
-CITY = Path("data/source/city.glb")
+CITY = Path("data/raw/scenes/city.glb")
 OUT = Path("generated")
 OUT.mkdir(exist_ok=True)
 

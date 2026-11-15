@@ -8,24 +8,24 @@ chạy nằm trong [README chính](../README.md); nguồn và giấy phép chi t
 [docs/data-format.md](../docs/data-format.md). Migration `.geom` → `.off` đã
 được áp dụng.
 
-## Ba thư mục con
+## Cấu trúc
 
 | Thư mục | Nội dung | Nguồn | Giấy phép |
 | --- | --- | --- | --- |
-| `source/` | `city.glb`, mô hình thành phố 20 MB | Saigon 3D City | CC BY 4.0 |
-| `input/` | Năm mesh `.off` cho kiểm thử hồi quy | Nhóm tác giả | BSD-3-Clause |
+| `raw/scenes/` | `city.glb`, mô hình thành phố 20 MB | Saigon 3D City | CC BY 4.0 |
+| `raw/meshes/` | Chín mesh `.off` cho kiểm thử hồi quy | Nhóm tác giả | BSD-3-Clause |
 | `expected/` | Đường đi tham chiếu `.paths.json` | Nhóm tác giả | BSD-3-Clause |
 
-`source/city.glb` là **input của pipeline**, không phải asset trình diễn:
+`raw/scenes/city.glb` là **input của pipeline**, không phải asset trình diễn:
 `prepare.py`, `prepare_urban.py` và các công cụ dựng miền bay đọc trực tiếp
 file này. Không sửa file gốc; mọi dẫn xuất nằm trong `generated/`.
 
-Một bản `city.glb` đặt ở `data/input/` sẽ bị `.gitignore` bỏ qua để tránh
-chép trùng mô hình; đường dẫn chuẩn duy nhất là `data/source/city.glb`.
+Một bản `city.glb` đặt ở `data/raw/meshes/` sẽ bị `.gitignore` bỏ qua để tránh
+chép trùng mô hình; đường dẫn chuẩn duy nhất là `data/raw/scenes/city.glb`.
 
 ## Định dạng `.off`
 
-`data/input/*.off` là lưới tam giác dạng văn bản theo chuẩn OFF:
+`data/raw/meshes/*.off` là lưới tam giác dạng văn bản theo chuẩn OFF:
 
 - Dòng đầu: `OFF`.
 - Dòng tiếp theo: `V F E` — số đỉnh, số mặt, số cạnh khai báo.

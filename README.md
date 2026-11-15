@@ -279,7 +279,7 @@ chối chạy nếu đầu vào đã đổi; vì vậy không thể ghép kết 
 bản đồ mới.
 
 ```text
-data/source/city.glb
+data/raw/scenes/city.glb
         │  tools/build_navigation_surface.py   → navigation_y2p00.off + grid
         │  tools/prepare_funnel_input.py       → funnel_input_y2p00.off
         │  tools/run_funnel_route.py           → candidate route + cache
@@ -320,7 +320,7 @@ summary, hình  →  tools/verify_project_results.py  →  Project results: READ
 
 Bốn điểm cần biết:
 
-- **Tầng 1** chỉ chạy lại khi đổi `data/source/city.glb` hoặc tham số hình học.
+- **Tầng 1** chỉ chạy lại khi đổi `data/raw/scenes/city.glb` hoặc tham số hình học.
 - **Tầng 2** là nơi duy nhất lập tuyến. Funnel Tree tính đường; `pygeodesic`
   (MMP) chạy trên cùng lưới và cùng hai đầu mút để đối chiếu, không tham gia
   lập tuyến.
@@ -407,9 +407,9 @@ uav-funnel-tree-gazebo/
 ├── prepare.py                 # Tạo world Gazebo, STL thành phố, lưới bay và route
 ├── prepare_urban.py           # Dựng nhiệm vụ đô thị thấp, tránh vật cản
 ├── data/
-│   ├── source/                # Mô hình thành phố gốc của bên thứ ba (CC BY 4.0)
-│   │   └── city.glb
-│   ├── input/                 # Chín mesh mẫu .off do nhóm tạo
+│   ├── raw/
+│   │   ├── scenes/city.glb    # Mô hình thành phố gốc của bên thứ ba (CC BY 4.0)
+│   │   └── meshes/*.off       # Chín mesh mẫu do nhóm tạo
 │   └── expected/              # Đường đi tham chiếu .paths.json
 ├── docs/
 │   ├── data-format.md         # Định hướng GLB/OFF và kế hoạch chuyển đổi
@@ -480,8 +480,8 @@ uav-funnel-tree-gazebo/
 | `tests/` | Kiểm thử cắt tỉa, phạm vi đích và gọi dịch vụ pose |
 | `tools/dev/` | Công cụ khảo sát và bảo trì của các giai đoạn trước |
 | `scripts/` | Cài đặt và mở mô phỏng |
-| `data/source/city.glb` | Mô hình thành phố gốc của bên thứ ba, kèm nguồn và giấy phép |
-| `data/input`, `data/expected` | Năm mesh mẫu do nhóm tạo và dữ liệu đối chiếu |
+| `data/raw/scenes/city.glb` | Mô hình thành phố gốc của bên thứ ba, kèm nguồn và giấy phép |
+| `data/raw/meshes`, `data/expected` | Chín mesh mẫu do nhóm tạo và dữ liệu đối chiếu |
 | `generated/` | Bộ dữ liệu đã kiểm tra và các kết quả sinh ra |
 
 `RUNBOOK_CURRENT.md` là hướng dẫn vận hành chi tiết.

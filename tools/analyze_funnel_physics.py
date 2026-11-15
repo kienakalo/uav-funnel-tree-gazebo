@@ -49,7 +49,7 @@ def main(case=None):
     reverted=values[:,1:4]/scale+np.array(route['transform']['origin'])
     xz=reverted[:,:2]*[1,-1]
     navigation=json.loads((ROOT/'generated/navigation_y2p00_report.json').read_text())
-    asset=ROOT/'data/source/city.glb'
+    asset=ROOT/'data/raw/scenes/city.glb'
     if not asset.is_file() or hashlib.sha256(asset.read_bytes()).hexdigest()!=navigation['sha256']:
         raise ValueError('No matching city asset')
     parts=[]

@@ -33,7 +33,7 @@ số lớn.
 - Là định dạng duy nhất đồng thời: mở xem được (Blender, MeshLab, trình xem
   glTF), giữ được **44 object** và transform của scene graph, và mang metadata
   trong `extras` (tác giả, giấy phép CC BY 4.0, nguồn).
-- `data/source/city.glb` **đã là GLB**; chọn GLB nghĩa là tài sản lớn nhất
+- `data/raw/scenes/city.glb` **đã là GLB**; chọn GLB nghĩa là tài sản lớn nhất
   không phải chuyển đổi, không mất gì.
 - `src/city.py` đã có reader GLB, nên bước xử lý đầu vào chỉ cần chuẩn hoá
   tên node và bổ sung `extras`, không phải viết lại bộ đọc.
@@ -83,8 +83,8 @@ bằng mắt, và là dữ liệu dẫn xuất.
 ## 7. Kiến trúc đích
 
 ```text
-data/source/city.glb ─┐
-data/input/*.off     ─┴→ [xử lý dữ liệu đầu vào] → scene.glb
+data/raw/scenes/city.glb ─┐
+data/raw/meshes/*.off     ─┴→ [xử lý dữ liệu đầu vào] → scene.glb
                                                       │
                         ┌─────────────────────────────┤
                         ▼                             ▼
@@ -207,7 +207,7 @@ Tiêu chí hoàn thành:
 
 - Định hướng: đã chốt.
 - Migration `.geom` → `.off` và `.paths.json`: đã áp dụng.
-- `data/input/` hiện có 9 fixture: 5 bản gốc và 4 mesh bổ sung từ bài báo
+- `data/raw/meshes/` hiện có 9 fixture: 5 bản gốc và 4 mesh bổ sung từ bài báo
   (`cube`, `dome`, `icosahedron`, `terrain`), không có tệp `expected/`.
 - Bước xử lý dữ liệu đầu vào (`scene.glb`): chưa triển khai; sẽ quyết định sau.
 - Kiểm chứng sau migration: `check.py` pass và

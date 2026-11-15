@@ -73,7 +73,7 @@ def main():
     p.add_argument('--out',type=Path,default=root/'generated');p.add_argument('--weld',type=float,default=1e-5)
     args=p.parse_args()
     if args.weld<=0:p.error('--weld must be positive')
-    city=args.city or root/'data/source/city.glb'
+    city=args.city or root/'data/raw/scenes/city.glb'
     if not city.is_file():p.error('Cannot find city.glb; use --city PATH')
     raw=[];coplanar=0;crossing=0;objects=0;outline=[];eps=1e-6
     for name,triangles in transformed_objects(city):

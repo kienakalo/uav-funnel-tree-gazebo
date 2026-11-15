@@ -17,9 +17,9 @@ Thumbs.db
 /output/
 *.zip
 
-# The city asset is tracked once, at data/source/city.glb. Copies downloaded
-# into the legacy data/input location stay local.
-/data/input/city.glb
+# The city asset is tracked once, at data/raw/scenes/city.glb. Copies downloaded
+# into the raw/meshes location stay local.
+/data/raw/meshes/city.glb
 
 # Keep a curated set of checked inputs and results. Other generated data,
 # profiling dumps, runtime packages and large propagation caches stay local.

@@ -12,14 +12,14 @@ Technology (HCMUT).
 
 # Example meshes
 
-The five `.off` meshes in `data/input/` and the expected paths and reference
+The five `.off` meshes in `data/raw/meshes/` and the expected paths and reference
 values in `data/expected/` were created by the project authors. They are
 first-party data, not third-party test sets, and are released under
 BSD-3-Clause together with the project code.
 
 # City asset
 
-Location in this repository: `data/source/city.glb`. The asset is a pipeline
+Location in this repository: `data/raw/scenes/city.glb`. The asset is a pipeline
 input that the preparation scripts read to build the city STL, navigation
 surface and flight slice, so it is stored under `data/` rather than in a
 separate asset directory. Its third-party origin is recorded here and in the

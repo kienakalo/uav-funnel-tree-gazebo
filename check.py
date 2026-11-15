@@ -18,7 +18,7 @@ def main():
     no_reference={('star',1),('cube',1),('dome',1),('icosahedron',1),('terrain',1)}
     for name,source in [('cliff',1),('J17',1),('L',1),('demo_mesh',1),('star',0),('star',1),
                         ('cube',1),('dome',1),('icosahedron',1),('terrain',1)]:
-        m=read_off(ROOT/f'data/input/{name}.off');t=time.monotonic();paths,stats=solve(m,source)
+        m=read_off(ROOT/f'data/raw/meshes/{name}.off');t=time.monotonic();paths,stats=solve(m,source)
         points=[(p.x,p.y,p.z) for p in m.points];upper=edge_distances(points,m.faces,source)
         for v,path in enumerate(paths):
             assert math.dist(path[0],points[source])<1e-7 and math.dist(path[-1],points[v])<1e-7

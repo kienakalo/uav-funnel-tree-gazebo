@@ -57,7 +57,7 @@ def main():
         raise ValueError("Mesh or candidate changed since validation; validate again")
     candidate = json.loads(candidate_path.read_text())
     navigation = json.loads((generated / "navigation_y2p00_report.json").read_text())
-    city_path = ROOT / "data/source/city.glb"
+    city_path = ROOT / "data/raw/scenes/city.glb"
     if not city_path.is_file() or sha(city_path) != navigation["sha256"]:
         raise ValueError("The city asset does not match the navigation surface asset hash")
     model_path = simplify(candidate["points"])

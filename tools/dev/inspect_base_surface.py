@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import PolyCollection
 from pathlib import Path
 
-CITY = Path("data/source/city.glb")
+CITY = Path("data/raw/scenes/city.glb")
 OUT = Path("generated")
 OUT.mkdir(exist_ok=True)
 

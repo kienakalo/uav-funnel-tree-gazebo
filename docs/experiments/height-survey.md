@@ -13,11 +13,11 @@ cd /mnt/c/DroneDemo/drone_gazebo_demo
 .venv/bin/python tools/inspect_flight_levels_fixed.py
 ```
 
-Mặc định đọc mô hình tại `data/source/city.glb`.
+Mặc định đọc mô hình tại `data/raw/scenes/city.glb`.
 Nếu muốn chỉ định rõ:
 
 ```bash
-.venv/bin/python tools/inspect_flight_levels_fixed.py --city data/source/city.glb
+.venv/bin/python tools/inspect_flight_levels_fixed.py --city data/raw/scenes/city.glb
 ```
 
 Các tệp kết quả:
