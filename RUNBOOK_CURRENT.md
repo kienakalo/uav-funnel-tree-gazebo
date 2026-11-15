@@ -23,9 +23,11 @@ và thời gian chờ waypoint 0 giây. Kế hoạch hoàn tất khoảng 100,7 
 phỏng. Drone vẫn giảm tốc về 0 tại góc; log tiến độ xuất mỗi 10 giây.
 Các ca phẳng khác giữ thời gian chờ waypoint mặc định 1,5 giây.
 
-Nhóm sử dụng Ubuntu 24.04/WSL và Gazebo Harmonic cho các thử nghiệm. Các công
+Nhóm sử dụng Ubuntu 24.04/WSL và Gazebo Jetty cho các thử nghiệm. Các công
 cụ phân tích gọi trực tiếp `.venv/bin/python`; plugin Gazebo sử dụng Python
-hệ thống thông qua script thiết lập môi trường riêng.
+hệ thống thông qua script thiết lập môi trường riêng. Nếu máy cài bản Gazebo
+khác, xem mục **Phiên bản Gazebo** trong [scripts/README.md](scripts/README.md)
+trước khi chạy.
 
 - **Ubuntu 1:** terminal mở Gazebo. Nhấn `Ctrl+C` ở đây để kết thúc phiên mô phỏng.
 - **Ubuntu 2:** terminal chạy kiểm tra và xuất kết quả.

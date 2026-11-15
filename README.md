@@ -1,7 +1,7 @@
 # UAV giao hàng trên bề mặt 3D bằng Funnel Tree
 
 Trong dự án này, nhóm triển khai thuật toán Funnel Tree bằng Python để lập
-tuyến trên bề mặt đa diện và mô phỏng một UAV bám tuyến trong Gazebo Harmonic.
+tuyến trên bề mặt đa diện và mô phỏng một UAV bám tuyến trong Gazebo Jetty.
 Quy trình đọc mô hình thành phố `city.glb`,
 dựng bề mặt dẫn đường 3D phía trên địa hình và công trình, chạy Funnel Tree,
 đối chiếu độ dài với bộ giải MMP độc lập, rồi mô phỏng tiếp cận điểm giao hàng.
@@ -109,7 +109,7 @@ nằm trong `figure_metadata.json`.
 | NumPy | Mảng tọa độ, tính toán hình học và phép toán tuyến tính trong Funnel Tree, đọc GLB và xử lý telemetry |
 | Shapely | Truy vấn không gian, kiểm tra footprint và cột hạ, dựng bề mặt dẫn đường |
 | Matplotlib | Biểu đồ tuyến, cao độ và kết quả thực nghiệm |
-| Gazebo Harmonic: `gz.sim8`, `gz.math7` | Mô phỏng vật lý, đọc trạng thái và tác dụng lực lên UAV |
+| Gazebo Jetty: `gz.sim10`, `gz.math9` | Mô phỏng vật lý, đọc trạng thái và tác dụng lực lên UAV |
 | pygeodesic | Bộ giải MMP độc lập để đối chiếu; không thay thế Funnel Tree khi lập tuyến |
 | Thư viện chuẩn Python | `math`, `json`, `csv`, `pathlib`, `hashlib`, `heapq`, `argparse`, `xml.etree.ElementTree` và các tiện ích hệ thống |
 | trimesh | Công cụ khảo sát cũ trong `tools/dev/`, không bắt buộc cho lệnh chạy demo hiện tại |
@@ -127,7 +127,7 @@ file đã kiểm tra. Việc bổ sung chú thích giữ nguyên cấu trúc th�
 các dấu vân tay phụ thuộc mã nguồn được cập nhật, không tính lại số liệu bay.
 
 - Ubuntu 24.04, hoặc Ubuntu 24.04 trên WSL2 với WSLg để mở giao diện.
-- Gazebo Harmonic / Gazebo Sim 8 và Python bindings của hệ thống.
+- Gazebo Jetty / Gazebo Sim 10 và Python bindings của hệ thống.
 - Python 3.12. Các phiên bản thư viện đã dùng nằm trong `requirements-demo.txt`.
 
 Quy ước hai terminal trong hướng dẫn này:
@@ -416,7 +416,7 @@ uav-funnel-tree-gazebo/
 │   └── experiments/           # Ghi chép các giai đoạn khảo sát trước
 ├── reference/                 # Ảnh và báo cáo mốc cho mặt cắt Y = 2
 ├── scripts/
-│   ├── install_ubuntu.sh      # Cài Gazebo Harmonic và gói hệ thống
+│   ├── install_ubuntu.sh      # Cài Gazebo Jetty và gói hệ thống
 │   ├── gazebo_system_python.sh # Thiết lập Python hệ thống cho plugin Gazebo
 │   ├── run.sh                 # Chạy chế độ pose hoặc physics
 │   ├── run_funnel.sh          # Chạy demo miền phẳng

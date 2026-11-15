@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: Python standard library; NumPy (via src/funnel_tree.py).
-# City/Gazebo workflow: Shapely, Matplotlib, Gazebo Sim 8 / gz.math7;
+# City/Gazebo workflow: Shapely, Matplotlib, Gazebo Sim 10 / gz.math9;
 # independent MMP reference: pygeodesic (not used by the Funnel planner).
 # Versions and module roles: README.md, requirements*.txt.
 """Run experimental Funnel Tree on the bundled geom meshes."""

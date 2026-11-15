@@ -21,7 +21,7 @@
     {
       "path": "plan.py",
       "old_sha256": "1f739306e3c88a45f170c2477ff6b333561fc6e6b18498008966148937a481b1",
-      "new_sha256": "f6ae62f9a7bfddf7b633e604a303351a97da3fa01dfc24d372066b9eceaef96a",
+      "new_sha256": "1b26799ceb1fe9a0db2ad27ba3cfb753043c83cf4e6ed67b9a77d4533821b464",
       "python_ast_unchanged": true
     },
     {
@@ -45,13 +45,13 @@
     {
       "path": "src/drone_system.py",
       "old_sha256": "37ce28ea04efbb810c4823b983d1944d4fe7870b1f580766194cd16b12095c06",
-      "new_sha256": "2e38a11ed8ce6bf057eed30d9eef244c3c8539c2cf6f8c87cd62608a51db6038",
+      "new_sha256": "55f171dc9ac55282020fe4e18053db42f454c9fd7fa2b45d01643193f92eafb8",
       "python_ast_unchanged": true
     },
     {
       "path": "src/funnel_drone_system.py",
       "old_sha256": "fc0b5f830d6c5bcae8b5efc7923097e959be90721b885da253d22aef58d780a2",
-      "new_sha256": "79865dc4cffbf006f875e8a9324bfbd810ff5a8026d236a92857cc6b02109f07",
+      "new_sha256": "e02e12df3f4a6cfdacf3eb32e2e10543a9c99b4ed914feeb7241f29b2f72fc95",
       "python_ast_unchanged": true
     },
     {
@@ -297,7 +297,7 @@
     {
       "path": "tools/prepare_funnel_physics.py",
       "old_sha256": "4be385eec5404a435f347dc15065842e71b563977741083b700fd0aaaacf0cc3",
-      "new_sha256": "b7d2117f8692bf2d204c37cb0078de8dc656c7d89c72f89c40948fee3131cd05",
+      "new_sha256": "c455575522af23a48f7433f75bb9ad5f8cdcdb3ab64d7864b4e97cc1084a4fd4",
       "python_ast_unchanged": true
     },
     {
@@ -363,13 +363,13 @@
     {
       "path": "scripts/install_ubuntu.sh",
       "old_sha256": "f8383b32ba755a027bef0667b5ac3c1916db72ef88db3aacb0dfacbdbac8fb83",
-      "new_sha256": "9f22571fe3ba462cd59e5c1a96be978c073bca570604482b2a0d5c77b8427ff0",
+      "new_sha256": "7e6763178176a4f67fa03257b2c3468a71ebe0f77230c44581d3255ae98894c2",
       "python_ast_unchanged": false
     },
     {
       "path": "scripts/run.sh",
       "old_sha256": "fd39f8cc17649eb5aaabdef4c5c7304e7487d0dd8de40fc274ffb15b6c215d93",
-      "new_sha256": "6400841ebbf45fe7e1b6ddebc6aa6d88e6d70ff8263b355e9822f49212aacf4b",
+      "new_sha256": "8b609876682e3fa4b367005a28362c7f6f3a5e36a3ab3b0a0c149fe29e7ad389",
       "python_ast_unchanged": false
     },
     {
@@ -381,25 +381,25 @@
     {
       "path": "scripts/run_funnel_physics.sh",
       "old_sha256": "5c559f02b270773b1f9b55f394cd5a2b5bac94a8d82f6ba6f19b6b1e8254fdda",
-      "new_sha256": "de61e3aa5a5efbfb05bf5dd1045d3c01a0756453dded3ddd0b5cf12f17231369",
+      "new_sha256": "f80ed680058b121a2eb1338858d0ee1333b07fe3437292af51141c8313e72d7d",
       "python_ast_unchanged": false
     },
     {
       "path": "scripts/run_surface_cpu.sh",
       "old_sha256": "eb1536aef6393974f1dceb1f02ee0a40ff8376fe9459aaed5f3acb21c6869575",
-      "new_sha256": "e7aaf486fe307c5ef112284650bed72cd5b97bbb83f31f385e0195d816941341",
+      "new_sha256": "004503139c45d66aa63777abf0f268cc2a0eb943e55da8d4bbf0c34c846e705e",
       "python_ast_unchanged": false
     },
     {
       "path": "scripts/run_surface_gpu.sh",
       "old_sha256": "e5b0d187dc14033750e12ecc0231893cbc98088a67c77e94e98d101fb777635a",
-      "new_sha256": "c186d0e08bb855a979667d22142d6f1e07e01fc40c365ab902919aa4910061c2",
+      "new_sha256": "00451aebe5dfb96b733c465ba70f49706e330f68eb248f60de8fa53fa43d11c2",
       "python_ast_unchanged": false
     },
     {
       "path": "scripts/run_urban.sh",
       "old_sha256": "bc42a991537d71f43ae1cd41c65655fe0eeca0b70c2e40fb4f37e5fd73ef4474",
-      "new_sha256": "0e44ac0fe4d04db3f914117261b285a222f9c35947c3d1a11119d47a551aad3f",
+      "new_sha256": "af3d7d715c38fecff233be5abc8e527239184e19d071983ff6270a4e996915b6",
       "python_ast_unchanged": false
     },
     {
@@ -470,5 +470,7 @@
   "supplement_note": "The added sensitivity experiment is new executable code, not part of the initial comment-only migration.",
   "merge_resolution_note": "Combined upstream source/license/path migration audit with local sensitivity source entries; retained each entry as migration history.",
   "off_migration": "Converted the five data/input meshes and eight tracked generated meshes from .geom to OFF by prepending the OFF magic line, and the five data/expected path fixtures to .paths.json. Parsers were unified on src/mesh.read_off and src/verification.read_paths; writers emit OFF and JSON. Geometry, telemetry and simulation results are unchanged; dependent fingerprints were propagated and verified.",
-  "off_migration_changed_source_count": 26
+  "off_migration_changed_source_count": 26,
+  "gazebo_release": "Jetty (gz-sim10, gz-math9)",
+  "gazebo_migration": "Migrated scripts, plugin imports and documentation from Gazebo Harmonic (gz.sim8, gz.math7) to Gazebo Jetty (gz.sim10, gz.math9). No simulation was rerun in this environment; the recorded results remain those produced with Harmonic."
 }

@@ -10,7 +10,7 @@ if [[ "$mode" != pose && "$mode" != physics ]]; then echo 'Usage: bash scripts/r
 command -v gz >/dev/null || { echo 'Install first: bash scripts/install_ubuntu.sh'; exit 1; }
 python3 -c 'import numpy' || { echo 'Install python3-numpy using apt.'; exit 1; }
 if [[ "$mode" == physics ]]; then
-  python3 -c 'from gz.sim8 import Model, Link; from gz.math7 import Vector3d' || { echo 'Install python3-gz-sim8 using apt.'; exit 1; }
+  python3 -c 'from gz.sim10 import Model, Link; from gz.math9 import Vector3d' || { echo 'Install python3-gz-sim10 using apt.'; exit 1; }
 fi
 python3 prepare.py --mode "$mode"
 export GZ_SIM_RESOURCE_PATH="$PWD/generated${GZ_SIM_RESOURCE_PATH:+:$GZ_SIM_RESOURCE_PATH}"

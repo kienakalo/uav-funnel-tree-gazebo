@@ -15,7 +15,7 @@ này; script mới cần thêm cùng một dòng.
 | `city.py` | `load_city`, `write_stl`: đọc GLB, bake transform, xuất lưới và STL | — (NumPy) |
 | `trajectory.py` | `Trajectory`, `control_acceleration`: tham số hoá thời gian trên polyline | — |
 | `urban_navigation.py` | `obstacle_grid`, `intersects_boxes`, `plan_urban`: cột vật cản → hành lang lưới → Funnel | `mesh`, `funnel_tree`, `verification` |
-| `drone_system.py` | `DroneSystem`: plugin Gazebo, mô hình chất điểm 1 kg và telemetry | `trajectory`, `gz.sim8` |
+| `drone_system.py` | `DroneSystem`: plugin Gazebo, mô hình chất điểm 1 kg và telemetry | `trajectory`, `gz.sim10` |
 | `funnel_drone_system.py` | Plugin bám tuyến Funnel, kế thừa `DroneSystem` | `drone_system` |
 
 Thứ tự đọc gợi ý: `mesh` → `funnel_tree` → `verification`, rồi `city` và
@@ -28,7 +28,7 @@ module này dù không có lỗi import.
 ## Hai môi trường chạy
 
 `src/drone_system.py` và `src/funnel_drone_system.py` chạy **bên trong Gazebo**,
-dùng Python hệ thống và binding `gz.sim8`, không dùng `.venv`. Vì vậy hai
+dùng Python hệ thống và binding `gz.sim10`, không dùng `.venv`. Vì vậy hai
 module này chỉ nên dùng thư viện chuẩn; thư viện phân tích (NumPy, Shapely,
 Matplotlib) phải nằm ở phần lập kế hoạch, không đặt trong plugin.
 

@@ -6,7 +6,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 command -v gz >/dev/null || { echo 'Gazebo must already be installed.'; exit 1; }
-python3 -c 'from gz.sim8 import Model,Link; import numpy'
+python3 -c 'from gz.sim10 import Model,Link; import numpy'
 python3 prepare_urban.py
 if [[ -f generated/physics_telemetry.csv ]]; then
   cp generated/physics_telemetry.csv "generated/physics_telemetry_before_urban_$(date +%Y%m%d_%H%M%S).csv"

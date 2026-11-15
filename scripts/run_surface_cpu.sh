@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
-# Main runtime: Bash, Python + NumPy/Shapely, Gazebo Harmonic (gz.sim8/gz.math7).
+# Main runtime: Bash, Python + NumPy/Shapely, Gazebo Jetty (gz.sim10/gz.math9).
 # Analysis uses Matplotlib; MMP verification uses pygeodesic independently.
 # Python dependency versions: requirements-demo.txt and requirements-reference.txt.
 # Explicit CPU rendering. Change FUNNEL_DEMO_CASE to select another mission.

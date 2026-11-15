@@ -37,7 +37,7 @@ số lớn.
   không phải chuyển đổi, không mất gì.
 - `src/city.py` đã có reader GLB, nên bước xử lý đầu vào chỉ cần chuẩn hoá
   tên node và bổ sung `extras`, không phải viết lại bộ đọc.
-- Gazebo Harmonic dùng Assimp nên thường đọc được glTF/GLB; cần kiểm tra một
+- Gazebo (Jetty hoặc Harmonic) dùng Assimp nên thường đọc được glTF/GLB; cần kiểm tra một
   lần trước khi bỏ hẳn `city.stl`.
 
 ## 4. Vì sao OFF cho mesh dẫn xuất

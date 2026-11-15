@@ -2,7 +2,7 @@
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: NumPy (mesh arrays); Shapely (delivery geometry checks);
 # xml.etree.ElementTree, json, hashlib, argparse (Python standard library).
-# Outputs: Gazebo Harmonic SDF; local trajectory module sets motion timing.
+# Outputs: Gazebo Jetty SDF; local trajectory module sets motion timing.
 """Create a separate force-driven world from the validated Funnel preview."""
 import hashlib
 import argparse

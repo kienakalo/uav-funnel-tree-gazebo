@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
-# Main libraries: Gazebo Harmonic Python bindings (gz.sim8, gz.math7);
+# Main libraries: Gazebo Jetty Python bindings (gz.sim10, gz.math9);
 # csv, json, math, pathlib (Python stdlib); trajectory (local project module).
 """V2: smooth reference, velocity/acceleration feedforward and position feedback.
 
@@ -10,8 +10,8 @@ import csv
 import json
 import math
 from pathlib import Path
-from gz.math7 import Vector3d
-from gz.sim8 import Model, Link
+from gz.math9 import Vector3d
+from gz.sim10 import Model, Link
 from trajectory import Trajectory, control_acceleration
 
 

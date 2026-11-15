@@ -35,7 +35,7 @@ if [[ -n "$destination" ]]; then
   world_name="${world_name}_$destination"
 fi
 command -v gz >/dev/null || { echo 'Gazebo is not available in this terminal.'; exit 1; }
-/usr/bin/python3 -c 'from gz.sim8 import Model, Link; from gz.math7 import Vector3d'
+/usr/bin/python3 -c 'from gz.sim10 import Model, Link; from gz.math9 import Vector3d'
 planner_python=python3
 if [[ -x .venv/bin/python ]]; then planner_python=.venv/bin/python; fi
 prepare_options=(--case "$case_name")

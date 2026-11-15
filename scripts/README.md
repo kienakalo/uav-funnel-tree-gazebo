@@ -8,7 +8,7 @@ dùng PowerShell. Hướng dẫn từng bước của demo hiện tại nằm tr
 
 | Script | Dùng khi | Ghi chú |
 | --- | --- | --- |
-| `install_ubuntu.sh` | Cài máy mới | Chỉ Ubuntu 24.04; cài `gz-harmonic`, `python3-gz-sim8`, `python3-numpy` bằng apt |
+| `install_ubuntu.sh` | Cài máy mới | Chỉ Ubuntu 24.04; cài `gz-jetty`, `python3-gz-sim10`, `python3-gz-math9`, `python3-numpy` bằng apt |
 | `gazebo_system_python.sh` | Nội bộ | Chạy `gz` bằng Python hệ thống, tách khỏi `.venv` |
 | `run.sh [pose\|physics]` | Demo cũ `hcm_demo.sdf` | `pose` phát animation; `physics` ghi `generated/physics_telemetry.csv` |
 | `run_funnel.sh` | Xem trước tuyến đã kiểm chứng | Gửi `set_pose`, không điều khiển vật lý |
@@ -48,6 +48,27 @@ Thư mục đầu ra:
 
 `run.sh`, `run_funnel.sh` và `run_urban.sh` gọi `python3` trực tiếp để dựng
 world; chúng cần `python3-numpy` của apt.
+
+## Phiên bản Gazebo
+
+Repo dùng **Gazebo Jetty**: `gz-sim10`, `gz-math9`, gói apt `gz-jetty`,
+`python3-gz-sim10`, `python3-gz-math9`. Kiểm tra bản đang chạy:
+
+```bash
+gz sim --versions
+```
+
+Máy khác cài Harmonic (`gz-sim8`, `gz-math7`) sẽ gặp một trong các lỗi:
+
+- `ModuleNotFoundError: No module named 'gz.sim10'` khi chạy plugin hoặc
+  preflight.
+- `gz service` không thấy `/world/<tên>/set_pose` nếu trộn binary và bindings.
+- Plugin không nạp, log báo thiếu `gz-sim-python-system-loader-system`.
+
+Cách xử lý: cài Jetty theo `install_ubuntu.sh`, hoặc đổi toàn bộ import
+`gz.sim10` → `gz.sim8` và `gz.math9` → `gz.math7` trong
+`src/drone_system.py` cùng các preflight trong `scripts/`. Không trộn hai
+bản: binary `gz` và Python bindings phải cùng release.
 
 ## Thứ tự chạy
 
