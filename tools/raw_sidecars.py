@@ -6,9 +6,14 @@
 
 Sidecar naming: <file>.json, for example data/raw/meshes/L.off.json.
 
-Computed fields (sha256, bytes, counts) are always refreshed from the file.
-Curated fields (origin, license, expected, notes) are preserved from an
-existing sidecar or taken from the table below when the sidecar is new.
+All sidecars share one envelope:
+
+  schema, kind, file, format, sha256, bytes, geometry,
+  units, axis, origin, license, expected, notes
+
+Only the contents of "geometry" differ by format. Computed fields are always
+refreshed from the file; curated fields are preserved from an existing sidecar
+or taken from the table below when the sidecar is new.
 """
 import argparse
 import hashlib
@@ -28,58 +33,68 @@ CURATED = {
     'cliff.off': {
         'origin': 'first-party', 'license': 'BSD-3-Clause',
         'expected': 'data/expected/cliff.paths.json',
-        'units': 'model units', 'axis': 'as authored',
+        'axis': 'as-authored',
         'notes': 'Concave step used by the clipping checks.',
     },
     'demo_mesh.off': {
         'origin': 'first-party', 'license': 'BSD-3-Clause',
         'expected': 'data/expected/demo_mesh.paths.json',
-        'units': 'model units', 'axis': 'as authored',
+        'axis': 'as-authored',
         'notes': 'Imported demo mesh with high-precision coordinates.',
     },
     'J17.off': {
         'origin': 'first-party', 'license': 'BSD-3-Clause',
         'expected': 'data/expected/J17.paths.json',
-        'units': 'model units', 'axis': 'as authored', 'notes': '',
+        'axis': 'as-authored', 'notes': '',
     },
     'L.off': {
         'origin': 'first-party', 'license': 'BSD-3-Clause',
         'expected': 'data/expected/L.paths.json',
-        'units': 'model units', 'axis': 'as authored',
+        'axis': 'as-authored',
         'notes': 'L-shaped surface with a concave edge.',
     },
     'star.off': {
         'origin': 'first-party', 'license': 'BSD-3-Clause',
         'expected': 'data/expected/star.paths.json',
-        'units': 'model units', 'axis': 'as authored',
+        'axis': 'as-authored',
         'notes': 'Reference data covers source 0 only.',
     },
     'cube.off': {
         'origin': 'paper-derived', 'license': 'BSD-3-Clause', 'expected': None,
-        'units': 'model units', 'axis': 'as authored',
+        'axis': 'as-authored',
         'notes': 'Constructed from the original Funnel Tree paper idea; geometry checks only.',
     },
     'dome.off': {
         'origin': 'paper-derived', 'license': 'BSD-3-Clause', 'expected': None,
-        'units': 'model units', 'axis': 'as authored',
-        'notes': 'Constructed from the original Funnel Tree paper idea; geometry checks only.',
+        'axis': 'Z-up',
+        'notes': 'Dome cap; z is elevation. Constructed from the original paper idea.',
     },
     'icosahedron.off': {
         'origin': 'paper-derived', 'license': 'BSD-3-Clause', 'expected': None,
-        'units': 'model units', 'axis': 'as authored',
+        'axis': 'as-authored',
         'notes': 'Constructed from the original Funnel Tree paper idea; geometry checks only.',
     },
     'terrain.off': {
         'origin': 'paper-derived', 'license': 'BSD-3-Clause', 'expected': None,
-        'units': 'model units', 'axis': 'as authored',
-        'notes': 'Constructed from the original Funnel Tree paper idea; geometry checks only.',
+        'axis': 'Z-up',
+        'notes': 'Height field; z is elevation. Constructed from the original paper idea.',
     },
 }
 
 CITY = {
     'origin': 'third-party', 'license': 'CC-BY-4.0',
-    'expected': None, 'units': 'original model units', 'axis': 'Y-up (glTF)',
+    'expected': None, 'axis': 'Y-up',
     'notes': 'Saigon 3D City asset; see ATTRIBUTION.md.',
+}
+
+AXIS_ALIASES = {
+    'as authored': 'as-authored',
+    'as-authored': 'as-authored',
+    'y-up': 'Y-up',
+    'Y-up (glTF)': 'Y-up',
+    'Y-up': 'Y-up',
+    'z-up': 'Z-up',
+    'Z-up': 'Z-up',
 }
 
 
@@ -90,10 +105,12 @@ def describe_off(path):
     _, _, declared_edges = map(int, header.split())
     return {
         'format': 'OFF',
-        'vertices': len(mesh.points),
-        'faces': len(mesh.faces),
-        'declared_edges': declared_edges,
-        'computed_edges': len(mesh.edge_faces),
+        'geometry': {
+            'vertices': len(mesh.points),
+            'triangles': len(mesh.faces),
+            'declared_edges': declared_edges,
+            'computed_edges': len(mesh.edge_faces),
+        },
     }
 
 
@@ -109,17 +126,25 @@ def describe_glb(path):
         offset += 8 + size
     document = json.loads(chunks[0x4E4F534A])
     triangles = 0
+    vertices = 0
     for mesh in document['meshes']:
         for primitive in mesh['primitives']:
             accessor = primitive.get('indices')
+            position = primitive['attributes']['POSITION']
+            vertices += document['accessors'][position]['count']
             if accessor is None:
-                accessor = primitive['attributes']['POSITION']
-            triangles += document['accessors'][accessor]['count'] // 3
+                accessor = position
+                triangles += document['accessors'][accessor]['count'] // 3
+            else:
+                triangles += document['accessors'][accessor]['count'] // 3
     return {
         'format': 'GLB2',
-        'nodes': len(document.get('nodes', [])),
-        'meshes': len(document.get('meshes', [])),
-        'triangles': triangles,
+        'geometry': {
+            'vertices': vertices,
+            'triangles': triangles,
+            'nodes': len(document.get('nodes', [])),
+            'meshes': len(document.get('meshes', [])),
+        },
     }
 
 
@@ -131,26 +156,30 @@ def expected_payload(path, current):
     name = path.name
     curated = dict(CURATED.get(name, CITY))
     if current:
-        for key in ('origin', 'license', 'expected', 'units', 'axis', 'notes'):
+        for key in ('origin', 'license', 'expected', 'notes'):
             if key in current:
                 curated[key] = current[key]
-    payload = {'schema': 1, 'file': name}
-    payload.update(describe_glb(path) if path.suffix == '.glb' else describe_off(path))
+    payload = {'schema': 1, 'kind': 'raw-asset', 'file': name}
+    described = describe_glb(path) if path.suffix == '.glb' else describe_off(path)
+    payload['format'] = described['format']
+    payload['sha256'] = hashlib.sha256(path.read_bytes()).hexdigest()
+    payload['bytes'] = path.stat().st_size
+    payload['geometry'] = described['geometry']
     payload.update({
-        'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
-        'bytes': path.stat().st_size,
+        'units': 'model-units',
+        'axis': AXIS_ALIASES.get(curated['axis'], curated['axis']),
         'origin': curated['origin'],
         'license': curated['license'],
         'expected': curated['expected'],
-        'units': curated['units'],
-        'axis': curated['axis'],
         'notes': curated['notes'],
     })
     return payload
 
 
-def raw_files():
-    return sorted(RAW_MESHES.glob('*.off')) + sorted(RAW_SCENES.glob('*.glb'))
+def raw_files(root=ROOT):
+    root = Path(root)
+    return sorted((root / 'data/raw/meshes').glob('*.off')) + \
+        sorted((root / 'data/raw/scenes').glob('*.glb'))
 
 
 def write_all():
@@ -167,8 +196,7 @@ def write_all():
 def check_all(root=ROOT):
     root = Path(root)
     problems = []
-    files = sorted((root / 'data/raw/meshes').glob('*.off')) + \
-        sorted((root / 'data/raw/scenes').glob('*.glb'))
+    files = raw_files(root)
     for path in files:
         target = path.with_name(path.name + '.json')
         if not target.is_file():

@@ -1,17 +1,20 @@
 {
   "schema": 1,
+  "kind": "raw-asset",
   "file": "terrain.off",
   "format": "OFF",
-  "vertices": 49,
-  "faces": 72,
-  "declared_edges": 108,
-  "computed_edges": 120,
   "sha256": "7a6cc43c45bdf57c3fdcd7849cec1a5b8e9a02e72bf5f15e985781fac5f4c3d1",
   "bytes": 2115,
+  "geometry": {
+    "vertices": 49,
+    "triangles": 72,
+    "declared_edges": 108,
+    "computed_edges": 120
+  },
+  "units": "model-units",
+  "axis": "Z-up",
   "origin": "paper-derived",
   "license": "BSD-3-Clause",
   "expected": null,
-  "units": "model units",
-  "axis": "as authored",
   "notes": "Constructed from the original Funnel Tree paper idea; geometry checks only."
 }

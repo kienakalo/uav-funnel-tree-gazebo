@@ -17,7 +17,7 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('mesh',nargs='?',default='cliff');p.add_argument('--source',type=int,default=1)
     p.add_argument('--timeout',type=float,default=20);p.add_argument('--no-clip',action='store_true');args=p.parse_args()
     mesh_path=Path(args.mesh)
-    if not mesh_path.exists():mesh_path=ROOT/'data/raw/meshes'/(args.mesh.removesuffix('.off')+'.off')
+    if not mesh_path.exists():mesh_path=ROOT/'data/processed/meshes'/(args.mesh.removesuffix('.off')+'.off')
     paths,stats=solve(read_off(mesh_path),args.source,timeout=args.timeout,clipping=not args.no_clip)
     out=ROOT/'generated';out.mkdir(exist_ok=True)
     stem=f'{mesh_path.stem}_s{args.source}'

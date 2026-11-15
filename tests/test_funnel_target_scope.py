@@ -14,7 +14,7 @@ from funnel_tree import propagate, reconstruct
 
 
 for name in ("cliff", "L", "star"):
-    mesh = read_off(ROOT / f"data/raw/meshes/{name}.off")
+    mesh = read_off(ROOT / f"data/processed/meshes/{name}.off")
     source = 1
     full, _, full_stats = propagate(mesh, source, time.monotonic() + 10, 200000)
     for goal in range(len(mesh.points)):

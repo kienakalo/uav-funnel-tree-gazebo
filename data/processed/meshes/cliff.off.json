@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "kind": "processed-asset",
+  "file": "cliff.off",
+  "format": "OFF",
+  "sha256": "d4c9c65ad0fd6c64b4e5ae3e70a034d4761d093d02f431159fabf345fb914f75",
+  "bytes": 155,
+  "geometry": {
+    "vertices": 7,
+    "triangles": 10,
+    "declared_edges": 15,
+    "computed_edges": 15
+  },
+  "units": "model-units",
+  "axis": "as-authored",
+  "origin": "first-party",
+  "license": "BSD-3-Clause",
+  "expected": "data/expected/cliff.paths.json",
+  "notes": "Concave step used by the clipping checks.",
+  "source": {
+    "file": "data/raw/meshes/cliff.off",
+    "sha256": "d4c9c65ad0fd6c64b4e5ae3e70a034d4761d093d02f431159fabf345fb914f75"
+  }
+}

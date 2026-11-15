@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "kind": "processed-asset",
+  "file": "dome.off",
+  "format": "OFF",
+  "sha256": "b98c4160b730cf6b88b57f0453dc7cecc67c080d5e18636cd06727217560d63a",
+  "bytes": 1095,
+  "geometry": {
+    "vertices": 25,
+    "triangles": 40,
+    "declared_edges": 60,
+    "computed_edges": 64
+  },
+  "units": "model-units",
+  "axis": "Z-up",
+  "origin": "paper-derived",
+  "license": "BSD-3-Clause",
+  "expected": null,
+  "notes": "Constructed from the original Funnel Tree paper idea; geometry checks only.",
+  "source": {
+    "file": "data/raw/meshes/dome.off",
+    "sha256": "b98c4160b730cf6b88b57f0453dc7cecc67c080d5e18636cd06727217560d63a"
+  }
+}

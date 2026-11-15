@@ -1,10 +1,11 @@
 # Dữ liệu đã xử lý
 
-Thư mục này chứa sản phẩm của ba quy trình, không sửa tay. Đầu vào nằm ở
-[`data/raw/`](../raw/).
+Thư mục này chứa đầu vào đã xử lý cho thuật toán và mô phỏng, không sửa tay.
+Nguồn nằm ở [`data/raw/`](../raw/).
 
-| Tệp | Quy trình | Công cụ |
+| Tệp | Bước | Công cụ |
 | --- | --- | --- |
+| `meshes/*.off` + `*.off.json` | Pass-through (validate + copy) | `tools/copy_meshes.py` |
 | `scenes/city.standardized.glb` | Standardize | `tools/standardize.py` |
 | `scenes/meshes/*.off2glb.glb` | OFF → GLB cho Gazebo | `tools/off2glb.py` |
 | `meshes/city.triangulation.off` | Tam giác phân bề mặt | `tools/triangulation.py` |
@@ -16,10 +17,15 @@ Bề mặt hiện dùng ô 5, khe hở dọc 1,5 và dự phòng ngang 1,6.
 ## Chạy
 
 ```bash
+python3 tools/raw_sidecars.py --write
+python3 tools/copy_meshes.py --write
 python3 tools/standardize.py
 python3 tools/off2glb.py
 .venv/bin/python tools/triangulation.py
 ```
+
+`check.py`, `plan.py` và `tests/` đọc fixture từ `data/processed/meshes/`,
+không đọc thẳng `data/raw/`.
 
 `triangulation.py` cần Shapely và dùng STL chuẩn
 `generated/funnel_preview/city.stl` (cùng hệ với `horizontal_plan.json`).

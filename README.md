@@ -385,17 +385,19 @@ chạy Funnel.
 Migration đã áp dụng: mesh dùng `.off`, đường đi dùng `.paths.json`; toàn bộ
 dấu vân tay trong `generated/` đã được tính lại.
 
-### Ba quy trình dữ liệu
+### Bốn bước dữ liệu
 
-| Quy trình | Công cụ | Đầu vào → đầu ra |
+| Bước | Công cụ | Đầu vào → đầu ra |
 | --- | --- | --- |
+| Pass-through (validate + copy) | `tools/copy_meshes.py` | `data/raw/meshes/*.off` → `data/processed/meshes/*.off` |
 | Standardize | `tools/standardize.py` | `data/raw/scenes/city.glb` → `data/processed/scenes/city.standardized.glb` |
 | OFF → GLB cho Gazebo | `tools/off2glb.py` | `data/raw/meshes/*.off` → `data/processed/scenes/meshes/*.off2glb.glb` |
 | Tam giác phân bề mặt | `tools/triangulation.py` | `city.standardized.glb` + delivery plan → `data/processed/meshes/city.triangulation.off` |
 
 Gazebo **không** tự xoay glTF từ Y-up sang Z-up; nguồn Y-up phải được bake
-`(x, y, z) → (x, -z, y)`. Fixture `.off` của repo đã dùng Z-up nên `.off2glb.glb`
-giữ nguyên toạ độ. Xem [data/processed/README.md](data/processed/README.md).
+`(x, y, z) → (x, -z, y)`. Trục của từng fixture ghi trong sidecar `axis`; cờ
+`--to-z-up` dùng cho nguồn Y-up. Xem
+[data/processed/README.md](data/processed/README.md).
 
 ## Cấu trúc thư mục
 
@@ -423,7 +425,7 @@ uav-funnel-tree-gazebo/
 │   │   └── meshes/*.off       # Chín mesh mẫu do nhóm tạo
 │   ├── processed/
 │   │   ├── scenes/            # Scene chuẩn hoá (Y-up) + .off2glb.glb cho Gazebo
-│   │   └── meshes/            # Bề mặt dẫn đường .off + manifest
+│   │   └── meshes/            # Fixture .off đã validate + bề mặt + manifest
 │   └── expected/              # Đường đi tham chiếu .paths.json
 ├── docs/
 │   ├── data-format.md         # Định hướng GLB/OFF và kế hoạch chuyển đổi

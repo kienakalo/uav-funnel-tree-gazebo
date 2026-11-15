@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "kind": "processed-asset",
+  "file": "cube.off",
+  "format": "OFF",
+  "sha256": "6b844f3cd49ee6ba473f01dea6e12caa82363181c557aad5dd89acc9c3db63a0",
+  "bytes": 156,
+  "geometry": {
+    "vertices": 8,
+    "triangles": 12,
+    "declared_edges": 18,
+    "computed_edges": 18
+  },
+  "units": "model-units",
+  "axis": "as-authored",
+  "origin": "paper-derived",
+  "license": "BSD-3-Clause",
+  "expected": null,
+  "notes": "Constructed from the original Funnel Tree paper idea; geometry checks only.",
+  "source": {
+    "file": "data/raw/meshes/cube.off",
+    "sha256": "6b844f3cd49ee6ba473f01dea6e12caa82363181c557aad5dd89acc9c3db63a0"
+  }
+}

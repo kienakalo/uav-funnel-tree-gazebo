@@ -13,6 +13,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
+import copy_meshes
 import raw_sidecars
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -24,6 +25,7 @@ def sha(path):
 
 def main():
     raw_sidecars.check_all(ROOT)
+    copy_meshes.check_all(ROOT)
     artifacts={}
     def read(relative):
         path=ROOT/relative

@@ -1,6 +1,6 @@
 {
   "scope": "all first-party Python files at repository root, src, tools, tests; scripts/*.sh; excludes generated outputs, environments and third-party assets",
-  "source_file_count": 73,
+  "source_file_count": 74,
   "changed_source_count": 56,
   "python_ast_preserved": true,
   "algorithm_or_simulation_rerun": false,
@@ -15,13 +15,13 @@
     {
       "path": "check.py",
       "old_sha256": "9562fd65c1a9ac2555318f306825b1f04322f3da5707728530e08ee22f729d86",
-      "new_sha256": "7587a4c009f8be56c882d5bc8ca6618966c3ecef50ab0509f7a39db3bdf93cfb",
+      "new_sha256": "24b03d2d81fc6f115e5707c9c0be6f74210f5c115e2f350980f5410b54ebca93",
       "python_ast_unchanged": true
     },
     {
       "path": "plan.py",
       "old_sha256": "1f739306e3c88a45f170c2477ff6b333561fc6e6b18498008966148937a481b1",
-      "new_sha256": "36a753fe92b0ccf95aa0486b5c9187f8bf71fa99d12b2cf4acb8144326caa76e",
+      "new_sha256": "204c4cc86dbb5bec6d4e146b6339c887553c3a24e5bed9c0a3fc2eeabf857c2d",
       "python_ast_unchanged": true
     },
     {
@@ -333,7 +333,7 @@
     {
       "path": "tools/verify_project_results.py",
       "old_sha256": "bc7367389f50f06abe6c3f4c63fbe815a4b2efde7ece46d669160c26d7e967b9",
-      "new_sha256": "6bfd02b63bf6ea836e4a3f470104cf1be103cb7e74955f62d205bf3a1b528fab",
+      "new_sha256": "31e429c2c3b67290cca002b0affdd1b0a13abd16a1ce353877a31dbf50c2df5d",
       "python_ast_unchanged": true
     },
     {
@@ -345,7 +345,7 @@
     {
       "path": "tests/test_funnel_target_scope.py",
       "old_sha256": "9926eb742329c1258ce221c8c19691d328b31e946b01b0465601f0fe6170f469",
-      "new_sha256": "16b1f7fa985bca9e29b60a5bbd2f3109b82611e30ebf3cd6ff6858d0f10af19d",
+      "new_sha256": "6d94928c500435c709377589d7b6ab27e6fc4095c11a420c3c8e403afcbdcac7",
       "python_ast_unchanged": true
     },
     {
@@ -433,7 +433,7 @@
     {
       "path": "tools/off2glb.py",
       "old_sha256": null,
-      "new_sha256": "6a508d783b6d7ef599a977c9aa5f4f08c5fc4b20acecd9281211cce2c0f4a459",
+      "new_sha256": "f38ec93d64fde9739a0165f7765ed7e8332b4cb5a92cb7116c4828bb2f6bc2c4",
       "python_ast_unchanged": true,
       "note": "added with the data pipeline"
     },
@@ -447,9 +447,16 @@
     {
       "path": "tools/raw_sidecars.py",
       "old_sha256": null,
-      "new_sha256": "84c4535651dc27b06272703eb61efd14c563dab4df6fcfe551e756077bc0ee10",
+      "new_sha256": "c47004455dd76ff231dc64881fc5c80665b30003afd3c544b5d26542e2f152e5",
       "python_ast_unchanged": true,
       "note": "added with raw sidecar metadata"
+    },
+    {
+      "path": "tools/copy_meshes.py",
+      "old_sha256": null,
+      "new_sha256": "1d21bbefaf1ad094e14cc3e420778be4c3e219f8bc2a39f8225ffd93c50a5df0",
+      "python_ast_unchanged": true,
+      "note": "added with the processed mesh pass-through"
     }
   ],
   "metadata_updated": [
@@ -509,5 +516,6 @@
   "gazebo_release": "Jetty (gz-sim10, gz-math9)",
   "gazebo_migration": "Migrated scripts, plugin imports and documentation from Gazebo Harmonic (gz.sim8, gz.math7) to Gazebo Jetty (gz.sim10, gz.math9). No simulation was rerun in this environment; the recorded results remain those produced with Harmonic.",
   "data_pipeline": "data/raw holds the untouched sources. tools/standardize.py writes a standardized Y-up scene, tools/off2glb.py converts fixtures to Z-up GLB for Gazebo, and tools/triangulation.py builds the navigation surface. The standardized scene is a derived cache and is not committed.",
-  "raw_sidecars": "Each file under data/raw has a <file>.json sidecar with hash, counts, origin, license and expected reference."
+  "raw_sidecars": "Each file under data/raw has a <file>.json sidecar with hash, counts, origin, license and expected reference.",
+  "data_layout": "raw/ holds untouched sources with per-file sidecars; processed/ holds validated fixture copies, the standardized scene, Gazebo GLB conversions and the triangulated surface."
 }
