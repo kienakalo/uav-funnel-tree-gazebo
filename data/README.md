@@ -32,12 +32,11 @@ city.standardized.glb + delivery plan
 | `.standardized.glb` | Scene đã chuẩn hoá: bake transform, đổi tên node, bỏ material/texture, ghi provenance vào `extras` | `city.standardized.glb` |
 | `.off2glb.glb` | Kết quả chuyển một fixture `.off` sang GLB cho Gazebo; toạ độ giữ nguyên, xem `axis` | `terrain.off2glb.glb` |
 | `.triangulation.off` | Bề mặt dẫn đường đã tam giác phân, hệ Gazebo đã chuẩn hoá, Z-up | `city.triangulation.off` |
-| `.triangulation.json` | Manifest tham số và nguồn của bề mặt | `city.triangulation.json` |
 | `.paths.json` | Đường đi tham chiếu cho kiểm thử | `L.paths.json` |
 | `.off`, `.glb` (không hậu tố) | Nguồn chưa qua xử lý | `L.off`, `city.glb` |
 
 Hậu tố mô tả **bước đã qua**, không dùng các từ chung chung như `_final` hay
-`_new`. Tham số tam giác phân không nằm trong tên tệp mà nằm trong manifest.
+`_new`. Tham số tam giác phân nằm trong `processed/README.md`.
 
 ## Thông tin từng tệp
 
@@ -59,24 +58,14 @@ tệp; phần kiểm tra toàn vẹn kết quả nằm trong `tools/verify_proje
 | `raw/meshes/icosahedron.off` | paper-derived | BSD-3-Clause | as-authored | — |
 | `raw/meshes/terrain.off` | paper-derived | BSD-3-Clause | Z-up | — |
 
-## Manifest của bước tam giác phân
+## Tham số của bề mặt
 
-`processed/meshes/city.triangulation.json` là manifest của **quá trình** sinh
-ra `city.triangulation.off`:
-
-| Trường | Ý nghĩa |
-| --- | --- |
-| `process`, `method` | Tên bước và cách dựng bề mặt |
-| `parameters` | `cell`, `coverage`, `vertical_clearance`, `horizontal_half_width`, `max_axis_slope` |
-| `scene` | Scene đầu vào, hash, `scale`, `origin` |
-| `stl` | STL chuẩn đã dùng, hash, `mode` (canonical hoặc dựng lại từ scene) |
-| `plan` | Kế hoạch giao hàng, hash, START/GOAL |
-| `result` | Số đỉnh/mặt/cạnh, `surface_source`, `surface_target`, `nonmanifold_edges` |
-| `coordinates` | Hệ toạ độ: Gazebo đã chuẩn hoá, Z-up |
-| `scope` | Bề mặt bao an toàn phía trên thành phố, không phải mái nhà |
-
-Vì tham số quyết định hình học, công cụ dừng nếu chạy lại với tham số khác mà
-tệp đích đã tồn tại; dùng `--force` để ghi đè có chủ đích.
+`processed/meshes/city.triangulation.off` được dựng với ô 5, phủ toàn thành
+phố, khe hở dọc 1,5, dự phòng ngang 1,6 và độ dốc tối đa 0,5. Bảng tham số
+đầy đủ nằm trong
+[processed/README.md](processed/README.md). Không có file metadata đi kèm;
+`tools/triangulation.py` in tham số ra console và yêu cầu `--force` nếu tệp
+đích đã tồn tại.
 
 ## Định dạng `.off`
 
@@ -136,5 +125,5 @@ cận dưới Euclid và cận trên, không so sánh với dữ liệu tham chi
 - Muốn thêm mesh: thêm `raw/meshes/<tên>.off`, thêm dòng vào bảng
   *Thông tin từng tệp*, chạy `python3 tools/copy_meshes.py --write`, rồi cập
   nhật `check.py`.
-- Muốn thêm bề mặt khác: chạy `tools/triangulation.py --cell ... --output ...`;
-  manifest sẽ ghi tham số tương ứng.
+- Muốn thêm bề mặt khác: chạy `tools/triangulation.py --cell ... --output ...
+  --force`; tham số được in ra console và nên ghi vào `processed/README.md`.

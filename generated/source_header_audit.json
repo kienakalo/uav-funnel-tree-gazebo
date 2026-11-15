@@ -440,7 +440,7 @@
     {
       "path": "tools/triangulation.py",
       "old_sha256": null,
-      "new_sha256": "5ae6e8e76ea5dbc40504105bf514cd0e452e04c8b76b368767525e2644c3ea44",
+      "new_sha256": "da28396d793e9d535e33818555653605a23a64afd1a9efb570c1c9050543e0fc",
       "python_ast_unchanged": true,
       "note": "added with the data pipeline"
     },

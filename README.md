@@ -425,7 +425,7 @@ uav-funnel-tree-gazebo/
 │   │   └── meshes/*.off       # Chín mesh mẫu do nhóm tạo
 │   ├── processed/
 │   │   ├── scenes/            # Scene chuẩn hoá (Y-up) + .off2glb.glb cho Gazebo
-│   │   └── meshes/            # Fixture .off đã validate + bề mặt + manifest
+│   │   └── meshes/            # Fixture .off đã validate + bề mặt dẫn đường
 │   └── expected/              # Đường đi tham chiếu .paths.json
 ├── docs/
 │   ├── data-format.md         # Định hướng GLB/OFF và kế hoạch chuyển đổi

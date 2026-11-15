@@ -9,10 +9,9 @@ Nguồn nằm ở [`data/raw/`](../raw/).
 | `scenes/city.standardized.glb` | Standardize | `tools/standardize.py` |
 | `scenes/meshes/*.off2glb.glb` | OFF → GLB cho Gazebo | `tools/off2glb.py` |
 | `meshes/city.triangulation.off` | Tam giác phân bề mặt | `tools/triangulation.py` |
-| `meshes/city.triangulation.json` | Tham số, hash nguồn và thống kê bề mặt | `tools/triangulation.py` |
 
-Tên file theo quy trình; tham số tam giác phân nằm trong tệp `.json` đi kèm.
-Bề mặt hiện dùng ô 5, khe hở dọc 1,5 và dự phòng ngang 1,6.
+Tên file theo quy trình. Không có file metadata đi kèm; tham số được ghi ở
+dưới và in ra khi chạy tool.
 
 ## Chạy
 
@@ -20,17 +19,31 @@ Bề mặt hiện dùng ô 5, khe hở dọc 1,5 và dự phòng ngang 1,6.
 python3 tools/copy_meshes.py --write
 python3 tools/standardize.py
 python3 tools/off2glb.py
-.venv/bin/python tools/triangulation.py
+.venv/bin/python tools/triangulation.py --force
 ```
 
 `check.py`, `plan.py` và `tests/` đọc fixture từ `data/processed/meshes/`,
 không đọc thẳng `data/raw/`.
 
-`triangulation.py` cần Shapely và dùng STL chuẩn
-`generated/funnel_preview/city.stl` (cùng hệ với `horizontal_plan.json`).
-Thêm `--from-scene` nếu muốn dựng lại STL từ scene; khi đó bề mặt có thể lệch
-khoảng 1e-6 do scene lưu float32 và bị chuẩn hoá lại. Nếu chạy với tham số
-khác mà tệp đích đã tồn tại, tool dừng và yêu cầu `--force`.
+Thêm `--force` khi ghi đè bề mặt đã có; nếu không, tool dừng. `triangulation.py`
+cần Shapely và dùng STL chuẩn `generated/funnel_preview/city.stl` (cùng hệ với
+`horizontal_plan.json`). Thêm `--from-scene` nếu muốn dựng lại STL từ scene;
+khi đó bề mặt có thể lệch khoảng 1e-6 do scene lưu float32 và bị chuẩn hoá lại.
+
+## Tham số bề mặt hiện tại
+
+| Tham số | Giá trị |
+| --- | --- |
+| Cell | 5 |
+| Coverage | `city` |
+| Vertical clearance | 1,5 |
+| Horizontal half width | 1,6 |
+| Max axis slope | 0,5 |
+| STL đầu vào | `generated/funnel_preview/city.stl` |
+| Kết quả | 2.295 đỉnh, 4.400 tam giác, 6.694 cạnh |
+
+Tham số được in ra console mỗi lần chạy. Không có file metadata đi kèm; muốn
+tái lập thì dùng đúng lệnh và tham số ở trên.
 
 ## Trục toạ độ
 
@@ -48,5 +61,5 @@ khác mà tệp đích đã tồn tại, tool dừng và yêu cầu `--force`.
 - `scenes/city.standardized.glb`: **không commit** (khoảng 6 MB, sinh lại
   được từ `data/raw/scenes/city.glb`).
 - `scenes/meshes/*.off2glb.glb`: commit, mỗi file vài KB.
-- `meshes/city.triangulation.off` và manifest: commit, đây là đầu vào thuật
-  toán và có hash trong kết quả thí nghiệm.
+- `meshes/city.triangulation.off`: commit, đây là đầu vào thuật toán và có
+  hash trong kết quả thí nghiệm.
