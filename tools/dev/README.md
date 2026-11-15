@@ -14,5 +14,10 @@ Một số công cụ khảo sát cũ dùng `trimesh` và đường dẫn
 hoặc điều chỉnh biến `CITY` theo dữ liệu khảo sát. Không cần chạy các công
 cụ này để mở demo bám bề mặt.
 
+Phụ thuộc của nhóm này nằm trong `requirements-dev.txt`: các gói của demo
+cộng thêm `trimesh`. Cài bằng
+`.venv/bin/python -m pip install -r requirements-dev.txt` nếu cần chạy lại
+các công cụ khảo sát.
+
 `tools/inspect_flight_levels_fixed.py` vẫn ở thư mục cha vì được các bước
 dựng bản đồ và phân tích sử dụng như một module.
