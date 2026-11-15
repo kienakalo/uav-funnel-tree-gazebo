@@ -50,6 +50,6 @@ UAV. Giao tuyến vỏ công trình có thể không kín do asset; chưa phải
 
 Script dùng NumPy để đọc các primitive GLB2 không nén của asset hiện tại.
 Không đổi tỉ lệ, không weld/làm sạch lưới, không cài đặt thêm và không chạy
-Gazebo. Đã kiểm tra kết quả so với phép tính độc lập qua bộ nạp bản đồ của
-demo. `reference_fixed.json` lưu số liệu tham chiếu của mô hình `city.glb`.
+Gazebo. Kết quả khảo sát được xuất vào các tệp CSV và
+`generated/flight_levels_fixed_metadata.json` đã liệt kê ở trên.
 Dữ liệu bay được ghi riêng trong telemetry của Gazebo.

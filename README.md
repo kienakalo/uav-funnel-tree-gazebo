@@ -288,8 +288,6 @@ uav-funnel-tree-gazebo/
 ├── plan.py                    # Chạy Funnel Tree trên các mesh .geom mẫu
 ├── prepare.py                 # Tạo world Gazebo, STL thành phố, lưới bay và route
 ├── prepare_urban.py           # Dựng nhiệm vụ đô thị thấp, tránh vật cản
-├── offline_validation.json    # Kết quả tích phân số ngoài Gazebo
-├── reference_fixed.json       # Số liệu tham chiếu mặt cắt Y = 2
 ├── data/
 │   ├── source/                # Mô hình thành phố gốc của bên thứ ba (CC BY 4.0)
 │   │   └── city.glb

@@ -74,11 +74,8 @@ của chuyển động thật giữa hai mẫu đều không va chạm. Không c
 - Mặt mở hình L có đường ngắn nhất phải đi qua góc lõm, so với đáp án giải tích.
 - Tuyến đô thị nằm trên hành lang; đường trực tiếp bị cản; các đoạn kế hoạch
   không cắt hộp công trình đã mở rộng.
-- Tích phân số khối điểm với bộ điều khiển V2; xem
-  `offline_urban_validation.json`.
 - Kiểm tra tạo world và cú pháp Python/shell.
 
-Kết quả tích phân ngoại tuyến được lưu trong `offline_urban_validation.json`.
 Các chỉ số của từng lượt Gazebo được tính từ telemetry của lượt đó.
 
 ## Khác biệt với mục tiêu nghiên cứu cuối
