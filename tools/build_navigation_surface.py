@@ -102,8 +102,9 @@ def inspect_mesh(points,faces):
         'degenerate_triangles':int((areas<=1e-12).sum()),'area':float(areas.sum())}
 
 
-def write_geom(path,points,faces,edges):
+def write_off(path,points,faces,edges):
     with path.open('w') as f:
+        f.write('OFF\n')
         f.write(f'{len(points)} {len(faces)} {edges}\n')
         for p in points:f.write(' '.join(f'{x:.17g}' for x in p)+'\n')
         for face in faces:f.write('3 '+' '.join(map(str,face))+'\n')
@@ -160,7 +161,7 @@ def main():
         'sha256':hashlib.sha256(city.read_bytes()).hexdigest(),
         'method':'upper-triangle X/Z AABB columns expanded in X/Z; raster free whole cells; largest edge-connected component',
         'status':'static conservative surface only; no route or city-global optimum certified'}
-    write_geom(args.out/(prefix+'.geom'),points,faces,stats['edges'])
+    write_off(args.out/(prefix+'.off'),points,faces,stats['edges'])
     (args.out/(prefix+'_report.json')).write_text(json.dumps(report,indent=2)+'\n')
     np.savez_compressed(args.out/(prefix+'_grid.npz'),blocked=blocked,free=free,labels=labels,origin=origin,cell=args.cell,component=best)
     import matplotlib
@@ -181,7 +182,7 @@ def main():
     for key in ['height','horizontal_clearance','vertical_clearance','cell_size','upper_triangles','free_components','largest_component_cells','conservatively_removed_point_contact_cells','all_retained_cells_clear_of_inflated_boxes']:
         print(key+':',report[key])
     for key,value in stats.items():print(key+':',value)
-    print('Saved:',args.out/(prefix+'.geom'));print('Saved:',args.out/(prefix+'.png'))
+    print('Saved:',args.out/(prefix+'.off'));print('Saved:',args.out/(prefix+'.png'))
     print('No Funnel Tree run or Gazebo route change performed.')
 
 

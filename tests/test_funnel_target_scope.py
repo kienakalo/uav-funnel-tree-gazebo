@@ -9,12 +9,12 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from mesh import read_geom
+from mesh import read_off
 from funnel_tree import propagate, reconstruct
 
 
 for name in ("cliff", "L", "star"):
-    mesh = read_geom(ROOT / f"data/input/{name}.geom")
+    mesh = read_off(ROOT / f"data/input/{name}.off")
     source = 1
     full, _, full_stats = propagate(mesh, source, time.monotonic() + 10, 200000)
     for goal in range(len(mesh.points)):

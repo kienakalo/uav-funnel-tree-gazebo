@@ -21,7 +21,7 @@ from prepare_funnel_physics import ROOT, CITY_STL_RECORD, benchmark_route
 from prepare_funnel_gazebo import simplify
 from run_funnel_benchmark import verify
 from run_funnel_route import candidate_route, write_json
-from mesh import Mesh, Point, read_geom
+from mesh import Mesh, Point, read_off
 from funnel_tree import propagate, reconstruct
 
 OUT = ROOT / 'generated/funnel_physics/delivery'
@@ -29,7 +29,7 @@ OUT = ROOT / 'generated/funnel_physics/delivery'
 
 def recorded_mesh(manifest):
     """Rebuild recorded face splits without reselecting tied nearest faces."""
-    base = read_geom(ROOT / 'generated/funnel_input_y2p00.geom')
+    base = read_off(ROOT / 'generated/funnel_input_y2p00.off')
     vertices = [(p.x, p.y, p.z) for p in base.points]
     centres = np.array(vertices)[np.array(base.faces)].mean(axis=1)
     endpoints = {}
@@ -158,7 +158,7 @@ def main():
     print(f'Farthest checked delivery site: {selected["distance"]:.2f} from START', flush=True)
     points, chain, stats = plan_route(mesh, source, selected['vertex'], cache)
     waypoints = (np.array(points)[:, [0, 2, 1]] * [1, -1, 1] - origin) * scale
-    inputs = ('generated/funnel_input_y2p00.geom', 'generated/funnel_preview/city.stl',
+    inputs = ('generated/funnel_input_y2p00.off', 'generated/funnel_preview/city.stl',
               'generated/funnel_preview/route.json', 'src/funnel_tree.py', 'src/mesh.py',
               'tools/run_funnel_benchmark.py', 'tools/plan_funnel_delivery.py',
               'generated/funnel_benchmark/cases.json', 'generated/funnel_benchmark/source_cache.json')

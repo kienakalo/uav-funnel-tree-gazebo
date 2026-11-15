@@ -14,11 +14,11 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from mesh import read_geom
+from mesh import read_off
 
 
 def main():
-    mesh = read_geom(ROOT / "generated/funnel_input_y2p00.geom")
+    mesh = read_off(ROOT / "generated/funnel_input_y2p00.off")
     route = json.loads((ROOT / "generated/funnel_route_candidate_y2p00.json").read_text())
     vertices = np.array([(p.x, p.z) for p in mesh.points])
     triangles = vertices[np.array(mesh.faces)]

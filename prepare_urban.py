@@ -23,7 +23,8 @@ def main():
            'altitude':report['altitude'],'planner':report['optimality_scope'],'length':report['length'],'urban_report':'urban_report.json'}
     (out/'route.json').write_text(json.dumps(route,indent=2)+'\n')
     (out/'urban_report.json').write_text(json.dumps(report,indent=2)+'\n')
-    with (out/'flight_surface.geom').open('w') as f:
+    with (out/'flight_surface.off').open('w') as f:
+        f.write('OFF\n')
         f.write(f'{len(mesh.points)} {len(mesh.faces)} {len(mesh.edge_faces)}\n')
         for p in mesh.points:f.write(f'{p.x} {p.y} {p.z}\n')
         for face in mesh.faces:f.write('3 '+' '.join(map(str,face))+'\n')

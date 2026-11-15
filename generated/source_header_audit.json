@@ -1,6 +1,6 @@
 {
   "scope": "all first-party Python files at repository root, src, tools, tests; scripts/*.sh; excludes generated outputs, environments and third-party assets",
-  "source_file_count": 67,
+  "source_file_count": 68,
   "changed_source_count": 56,
   "python_ast_preserved": true,
   "algorithm_or_simulation_rerun": false,
@@ -15,25 +15,25 @@
     {
       "path": "check.py",
       "old_sha256": "9562fd65c1a9ac2555318f306825b1f04322f3da5707728530e08ee22f729d86",
-      "new_sha256": "31676a267274b099316b210718542e06c5bec9ba31fbdb184ecf9457038f75b7",
+      "new_sha256": "9815a41226e7b4fb113ec56a5efee16296a9ac67e2c7aa3958d1d014f196ba28",
       "python_ast_unchanged": true
     },
     {
       "path": "plan.py",
       "old_sha256": "1f739306e3c88a45f170c2477ff6b333561fc6e6b18498008966148937a481b1",
-      "new_sha256": "4e208cade632d320413892c503a7a54589920c7aeab68fb4a2717d59c11177a7",
+      "new_sha256": "f6ae62f9a7bfddf7b633e604a303351a97da3fa01dfc24d372066b9eceaef96a",
       "python_ast_unchanged": true
     },
     {
       "path": "prepare.py",
       "old_sha256": "ad0dd3cdf970affc6bac5792bb7efbf1310de2573f72a7cd43b47a905e96279b",
-      "new_sha256": "83b4d5effa2012e4ac9dc7cf94a306559fc3320bfa72b34804d911c0e491c478",
+      "new_sha256": "c6012ffbc18faf198f8ecbe1c0801b21137448e7d4882a7e4c60210ab15ae111",
       "python_ast_unchanged": true
     },
     {
       "path": "prepare_urban.py",
       "old_sha256": "3eb8aaa699bf418a0c393a1b59bf17adbf47681504e42c64ab647c0ca6c8162a",
-      "new_sha256": "47941ac226edb8e1c87156f2f7dd431d69843f8791b7971d8ea9944a102210df",
+      "new_sha256": "31d4b19d031c8f0ffe37616c89988fa7d8831a7b79f7ef3d372c1847a754fc55",
       "python_ast_unchanged": true
     },
     {
@@ -63,7 +63,7 @@
     {
       "path": "src/mesh.py",
       "old_sha256": "41bddaf599912343a3b9063c4103a76a5420ba41ccfa78301a8adca7d73d90dc",
-      "new_sha256": "7e9bfb935682aadce8366b7bdd4b75d0881b9eb7d94c01df7087e129c6cf3fae",
+      "new_sha256": "b388492e53fbb9d653590006793822e4c434aa9784c5ae850bf161d7b828904d",
       "python_ast_unchanged": true
     },
     {
@@ -81,7 +81,7 @@
     {
       "path": "src/verification.py",
       "old_sha256": "d95b9d69ec8d77aa99972fae3b24c34ae434fc2618adef163c63921f4406742a",
-      "new_sha256": "ac9d6739f0c5921bcf055b261cd03caab5cd1dda48d1c09abf7539776f0de28a",
+      "new_sha256": "acb7f168f19864c1a37ba077c2b4d3e14ee9d14113c5e17af78ba4da506e40a6",
       "python_ast_unchanged": true
     },
     {
@@ -93,7 +93,7 @@
     {
       "path": "tools/analyze_surface_delivery.py",
       "old_sha256": "2dc2d870ebf97e294b1ae43e4c1724ea4978fa44403b5a336146fb66e5184d00",
-      "new_sha256": "81a538d6fa22a522d02f0e5407967a3530ee597ff6ee5c74e66005f5bba38958",
+      "new_sha256": "1cecebcb91164a2c0a0f55aa32d26a8805823b02170a23950fe2d1fe63c7ebfd",
       "python_ast_unchanged": true
     },
     {
@@ -117,19 +117,19 @@
     {
       "path": "tools/build_funnel_topology.py",
       "old_sha256": "5b2e629af623daeff79d3abb27c78a0ac0bc46c17ddcc1a5366d8b87a675cf7f",
-      "new_sha256": "259fb01badb2f85f08f78120fca6cb7a50aae22b442498c1ceef89b3defc5774",
+      "new_sha256": "e2af7d90af99119cea098dda4cb65a97e5918ad5bada48bff6a84a7ec474e161",
       "python_ast_unchanged": true
     },
     {
       "path": "tools/build_navigation_surface.py",
       "old_sha256": "10e1cf57e43dbbd56c8f9cc66a30ce1291f2580b2342245015c1afe72a1a253c",
-      "new_sha256": "fc2851d3581f00022dc48cdb0e3f7ab6cbd61985db3d86b4907bbcf9647e506b",
+      "new_sha256": "cddc37579bfb65888b2506ff876a4b1a668dc47ac7bcd0e69b427d1adb9063e4",
       "python_ast_unchanged": true
     },
     {
       "path": "tools/check_funnel_candidate.py",
       "old_sha256": "dd61007ef033da5cdb277dfa24ce7968092b8afb15fcf77b61668b729d3a5605",
-      "new_sha256": "1a94835042ddad0a90369614b6da60aadb5cdc9cbd50f04bbda26fe790c063fe",
+      "new_sha256": "95aa4f80f77c993b8ee5b6de8ae518bd08f32058f33b89786d93fbdcf6ba4a58",
       "python_ast_unchanged": true
     },
     {
@@ -165,13 +165,13 @@
     {
       "path": "tools/compare_funnel_reference.py",
       "old_sha256": "bce4ec4794f6d1c971e69519a312bf93a00beb57060d7eb0dc9eabb7c31a884b",
-      "new_sha256": "863d3655ebe6ff460343c3268257dabd93b8295c621b687d9007d53fb4e4b175",
+      "new_sha256": "2173f6b2542794f57f60e1dec496b2733ed8e75366ef1975b6eaea799d59f5f4",
       "python_ast_unchanged": true
     },
     {
       "path": "tools/compare_surface_geodesic.py",
       "old_sha256": "ad7a3412367cd8d4efe6e8e541fd7c2bcec7605e698f31b5c61615c06b0d2d4a",
-      "new_sha256": "8a1b48dd60f25b21d927bced57aa72a8ba5cbcafab32da49f455ba7a9f2cd5ca",
+      "new_sha256": "55a6300a49ec5edd93f865c350eea011ca11c7ba71d3dcb7fef440c2bd92576c",
       "python_ast_unchanged": true
     },
     {
@@ -237,13 +237,13 @@
     {
       "path": "tools/diagnose_funnel_runtime.py",
       "old_sha256": "c4eef816548309851f01eb3b563a56d385004e55c79aeeddd6e5c55e9d051bb7",
-      "new_sha256": "6ae83ab7da09ff9b1c21766b09b69c03e68b8d4fe39d413553b4d4701eb927d5",
+      "new_sha256": "b4def71a0fae00b1a1ebedc58113806969cdc1f1bda3f55c6b15dff582a450e4",
       "python_ast_unchanged": true
     },
     {
       "path": "tools/export_funnel_physics_results.py",
       "old_sha256": "ede873309a31505a61c01ffa81a5fb640d2c71db2482d72a61fa9a3cd11f859d",
-      "new_sha256": "152c622c51c5745825cb89e8c375c9aa916c1900fe434ce37f4277fd9400dc45",
+      "new_sha256": "4f284af6b27b664881c38a08659a850b860ae1cae00b69af618421b5cbbf0096",
       "python_ast_unchanged": true
     },
     {
@@ -261,19 +261,19 @@
     {
       "path": "tools/plan_funnel_delivery.py",
       "old_sha256": "b05eabe963162b89117bc0045291a1a325efe69ef13cd2abcbc036edca15b44c",
-      "new_sha256": "b6db554a098f177e711c51b0a11bc94a27367b75d505f8b4f825dee771b6dea1",
+      "new_sha256": "28e6b87fd9e3bd08155730845a50284e8be91792d34c2160d3f1859493a5a263",
       "python_ast_unchanged": true
     },
     {
       "path": "tools/plan_surface_delivery.py",
       "old_sha256": "d692270e98c644cc60a72ad8fec8371528834bd80e1d1babdc443648f39a602d",
-      "new_sha256": "0368cb5c3b719c0a45737ef86afd30e8b863cfcbeb1166a5e59f3d9d387d107d",
+      "new_sha256": "3e84cf71b418d5e976ad33fe33034aef5921877c6bf115596c0e974c5dffdb5e",
       "python_ast_unchanged": true
     },
     {
       "path": "tools/plot_funnel_route.py",
       "old_sha256": "8bf35f142032d7e15c9e1a592479430ddb366492288e9417762bd95b3afc6b3e",
-      "new_sha256": "f7812adedb2b67ea91331ef0b340094a91176da0c6e549a7211bc5deb9cd1fbc",
+      "new_sha256": "3e4830a0dbfa0c111ba5d392cc97f9b39b4009c553d02106494f748ab4a87e22",
       "python_ast_unchanged": true
     },
     {
@@ -285,37 +285,37 @@
     {
       "path": "tools/prepare_funnel_gazebo.py",
       "old_sha256": "a4daa677c9d3a113f634d88018183733562d6825ac87cb8c999adfbbd9522f42",
-      "new_sha256": "6f9c51ee85683e1ffe87ff623b8d07fb374e6784a1c469e0956e647c8799d660",
+      "new_sha256": "bc27eb0170c90d899674b3ece1f0e4189c85fe1fc619b542f14846ff6bc72fbd",
       "python_ast_unchanged": true
     },
     {
       "path": "tools/prepare_funnel_input.py",
       "old_sha256": "e40c80aaf3c54c3c2e9f7a84645de8de9de8e6a929dac1d7b21b80900cf043d9",
-      "new_sha256": "0c4f07b6ba0f159c6010da24f4875ed9ba3d6ad24d4c5e8d00d5790ea677e794",
+      "new_sha256": "5b0c1bfdab742357881acbebbbed66421c039a098b91941e756871d69142b5a3",
       "python_ast_unchanged": true
     },
     {
       "path": "tools/prepare_funnel_physics.py",
       "old_sha256": "4be385eec5404a435f347dc15065842e71b563977741083b700fd0aaaacf0cc3",
-      "new_sha256": "416138800288f3d3c553e45e4babf4183dc1c13618cf715f974bbac898f2105d",
+      "new_sha256": "b7d2117f8692bf2d204c37cb0078de8dc656c7d89c72f89c40948fee3131cd05",
       "python_ast_unchanged": true
     },
     {
       "path": "tools/run_city_three_goals.py",
       "old_sha256": "4cdc059dff6edfcd704b4471859a969a0374fccd8fc09eee8770a83fbd9a317e",
-      "new_sha256": "b33a1e3c38a4fadbefa9e284acddb2ca27bd9aaaaaddcad4131817c985b0175e",
+      "new_sha256": "35f1f22f1efe1779b7ec2dfd88359e208a8b2640c5c4f80cba9ea17131bcb169",
       "python_ast_unchanged": true
     },
     {
       "path": "tools/run_funnel_benchmark.py",
       "old_sha256": "ec4af41af3c487db6fe7368378074e990fe389f17547270c6eb18453ddf35149",
-      "new_sha256": "a6190fc378e03239ae37a754f42129827b2cb9c3d437a4487fa12662c85d4a80",
+      "new_sha256": "978a1be4c5ec62b02df114092dd86ad5a068caab3c8fd9289159f6adaa185de4",
       "python_ast_unchanged": true
     },
     {
       "path": "tools/run_funnel_route.py",
       "old_sha256": "4245408bc4896ce783a3d16c9df0f3a8c80a5fbfe9d4913623c9924959fb2e0f",
-      "new_sha256": "47b1c216ab674ecb96028006ba5c523a2b4b3f769d92d035400a423efdaec004",
+      "new_sha256": "220691e72b0576f3785e0e099244d9ef014fc0ac8408612bc84c85bc7068ef5b",
       "python_ast_unchanged": true
     },
     {
@@ -333,7 +333,7 @@
     {
       "path": "tools/verify_project_results.py",
       "old_sha256": "bc7367389f50f06abe6c3f4c63fbe815a4b2efde7ece46d669160c26d7e967b9",
-      "new_sha256": "b0d663025793d25c0949ac42c6a393f5c8894e879765ab851f8fc16354b77461",
+      "new_sha256": "93517548cf0600598ac92e3b898840f5361ee7bf0cf735654867147caf4b9e68",
       "python_ast_unchanged": true
     },
     {
@@ -345,7 +345,7 @@
     {
       "path": "tests/test_funnel_target_scope.py",
       "old_sha256": "9926eb742329c1258ce221c8c19691d328b31e946b01b0465601f0fe6170f469",
-      "new_sha256": "5e5a1213d959adeb1d47ad6345c599ebad4b108aa7c77340dd9b01acd698e033",
+      "new_sha256": "48a7c00f2235235a8f8d35521b44bd779ddaa0b356f07b2d2abb313e47ec43aa",
       "python_ast_unchanged": true
     },
     {
@@ -405,9 +405,16 @@
     {
       "path": "tools/run_surface_sensitivity.py",
       "old_sha256": null,
-      "new_sha256": "fb6a41bda922ede03d351cb30269a775d4f0f155ee07182671e33e8c977af431",
+      "new_sha256": "53e40c0dcc382d9bade4e3c25a42ae68441c5750569da0063e90d10afb37dbf3",
       "python_ast_unchanged": null,
       "added_after_initial_comment_only_audit": true
+    },
+    {
+      "path": "tools/dev/migrate_geom_to_off.py",
+      "old_sha256": null,
+      "new_sha256": "84d5e9119f9315d454aaaccb21ec4834c51010b537686b9387ce03283b1be807",
+      "python_ast_unchanged": true,
+      "note": "added during the .geom to .off migration"
     }
   ],
   "metadata_updated": [
@@ -461,5 +468,7 @@
   "asset_path_migration": "city.glb moved from assets/city.glb to data/source/city.glb. The model is a third-party CC BY 4.0 asset but also a pipeline input, so its location follows the data flow (source -> input -> expected) and its origin is recorded in ATTRIBUTION.md instead of the directory name. Only path references changed; no algorithm or numeric result.",
   "asset_path_changed_source_count": 17,
   "supplement_note": "The added sensitivity experiment is new executable code, not part of the initial comment-only migration.",
-  "merge_resolution_note": "Combined upstream source/license/path migration audit with local sensitivity source entries; retained each entry as migration history."
+  "merge_resolution_note": "Combined upstream source/license/path migration audit with local sensitivity source entries; retained each entry as migration history.",
+  "off_migration": "Converted the five data/input meshes and eight tracked generated meshes from .geom to OFF by prepending the OFF magic line, and the five data/expected path fixtures to .paths.json. Parsers were unified on src/mesh.read_off and src/verification.read_paths; writers emit OFF and JSON. Geometry, telemetry and simulation results are unchanged; dependent fingerprints were propagated and verified.",
+  "off_migration_changed_source_count": 26
 }

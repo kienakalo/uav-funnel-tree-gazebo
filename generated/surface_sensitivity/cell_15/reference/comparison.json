@@ -36,6 +36,6 @@
   "numerical_optimality_verified_for_this_case": true,
   "formal_arithmetic_certificate": false,
   "general_funnel_implementation_correctness_certified": false,
-  "mesh_sha256": "f8c0cdcca029f961f1ec6fa86f6bba4fbb90d3c2df5010c712482643144642ff",
-  "surface_plan_sha256": "039070e415d24ab7f4d23e059b5959bc1818c644320d85ac416f126aa877fe0c"
+  "mesh_sha256": "4f2465525aace29cd0f574fcd64737276363f686aeac0ca819d3a1716840e1cd",
+  "surface_plan_sha256": "3dc9d66bb3a475623c5bd41ac63e3a0dde5c3b53a572b3a1a045fb05cdd4e8e3"
 }

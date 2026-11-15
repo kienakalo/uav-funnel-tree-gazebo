@@ -6,6 +6,8 @@ Chạy từ thư mục gốc repository vì các đường dẫn dữ liệu đ�
 
 - `inspect_*.py`: khảo sát cao độ, liên thông và cấu trúc lưới.
 - `extract_city_components*.py`: trích thành phần hình học để khảo sát.
+- `migrate_geom_to_off.py`: chuyển fixture `.geom` sang `.off` và đường đi
+  sang `.paths.json`; dùng một lần cho đợt migration định dạng.
 - `fix_funnel_angle_roles.py`: bản vá lịch sử cho vai trò hai góc Funnel;
   mã nguồn hiện tại đã có sửa đổi này.
 

@@ -27,7 +27,7 @@ from run_funnel_route import secondary_sources, candidate_route, write_json
 from run_funnel_benchmark import verify
 from prepare_funnel_gazebo import simplify
 from prepare_funnel_physics import CITY_STL_RECORD
-from build_navigation_surface import inspect_mesh, write_geom
+from build_navigation_surface import inspect_mesh, write_off
 
 OUT = ROOT / 'generated/funnel_physics/surface_delivery'
 CLEARANCE = 1.5
@@ -175,9 +175,9 @@ def main():
     ground = flat['selection']['ground_z']
     goal = np.r_[flat['waypoints'][-1][:2], ground + 1.1]
     mesh, points, faces, source, target, stats = build_surface(start, goal, args.cell, args.coverage)
-    write_geom(OUT / 'surface.geom', points, faces, stats['edges'])
+    write_off(OUT / 'surface.off', points, faces, stats['edges'])
     write_stl(OUT / 'surface.stl', points, faces)
-    signature = hashlib.sha256((OUT / 'surface.geom').read_bytes() + (ROOT / 'src/funnel_tree.py').read_bytes()
+    signature = hashlib.sha256((OUT / 'surface.off').read_bytes() + (ROOT / 'src/funnel_tree.py').read_bytes()
                                + (ROOT / 'src/mesh.py').read_bytes() + json.dumps([source, target]).encode()).hexdigest()
     path, chain, runs = funnel_route(mesh, source, target, signature, args.seconds)
     if not verify(mesh, points.tolist(), path):
@@ -190,7 +190,7 @@ def main():
     original_mission = inverse_mission[:, [0, 2, 1]] * [1, 1, -1]
     inputs = ('generated/funnel_preview/city.stl', 'generated/funnel_preview/route.json',
               'generated/funnel_physics/delivery/horizontal_plan.json',
-              'generated/funnel_physics/surface_delivery/surface.geom',
+              'generated/funnel_physics/surface_delivery/surface.off',
               'generated/funnel_physics/surface_delivery/surface.stl',
               'src/funnel_tree.py', 'src/mesh.py', 'tools/plan_surface_delivery.py')
     plan = dict(waypoints=mission_path, original_waypoints=original_mission.tolist(),
@@ -215,7 +215,7 @@ def main():
     write_json(OUT / 'surface_plan.json', plan)
     write_json(OUT / 'surface_report.json', report)
     print(json.dumps(report, indent=2), flush=True)
-    for name in ('surface.geom', 'surface.stl', 'surface_plan.json', 'surface_report.json'):
+    for name in ('surface.off', 'surface.stl', 'surface_plan.json', 'surface_report.json'):
         print(f'Save at: {OUT / name}', flush=True)
 
 

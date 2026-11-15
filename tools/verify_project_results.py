@@ -36,7 +36,7 @@ def main():
     require(reference['all_match_reference'],'A candidate does not match the reference')
     require(comparison['all_cases_passed'],'Tracking comparison has a failed case')
     require(benchmark['signature']==reference['benchmark_signature'],'Reference belongs to a different benchmark')
-    mesh_relative='generated/funnel_input_y2p00.geom'
+    mesh_relative='generated/funnel_input_y2p00.off'
     artifacts[mesh_relative]=sha(ROOT/mesh_relative)
     require(reference['mesh_sha256']==artifacts[mesh_relative],'Navigation mesh changed since reference comparison')
     expected={'original','short_open','cross_city','narrow_corridor'}

@@ -21,12 +21,12 @@ sys.path.insert(0, str(ROOT / "src"))
 
 
 def worker(seconds, goal_only=False):
-    from mesh import read_geom
+    from mesh import read_off
     from funnel_tree import propagate
 
     report = json.loads((ROOT / "generated/funnel_input_y2p00_report.json").read_text())
     source, goal = report["source_vertex"], report["goal_vertex"]
-    mesh = read_geom(ROOT / "generated/funnel_input_y2p00.geom")
+    mesh = read_off(ROOT / "generated/funnel_input_y2p00.off")
     print(f"Mesh: {len(mesh.points)} vertices, {len(mesh.faces)} triangles", flush=True)
     print(f"START: {source}; GOAL: {goal}; clipping: enabled", flush=True)
     boundary = {v for edge, faces in mesh.edge_faces.items() if len(faces) == 1 for v in edge}

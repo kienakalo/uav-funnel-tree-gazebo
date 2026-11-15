@@ -25,7 +25,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'src'))
-from mesh import read_geom
+from mesh import read_off
 from funnel_tree import propagate, reconstruct
 from trajectory import Trajectory
 from run_funnel_route import secondary_sources, candidate_route, write_json
@@ -118,11 +118,11 @@ def plan(seconds):
     for name, expected in base['input_sha256'].items():
         if digest(ROOT/name) != expected:
             raise ValueError(f'Base surface provenance changed: {name}')
-    mesh = read_geom(BASE/'surface.geom')
+    mesh = read_off(BASE/'surface.off')
     vertices, cases = select_cases(mesh,base)
     source = base['surface_source']
     targets = set(secondary_sources(mesh,source)) | {c['goal'] for c in cases}
-    signature = hashlib.sha256((BASE/'surface.geom').read_bytes()+
+    signature = hashlib.sha256((BASE/'surface.off').read_bytes()+
         (ROOT/'src/funnel_tree.py').read_bytes()+Path(__file__).read_bytes()+
         json.dumps([source,sorted(targets)]).encode()).hexdigest()
     cache = dict(signature=signature,runs={})
@@ -131,7 +131,7 @@ def plan(seconds):
         if saved['signature']==signature:
             cache=saved
     manifest = dict(fixed_start=base['fixed_start'],surface_source=source,
-        mesh_sha256=digest(BASE/'surface.geom'),mesh_vertices=len(vertices),mesh_faces=len(mesh.faces),
+        mesh_sha256=digest(BASE/'surface.off'),mesh_vertices=len(vertices),mesh_faces=len(mesh.faces),
         scope='three independent START-to-GOAL queries on an identical city safety-envelope mesh',
         planning_timing_scope='sequential queries sharing a checkpoint cache; includes reconstruction and checkpoint writes; not a cold-start performance comparison', cases=cases)
     write_json(OUT/'cases.json',manifest)
@@ -139,7 +139,7 @@ def plan(seconds):
     for case in cases:
         folder = OUT/case['id']
         folder.mkdir(exist_ok=True)
-        for name in ('surface.geom','surface.stl'):
+        for name in ('surface.off','surface.stl'):
             shutil.copy2(BASE/name,folder/name)
         started=time.perf_counter()
         path, chain, stats = solve(mesh,vertices,source,case['goal'],targets,cache,signature,seconds)
@@ -150,7 +150,7 @@ def plan(seconds):
         inverse=np.array(mission)/preview['transform']['scale']+preview['transform']['origin']
         original=inverse[:,[0,2,1]]*[1,1,-1]
         inputs=('generated/funnel_preview/city.stl','src/funnel_tree.py','src/mesh.py',
-                'tools/run_city_three_goals.py',str((folder/'surface.geom').relative_to(ROOT)))
+                'tools/run_city_three_goals.py',str((folder/'surface.off').relative_to(ROOT)))
         result=dict(waypoints=mission,original_waypoints=original.tolist(),
             flight_length=sum(math.dist(a,b) for a,b in zip(mission,mission[1:])),
             original_model_length=sum(math.dist(a,b) for a,b in zip(original,original[1:])),
@@ -208,7 +208,7 @@ def summarize():
         physics=json.loads((folder/'surface_validation.json').read_text())
         stats=json.loads((folder/'planning_stats.json').read_text())
         route=json.loads((folder/'route.json').read_text())
-        if not (digest(folder/'surface.geom')==manifest['mesh_sha256']==compared['mesh_sha256']==physics['surface_mesh_sha256']):
+        if not (digest(folder/'surface.off')==manifest['mesh_sha256']==compared['mesh_sha256']==physics['surface_mesh_sha256']):
             raise ValueError('Mesh fingerprints differ between cases or results')
         if digest(folder/'route.json')!=physics['route_sha256'] or digest(folder/'physics_telemetry.csv')!=physics['telemetry_sha256']:
             raise ValueError('Telemetry or route fingerprint changed')
@@ -254,7 +254,7 @@ def plot(manifest,rows):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
-    mesh=read_geom(BASE/'surface.geom')
+    mesh=read_off(BASE/'surface.off')
     p=np.array([(v.x,v.y,v.z) for v in mesh.points])
     fig=plt.figure(figsize=(13,6))
     ax=fig.add_subplot(121,projection='3d')
@@ -292,7 +292,7 @@ def main():
     OUT.mkdir(exist_ok=True)
     if args.stage=='select':
         base=json.loads((BASE/'surface_plan.json').read_text())
-        _,cases=select_cases(read_geom(BASE/'surface.geom'),base)
+        _,cases=select_cases(read_off(BASE/'surface.off'),base)
         print(json.dumps(cases,indent=2),flush=True)
         return
     if args.stage in ('all','plan'):

@@ -18,7 +18,7 @@ from shapely.strtree import STRtree
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
-from mesh import read_geom
+from mesh import read_off
 from prepare_funnel_physics import CITY_STL_RECORD
 
 OUT = ROOT / 'generated/funnel_physics/surface_delivery'
@@ -71,7 +71,7 @@ def main(folder=None):
                          and r['phase'] in ('moving', 'dwell') for r in rows])
     if not selected.any() or not any(r['phase'] == 'descending' for r in rows):
         raise ValueError('Missing surface-following or delivery-descent samples')
-    mesh = read_geom(OUT / 'surface.geom')
+    mesh = read_off(OUT / 'surface.off')
     vertices = np.array([(p.x, p.y, p.z) for p in mesh.points])
     deviation = surface_deviation(positions[selected], vertices[np.array(mesh.faces)])
 
@@ -97,7 +97,7 @@ def main(folder=None):
                   max_vertical_surface_deviation=deviation,
                   min_sampled_city_clearance_under_body=minimum_clearance,
                   route_sha256=route_hash, telemetry_sha256=hashlib.sha256(telemetry_bytes).hexdigest(),
-                  surface_mesh_sha256=hashlib.sha256((OUT / 'surface.geom').read_bytes()).hexdigest(),
+                  surface_mesh_sha256=hashlib.sha256((OUT / 'surface.off').read_bytes()).hexdigest(),
                   scope='measured point-mass trajectory against the 3D mesh and city triangle AABBs under the body footprint')
     target = OUT / 'surface_validation.json'
     target.write_text(json.dumps(report, indent=2) + '\n')

@@ -20,7 +20,7 @@ import numpy as np
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
-from mesh import Mesh, Point, read_geom
+from mesh import Mesh, Point, read_off
 from funnel_tree import propagate, reconstruct
 from verification import segment_on_mesh, edge_distances, path_length
 from run_funnel_route import secondary_sources, candidate_route, write_json
@@ -66,7 +66,7 @@ def choose_corridor():
 
 
 def prepare_cases():
-    base=read_geom(ROOT/'generated/funnel_input_y2p00.geom')
+    base=read_off(ROOT/'generated/funnel_input_y2p00.off')
     old=json.loads((ROOT/'generated/funnel_input_y2p00_report.json').read_text())
     narrow_a,narrow_b,narrow_info=choose_corridor()
     specifications=[
@@ -165,7 +165,7 @@ def main():
     endpoints={case[key] for case in cases for key in ('source','goal')}
     targets=sources|endpoints
     signature=hashlib.sha256()
-    for path in (ROOT/'generated/funnel_input_y2p00.geom',ROOT/'generated/navigation_y2p00_grid.npz',
+    for path in (ROOT/'generated/funnel_input_y2p00.off',ROOT/'generated/navigation_y2p00_grid.npz',
                  ROOT/'src/funnel_tree.py',ROOT/'src/mesh.py',Path(__file__),ROOT/'tools/run_funnel_route.py',
                  ROOT/'src/verification.py'):
         signature.update(path.read_bytes())

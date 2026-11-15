@@ -24,7 +24,7 @@ from shapely.prepared import prep
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
-from mesh import read_geom
+from mesh import read_off
 
 
 def make_domain(mesh):
@@ -114,8 +114,8 @@ def main():
     report=json.loads((benchmark/'benchmark_results.json').read_text())
     if not report['complete'] or manifest['signature']!=report['signature']:
         raise ValueError('Benchmark is incomplete or inconsistent')
-    mesh_path=ROOT/'generated/funnel_input_y2p00.geom'
-    mesh=read_geom(mesh_path)
+    mesh_path=ROOT/'generated/funnel_input_y2p00.off'
+    mesh=read_off(mesh_path)
     cases=manifest['cases']
     digest=hashlib.sha256()
     for path in (mesh_path,ROOT/'generated/navigation_y2p00_grid.npz',ROOT/'src/funnel_tree.py',

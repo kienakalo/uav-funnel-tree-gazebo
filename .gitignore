@@ -35,13 +35,13 @@ Thumbs.db
 !/generated/surface_sensitivity/summary.md
 !/generated/surface_sensitivity/comparison.png
 !/generated/surface_sensitivity/cell_*/results.json
-!/generated/surface_sensitivity/cell_*/surface.geom
+!/generated/surface_sensitivity/cell_*/surface.off
 !/generated/surface_sensitivity/cell_*/surface.stl
 !/generated/surface_sensitivity/cell_*/surface_plan.json
 !/generated/surface_sensitivity/cell_*/reference/comparison.json
 !/generated/surface_sensitivity/cell_*/reference/comparison.md
 !/generated/surface_sensitivity/cell_*/reference/reference_route.json
-!/generated/funnel_input_y2p00.geom
+!/generated/funnel_input_y2p00.off
 !/generated/funnel_route_candidate_y2p00.json
 !/generated/funnel_route_candidate_validation_y2p00.json
 !/generated/navigation_y2p00_grid.npz
@@ -79,7 +79,7 @@ Thumbs.db
 !/generated/funnel_physics/*/physics_route_tracking.png
 !/generated/funnel_physics/*/physics_tracking_metrics.png
 !/generated/funnel_physics/delivery/horizontal_plan.json
-!/generated/funnel_physics/surface_delivery/surface.geom
+!/generated/funnel_physics/surface_delivery/surface.off
 !/generated/funnel_physics/surface_delivery/surface.stl
 !/generated/funnel_physics/surface_delivery/surface_plan.json
 !/generated/funnel_physics/surface_delivery/surface_report.json
@@ -97,7 +97,7 @@ Thumbs.db
 !/generated/city_three_goals/results.json
 !/generated/city_three_goals/summary.md
 !/generated/city_three_goals/routes.png
-!/generated/city_three_goals/g*/surface.geom
+!/generated/city_three_goals/g*/surface.off
 !/generated/city_three_goals/g*/surface.stl
 !/generated/city_three_goals/g*/surface_plan.json
 !/generated/city_three_goals/g*/planning_stats.json

@@ -82,15 +82,17 @@ class Mesh:
         return next(v for v in face if v != a and v != b)
 
 
-def read_geom(filename):
-    """Header: V F E; tiếp V dòng x y z; tiếp F dòng 3 a b c."""
+def read_off(filename):
+    """OFF: dòng 'OFF', header V F E; tiếp V dòng x y z; tiếp F dòng 3 a b c."""
     lines = [s.strip() for s in Path(filename).read_text(encoding='utf-8').splitlines() if s.strip()]
-    nv,nf,declared_edges = map(int,lines[0].split())
-    if nv < 3 or nf < 1 or len(lines) != 1+nv+nf:
+    if not lines or lines[0] != 'OFF':
+        raise ValueError("Tệp OFF phải bắt đầu bằng dòng 'OFF'.")
+    nv,nf,declared_edges = map(int,lines[1].split())
+    if nv < 3 or nf < 1 or len(lines) != 2+nv+nf:
         raise ValueError('Header và số dòng không khớp hoặc mesh rỗng.')
-    points = [Point(*map(float,line.split())) for line in lines[1:1+nv]]
+    points = [Point(*map(float,line.split())) for line in lines[2:2+nv]]
     faces = []
-    for line in lines[1+nv:]:
+    for line in lines[2+nv:]:
         count,*face = map(int,line.split())
         if count != 3 or len(face) != 3:
             raise ValueError('Chỉ nhận mặt tam giác.')

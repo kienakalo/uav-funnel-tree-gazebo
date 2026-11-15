@@ -22,7 +22,7 @@ sys.path.insert(0,str(ROOT/'src'))
 import plan_surface_delivery as planner
 import compare_surface_geodesic as reference
 from city import write_stl
-from build_navigation_surface import write_geom
+from build_navigation_surface import write_off
 from run_funnel_benchmark import verify
 from run_funnel_route import write_json
 
@@ -39,9 +39,9 @@ def case(cell):
     begin=time.perf_counter()
     mesh,points,faces,source,target,stats=planner.build_surface(start,goal,cell,'city')
     build_seconds=time.perf_counter()-begin
-    write_geom(folder/'surface.geom',points,faces,stats['edges'])
+    write_off(folder/'surface.off',points,faces,stats['edges'])
     write_stl(folder/'surface.stl',points,faces)
-    signature=hashlib.sha256((folder/'surface.geom').read_bytes()+
+    signature=hashlib.sha256((folder/'surface.off').read_bytes()+
         (ROOT/'src/funnel_tree.py').read_bytes()+(ROOT/'src/mesh.py').read_bytes()+
         json.dumps([source,target]).encode()).hexdigest()
     # A fresh cache per subprocess makes the reported solve a cold computation.
@@ -83,7 +83,7 @@ def case(cell):
         process_peak_rss_mib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024,
         memory_scope='Linux process high-water RSS through build, Funnel and MMP; includes imported libraries, city data, reference solver and cache; not Funnel-only memory',
         timing_scope='one cold computation per cell; Funnel time includes reconstruction and checkpoint writes; no repetitions or statistical speedup claim',
-        mesh_sha256=hashlib.sha256((folder/'surface.geom').read_bytes()).hexdigest())
+        mesh_sha256=hashlib.sha256((folder/'surface.off').read_bytes()).hexdigest())
     write_json(folder/'results.json',result)
     print(json.dumps(result,indent=2),flush=True)
 

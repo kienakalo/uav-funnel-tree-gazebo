@@ -1,43 +1,27 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: Python stdlib (heapq, math, pathlib).
-"""Read mesh inputs and bracketed path outputs. Python standard library only."""
+"""Read path outputs stored as JSON. Python standard library only."""
 import heapq
+import json
 import math
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def read_mesh(filename):
-    lines = [s.strip() for s in Path(filename).read_text(encoding="utf-8").splitlines() if s.strip()]
-    nv, nf, declared_edges = map(int, lines[0].split())
-    if len(lines) != 1 + nv + nf:
-        raise ValueError("Mesh line count does not match header")
-    points = [tuple(map(float, line.split())) for line in lines[1:1+nv]]
-    faces = []
-    for line in lines[1+nv:]:
-        n, *face = map(int, line.split())
-        if n != 3 or len(face) != 3 or any(i < 0 or i >= nv for i in face):
-            raise ValueError("Invalid triangle")
-        faces.append(tuple(face))
-    if any(len(p) != 3 or not all(map(math.isfinite, p)) for p in points):
-        raise ValueError("Invalid coordinates")
-    return points, faces, declared_edges
-
-
 def read_paths(filename):
+    """Read a .paths.json record; accepts either the wrapper or a bare list."""
+    payload = json.loads(Path(filename).read_text(encoding="utf-8"))
+    records = payload["paths"] if isinstance(payload, dict) else payload
     paths = []
-    for number, line in enumerate(Path(filename).read_text(encoding="utf-8").splitlines(), 1):
-        if not line.strip():
-            continue
-        tokens = line.replace("[", " ").replace("]", " ").split()
-        count, *coords = tokens
-        count = int(count)
-        coords = list(map(float, coords))
-        if count < 2 or len(coords) != 3*count or not all(map(math.isfinite, coords)):
-            raise ValueError(f"Invalid path at line {number}")
-        paths.append([tuple(coords[i:i+3]) for i in range(0, len(coords), 3)])
+    for number, record in enumerate(records, 1):
+        if not isinstance(record, list) or len(record) < 2:
+            raise ValueError(f"Invalid path at entry {number}")
+        path = [tuple(map(float, point)) for point in record]
+        if any(len(p) != 3 or not all(map(math.isfinite, p)) for p in path):
+            raise ValueError(f"Invalid coordinates at entry {number}")
+        paths.append(path)
     return paths
 
 

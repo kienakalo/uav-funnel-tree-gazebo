@@ -18,7 +18,7 @@ import numpy as np
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
-from mesh import read_geom
+from mesh import read_off
 from analyze_funnel_physics import main as validate
 
 
@@ -48,7 +48,7 @@ def main():
     speeds=np.linalg.norm(values[:,7:10],axis=1)
     reverted=measured/route['transform']['scale']+np.array(route['transform']['origin'])
     measured_xz=reverted[:,:2]*[1,-1]
-    mesh=read_geom(ROOT/'generated/funnel_input_y2p00.geom')
+    mesh=read_off(ROOT/'generated/funnel_input_y2p00.off')
     vertices=np.array([(p.x,p.z) for p in mesh.points])
     planned=np.array(route['original_waypoints'])[:,[0,2]]
     plt.rcParams.update({'font.size':10,'axes.spines.top':False,'axes.spines.right':False})

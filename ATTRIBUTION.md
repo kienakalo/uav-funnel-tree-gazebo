@@ -12,7 +12,7 @@ Technology (HCMUT).
 
 # Example meshes
 
-The five `.geom` meshes in `data/input/` and the expected paths and reference
+The five `.off` meshes in `data/input/` and the expected paths and reference
 values in `data/expected/` were created by the project authors. They are
 first-party data, not third-party test sets, and are released under
 BSD-3-Clause together with the project code.

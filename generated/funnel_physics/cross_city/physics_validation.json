@@ -17,7 +17,7 @@
     4
   ],
   "obstacle_intersecting_sample_segments": [],
-  "route_sha256": "be18f8d040d6b45c446c53b4709278d7c0d02f87b1af1cc8909de1594f2e693a",
+  "route_sha256": "9518e4ceadf95a4212d258049ae6dc761ac594309fb9c960816931a0de03dac5",
   "scope": "measured centreline and straight segments between CSV samples vs inflated obstacle columns; not a continuous-time contact proof",
   "rotor_or_autopilot_simulation": false
 }

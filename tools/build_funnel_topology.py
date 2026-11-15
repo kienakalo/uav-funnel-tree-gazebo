@@ -6,7 +6,7 @@
 Build triangle/vertex adjacency for the preprocessed Funnel Tree mesh.
 
 Input:
-  generated/funnel_input_y2p00.geom
+  generated/funnel_input_y2p00.off
 
 Outputs:
   generated/funnel_topology_y2p00.npz
@@ -18,47 +18,22 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from collections import defaultdict, Counter, deque
 from pathlib import Path
 
 import numpy as np
 
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+from mesh import read_off as read_off_mesh
 
-def read_geom(path: Path):
-    lines = path.read_text(encoding="utf-8").splitlines()
-    if not lines:
-        raise ValueError("Input .geom file is empty.")
 
-    n_vertices, n_faces, declared_edges = map(int, lines[0].split())
-
-    vertex_lines = lines[1:1 + n_vertices]
-    face_lines = lines[1 + n_vertices:1 + n_vertices + n_faces]
-
-    if len(vertex_lines) != n_vertices or len(face_lines) != n_faces:
-        raise ValueError("The .geom file has fewer rows than declared in its header.")
-
-    vertices = np.asarray(
-        [[float(v) for v in line.split()] for line in vertex_lines],
-        dtype=np.float64
-    )
-
-    faces = []
-    for row_no, line in enumerate(face_lines, start=1):
-        values = list(map(int, line.split()))
-        if len(values) != 4 or values[0] != 3:
-            raise ValueError(f"Face row {row_no} must have format: 3 i j k")
-        faces.append(values[1:])
-
-    faces = np.asarray(faces, dtype=np.int64)
-
-    if vertices.shape != (n_vertices, 3):
-        raise ValueError(f"Expected {n_vertices} 3D vertices, got {vertices.shape}.")
-    if faces.shape != (n_faces, 3):
-        raise ValueError(f"Expected {n_faces} triangles, got {faces.shape}.")
-    if faces.min() < 0 or faces.max() >= n_vertices:
-        raise ValueError("Face index outside valid zero-based vertex range.")
-
-    return vertices, faces, declared_edges
+def read_off(path: Path):
+    mesh = read_off_mesh(path)
+    vertices = np.asarray([[point.x, point.y, point.z] for point in mesh.points], dtype=np.float64)
+    faces = np.asarray(mesh.faces, dtype=np.int64)
+    return vertices, faces, len(mesh.edge_faces)
 
 
 def build_topology(vertices, faces):
@@ -206,7 +181,7 @@ def build_topology(vertices, faces):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", default="generated/funnel_input_y2p00.geom")
+    parser.add_argument("--input", default="generated/funnel_input_y2p00.off")
     parser.add_argument("--source", type=int, default=8236)
     parser.add_argument("--goal", type=int, default=8237)
     args = parser.parse_args()
@@ -215,7 +190,7 @@ def main():
     out_dir = Path("generated")
     out_dir.mkdir(exist_ok=True)
 
-    vertices, faces, declared_edges = read_geom(input_path)
+    vertices, faces, declared_edges = read_off(input_path)
 
     if not (0 <= args.source < len(vertices)):
         raise ValueError("Source vertex index is outside the mesh.")

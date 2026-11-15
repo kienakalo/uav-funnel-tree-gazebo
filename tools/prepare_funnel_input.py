@@ -4,11 +4,14 @@
 from pathlib import Path
 from collections import defaultdict, deque
 import json
+import sys
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1] if False else Path.cwd()
-INPUT = ROOT / "generated" / "navigation_y2p00.geom"
-OUTPUT = ROOT / "generated" / "funnel_input_y2p00.geom"
+sys.path.insert(0, str(ROOT / "src"))
+from mesh import read_off as read_off_mesh
+INPUT = ROOT / "generated" / "navigation_y2p00.off"
+OUTPUT = ROOT / "generated" / "funnel_input_y2p00.off"
 REPORT = ROOT / "generated" / "funnel_input_y2p00_report.json"
 
 # Coordinates are in the original GLB scene: X/Y/Z, with Y up.
@@ -19,26 +22,11 @@ POINTS = {
 EPS = 1e-9
 
 
-def read_geom(path):
-    lines = path.read_text(encoding="utf-8").splitlines()
-    nv, nf, ne = map(int, lines[0].split())
-    vlines = lines[1:1 + nv]
-    flines = lines[1 + nv:1 + nv + nf]
-    if len(vlines) != nv or len(flines) != nf:
-        raise ValueError(".geom file length does not match its header")
-    vertices = np.asarray([[float(x) for x in line.split()] for line in vlines], dtype=float)
-    faces = []
-    for line in flines:
-        row = list(map(int, line.split()))
-        if len(row) != 4 or row[0] != 3:
-            raise ValueError(f"Expected triangular face record '3 i j k', got: {line}")
-        faces.append(row[1:])
-    faces = np.asarray(faces, dtype=np.int64)
-    if vertices.shape != (nv, 3) or faces.shape != (nf, 3):
-        raise ValueError("Unexpected vertex/face array shape")
-    if faces.min() < 0 or faces.max() >= nv:
-        raise ValueError("Face index outside vertex array")
-    return vertices, faces, ne
+def read_off(path):
+    mesh = read_off_mesh(path)
+    vertices = np.asarray([[point.x, point.y, point.z] for point in mesh.points], dtype=float)
+    faces = np.asarray(mesh.faces, dtype=np.int64)
+    return vertices, faces, len(mesh.edge_faces)
 
 
 def barycentric_xz(point, triangle):
@@ -125,7 +113,7 @@ def main():
     if not INPUT.exists():
         raise FileNotFoundError(f"Cannot find {INPUT}. Run from the project root.")
 
-    vertices, faces, header_edges = read_geom(INPUT)
+    vertices, faces, header_edges = read_off(INPUT)
     print(f"Input: {INPUT}")
     print(f"Read {len(vertices)} vertices, {len(faces)} triangles, header edges={header_edges}")
 
@@ -176,6 +164,7 @@ def main():
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     with OUTPUT.open("w", encoding="utf-8", newline="\n") as f:
+        f.write("OFF\n")
         f.write(f"{len(new_vertices)} {len(new_faces)} {len(unique_edges)}\n")
         for x, y, z in new_vertices:
             f.write(f"{x:.12g} {y:.12g} {z:.12g}\n")

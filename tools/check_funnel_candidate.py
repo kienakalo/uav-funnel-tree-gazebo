@@ -13,19 +13,19 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from mesh import read_geom
+from mesh import read_off
 from verification import segment_on_mesh, path_length, edge_distances
 
 
 def main():
-    mesh_path = ROOT / "generated/funnel_input_y2p00.geom"
+    mesh_path = ROOT / "generated/funnel_input_y2p00.off"
     route_path = ROOT / "generated/funnel_route_candidate_y2p00.json"
     report = json.loads((ROOT / "generated/funnel_input_y2p00_report.json").read_text())
     progress = json.loads((ROOT / "generated/funnel_route_progress_y2p00.json").read_text())
     route = json.loads(route_path.read_text())
     if progress.get("status") != "candidate_found" or route["signature"] != progress["signature"]:
         raise ValueError("Candidate does not match a completed current run")
-    mesh = read_geom(mesh_path)
+    mesh = read_off(mesh_path)
     points = [(p.x, p.y, p.z) for p in mesh.points]
     path = route["points"]
     if len(path) < 2 or any(len(p) != 3 or not all(math.isfinite(v) for v in p) for p in path):

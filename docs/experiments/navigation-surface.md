@@ -22,7 +22,7 @@ chỉ định rõ:
 ## Kết quả
 
 - `generated/navigation_y2p00.png`: vùng cản và lưới nhìn từ trên xuống.
-- `generated/navigation_y2p00.geom`: thành phần miền bay lớn nhất, tọa độ Y-up.
+- `generated/navigation_y2p00.off`: thành phần miền bay lớn nhất, tọa độ Y-up.
 - `generated/navigation_y2p00_report.json`: tham số, số liệu và kết quả kiểm tra.
 - `generated/navigation_y2p00_grid.npz`: grid và nhãn liên thông để chọn điểm sau.
 
@@ -44,7 +44,7 @@ Kết quả khảo sát trên mô hình thành phố:
 ## Ý nghĩa màu
 
 - **Cam:** hình chiếu công trình được mở rộng, mô hình hóa thành cột cản.
-- **Xanh lá có lưới:** thành phần miền dẫn đường được xuất ra `.geom`.
+- **Xanh lá có lưới:** thành phần miền dẫn đường được xuất ra `.off`.
 - **Xanh nhạt:** các thành phần trống khác, không đưa vào mesh chính.
 - **Xám:** vùng loại ở rìa asset hoặc các ô loại để tránh chỉ tiếp xúc tại điểm.
 
@@ -76,7 +76,7 @@ nếu có cấu hình tiếp xúc chéo, chương trình loại thêm ô và ghi
 - Một mặt phẳng có lỗ/vật cản, là trường hợp 2D của bài toán trên bề mặt.
 - Không có đường đi hay kết luận tối ưu ở bước này. Chưa chạy Funnel Tree trên
   toàn bộ 15.356 mặt vì cần kiểm tra hiệu năng và phạm vi hỗ trợ bề mặt có biên.
-- Chưa sửa world/route Gazebo. Định dạng `.geom` vẫn dùng (X,Y,Z) với Y là độ
+- Chưa sửa world/route Gazebo. Định dạng `.off` vẫn dùng (X,Y,Z) với Y là độ
   cao; cần đổi trục và tỉ lệ nhất quán trước khi dùng làm quỹ đạo Gazebo Z-up.
 - Vùng cản bao cả không gian dưới mái và có thể chặn cầu/hầm/lối thực tế trống.
   Số liệu này không đại diện diện tích tự do chính xác của đô thị ngoài thực địa.

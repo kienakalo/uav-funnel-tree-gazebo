@@ -280,8 +280,8 @@ bản đồ mới.
 
 ```text
 data/source/city.glb
-        │  tools/build_navigation_surface.py   → navigation_y2p00.geom + grid
-        │  tools/prepare_funnel_input.py       → funnel_input_y2p00.geom
+        │  tools/build_navigation_surface.py   → navigation_y2p00.off + grid
+        │  tools/prepare_funnel_input.py       → funnel_input_y2p00.off
         │  tools/run_funnel_route.py           → candidate route + cache
         │  tools/check_funnel_candidate.py     → candidate validation
         │  tools/prepare_funnel_gazebo.py      → funnel_preview/
@@ -292,7 +292,7 @@ generated/funnel_preview/  city.stl, route.json, funnel_demo.sdf
 generated/funnel_physics/delivery/horizontal_plan.json
         │  tools/plan_surface_delivery.py --cell 5 --coverage city
         ▼
-surface.geom/.stl, surface_plan.json, surface_report.json    ← Funnel Tree
+surface.off/.stl, surface_plan.json, surface_report.json      ← Funnel Tree
         │  tools/compare_surface_geodesic.py
         ▼
 generated/funnel_surface_reference/comparison.json           ← MMP độc lập
@@ -312,7 +312,7 @@ summary, hình  →  tools/verify_project_results.py  →  Project results: READ
 
 | Tầng | Việc làm | Lệnh chính | Đầu ra |
 | --- | --- | --- | --- |
-| 1 | Dựng miền phẳng và dữ liệu nền | `tools/build_navigation_surface.py` → `tools/prepare_funnel_input.py` → `tools/run_funnel_route.py` → `tools/check_funnel_candidate.py` → `tools/prepare_funnel_gazebo.py` | `funnel_input_y2p00.geom`, `generated/funnel_preview/` |
+| 1 | Dựng miền phẳng và dữ liệu nền | `tools/build_navigation_surface.py` → `tools/prepare_funnel_input.py` → `tools/run_funnel_route.py` → `tools/check_funnel_candidate.py` → `tools/prepare_funnel_gazebo.py` | `funnel_input_y2p00.off`, `generated/funnel_preview/` |
 | 2 | Lập tuyến bằng Funnel Tree, đối chiếu MMP | `tools/plan_funnel_delivery.py`, `tools/plan_surface_delivery.py`, `tools/compare_surface_geodesic.py` | `horizontal_plan.json`, `surface.*`, `comparison.json` |
 | 3 | Dựng world vật lý | `tools/prepare_funnel_physics.py --case surface_delivery` | `funnel_physics.sdf`, `route.json` |
 | 4 | Mô phỏng Gazebo và ghi telemetry | `bash scripts/run_funnel_physics.sh surface_delivery` | `physics_telemetry.csv`, `telemetry_metadata.json` |
@@ -382,9 +382,9 @@ không có header và metadata, lại thành ~22 MB text cho thành phố; PLY k
 giữ object/transform; STL không có chỉ số đỉnh nên phải weld lại trước khi
 chạy Funnel.
 
-Hiện tại các mesh vẫn ở `.geom`. Kế hoạch chuyển đổi, danh sách tệp, ảnh
-hưởng chuỗi hash và thứ tự thực hiện nằm trong
-[định dạng dữ liệu](docs/data-format.md).
+Migration đã áp dụng: mesh dùng `.off`, đường đi dùng `.paths.json`; toàn bộ
+dấu vân tay trong `generated/` đã được tính lại. Bước xử lý đầu vào
+`scene.glb` chưa triển khai; xem [định dạng dữ liệu](docs/data-format.md).
 
 ## Cấu trúc thư mục
 
@@ -403,14 +403,14 @@ uav-funnel-tree-gazebo/
 ├── requirements-dev.txt       # trimesh cho công cụ khảo sát tools/dev
 ├── animate.py                 # Gửi lệnh pose để xem trước, không điều khiển vật lý
 ├── check.py                   # Kiểm thử hồi quy hình học và thuật toán
-├── plan.py                    # Chạy Funnel Tree trên các mesh .geom mẫu
+├── plan.py                    # Chạy Funnel Tree trên các mesh .off mẫu
 ├── prepare.py                 # Tạo world Gazebo, STL thành phố, lưới bay và route
 ├── prepare_urban.py           # Dựng nhiệm vụ đô thị thấp, tránh vật cản
 ├── data/
 │   ├── source/                # Mô hình thành phố gốc của bên thứ ba (CC BY 4.0)
 │   │   └── city.glb
-│   ├── input/                 # Năm mesh mẫu .geom do nhóm tạo
-│   └── expected/              # Dữ liệu đối chiếu cho từng mesh
+│   ├── input/                 # Năm mesh mẫu .off do nhóm tạo
+│   └── expected/              # Đường đi tham chiếu .paths.json
 ├── docs/
 │   ├── data-format.md         # Định hướng GLB/OFF và kế hoạch chuyển đổi
 │   └── experiments/           # Ghi chép các giai đoạn khảo sát trước

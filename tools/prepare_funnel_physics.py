@@ -26,8 +26,8 @@ DELIVERY_PAD_THICKNESS = 0.1
 
 def add_surface_overlay(world, out):
     """Draw a translucent surface and batched, double-sided triangle edges."""
-    from mesh import read_geom
-    mesh = read_geom(out / 'surface.geom')
+    from mesh import read_off
+    mesh = read_off(out / 'surface.off')
     triangles = []
     for a, b in sorted(mesh.edge_faces):
         pa, pb = mesh.points[a], mesh.points[b]
@@ -71,7 +71,7 @@ def add_surface_overlay(world, out):
 
 def benchmark_route(case,preview_route):
     from run_funnel_benchmark import verify
-    from mesh import read_geom
+    from mesh import read_off
     from prepare_funnel_gazebo import simplify
     folder=ROOT/'generated/funnel_benchmark'
     report=json.loads((folder/'benchmark_results.json').read_text())
@@ -79,9 +79,9 @@ def benchmark_route(case,preview_route):
     # triangles. NumPy versions can order equal-distance candidates differently.
     manifest=json.loads((folder/'cases.json').read_text())
     cases=manifest['cases']
-    mesh=read_geom(ROOT/'generated/funnel_input_y2p00.geom')
+    mesh=read_off(ROOT/'generated/funnel_input_y2p00.off')
     digest=hashlib.sha256()
-    for path in (ROOT/'generated/funnel_input_y2p00.geom',ROOT/'generated/navigation_y2p00_grid.npz',
+    for path in (ROOT/'generated/funnel_input_y2p00.off',ROOT/'generated/navigation_y2p00_grid.npz',
                  ROOT/'src/funnel_tree.py',ROOT/'src/mesh.py',ROOT/'tools/run_funnel_benchmark.py',
                  ROOT/'tools/run_funnel_route.py',ROOT/'src/verification.py'):
         digest.update(path.read_bytes())
@@ -298,7 +298,7 @@ def main():
     validation=json.loads((generated/'funnel_route_candidate_validation_y2p00.json').read_text())
     route=json.loads((preview/'route.json').read_text())
     for key,path in (('route_sha256',generated/'funnel_route_candidate_y2p00.json'),
-                     ('mesh_sha256',generated/'funnel_input_y2p00.geom')):
+                     ('mesh_sha256',generated/'funnel_input_y2p00.off')):
         if validation[key]!=hashlib.sha256(path.read_bytes()).hexdigest():
             raise ValueError('Candidate or mesh changed; repeat candidate validation and preview export')
     if not validation['surface_membership_passed'] or route['source_route_sha256']!=validation['route_sha256']:

@@ -68,5 +68,5 @@
   "process_peak_rss_mib": 262.62890625,
   "memory_scope": "Linux process high-water RSS through build, Funnel and MMP; includes imported libraries, city data, reference solver and cache; not Funnel-only memory",
   "timing_scope": "one cold computation per cell; Funnel time includes reconstruction and checkpoint writes; no repetitions or statistical speedup claim",
-  "mesh_sha256": "f8c0cdcca029f961f1ec6fa86f6bba4fbb90d3c2df5010c712482643144642ff"
+  "mesh_sha256": "4f2465525aace29cd0f574fcd64737276363f686aeac0ca819d3a1716840e1cd"
 }

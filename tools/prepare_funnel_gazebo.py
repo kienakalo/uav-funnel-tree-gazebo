@@ -18,7 +18,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from city import load_city, write_stl
 from prepare import shape, material
 from verification import segment_on_mesh
-from mesh import read_geom
+from mesh import read_off
 
 
 def simplify(points):
@@ -49,7 +49,7 @@ def sha(path):
 def main():
     generated = ROOT / "generated"
     candidate_path = generated / "funnel_route_candidate_y2p00.json"
-    mesh_path = generated / "funnel_input_y2p00.geom"
+    mesh_path = generated / "funnel_input_y2p00.off"
     validation = json.loads((generated / "funnel_route_candidate_validation_y2p00.json").read_text())
     if not validation.get("surface_membership_passed"):
         raise ValueError("Run tools/check_funnel_candidate.py successfully first")
@@ -61,7 +61,7 @@ def main():
     if not city_path.is_file() or sha(city_path) != navigation["sha256"]:
         raise ValueError("The city asset does not match the navigation surface asset hash")
     model_path = simplify(candidate["points"])
-    mesh = read_geom(mesh_path)
+    mesh = read_off(mesh_path)
     coords = [(p.x, p.y, p.z) for p in mesh.points]
     for a, b in zip(model_path, model_path[1:]):
         if not segment_on_mesh(a, b, coords, mesh.faces, 1e-7):

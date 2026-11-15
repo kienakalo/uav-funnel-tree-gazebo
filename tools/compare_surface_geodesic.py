@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'generated/funnel_surface_reference'
 sys.path.insert(0, str(OUT / 'runtime'))
 sys.path.insert(0, str(ROOT / 'src'))
-from mesh import read_geom
+from mesh import read_off
 from verification import path_length
 from run_funnel_benchmark import verify
 
@@ -61,7 +61,7 @@ def main(folder=None, output=None):
         if hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() != expected:
             raise ValueError(f'Surface plan is stale: {relative}')
     tests = reference_self_tests(geodesic)
-    mesh = read_geom(folder / 'surface.geom')
+    mesh = read_off(folder / 'surface.off')
     vertices = np.array([(p.x, p.y, p.z) for p in mesh.points])
     faces = np.array(mesh.faces, dtype=np.int32)
     source, goal = plan['surface_source'], plan['surface_goal']
@@ -110,7 +110,7 @@ def main(folder=None, output=None):
                   comparison_scope='surface segment only, identical mesh and endpoints; excludes entry and delivery descent',
                   numerical_optimality_verified_for_this_case=matches,
                   formal_arithmetic_certificate=False, general_funnel_implementation_correctness_certified=False,
-                  mesh_sha256=hashlib.sha256((folder / 'surface.geom').read_bytes()).hexdigest(),
+                  mesh_sha256=hashlib.sha256((folder / 'surface.off').read_bytes()).hexdigest(),
                   surface_plan_sha256=hashlib.sha256(plan_bytes).hexdigest())
     OUT.mkdir(exist_ok=True, parents=True)
     outputs = {

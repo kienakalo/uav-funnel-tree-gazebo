@@ -561,8 +561,8 @@
   "input_sha256": {
     "generated/funnel_preview/city.stl": "4a3cdc07575642f0efbf443b5ae47681cb3d722d941de4b055d8f9e6e6cd1132",
     "src/funnel_tree.py": "3f304da452a9bfee3775d150b844bbce777db96e6593d4177527a28bd6fa1574",
-    "src/mesh.py": "7e9bfb935682aadce8366b7bdd4b75d0881b9eb7d94c01df7087e129c6cf3fae",
-    "tools/run_city_three_goals.py": "b33a1e3c38a4fadbefa9e284acddb2ca27bd9aaaaaddcad4131817c985b0175e",
-    "generated/city_three_goals/g2/surface.geom": "d7e0117924c63ffc63910a66677194fc42d9f1638ae6bfde87eb899bcb332bc7"
+    "src/mesh.py": "b388492e53fbb9d653590006793822e4c434aa9784c5ae850bf161d7b828904d",
+    "tools/run_city_three_goals.py": "35f1f22f1efe1779b7ec2dfd88359e208a8b2640c5c4f80cba9ea17131bcb169",
+    "generated/city_three_goals/g2/surface.off": "7baf3c084dd6767350c8b0dcf27e5490aa3b7ba16fabfd6854df0d6cf9ed7310"
   }
 }

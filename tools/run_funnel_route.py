@@ -20,7 +20,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from mesh import read_geom
+from mesh import read_off
 from funnel_tree import propagate, reconstruct
 
 
@@ -80,10 +80,10 @@ def main():
     args = parser.parse_args()
     if args.max_runs < 1 or not math.isfinite(args.seconds) or args.seconds <= 0:
         parser.error("Arguments must be positive and finite")
-    mesh_path = ROOT / "generated/funnel_input_y2p00.geom"
+    mesh_path = ROOT / "generated/funnel_input_y2p00.off"
     report = json.loads((ROOT / "generated/funnel_input_y2p00_report.json").read_text())
     source, goal = report["source_vertex"], report["goal_vertex"]
-    mesh = read_geom(mesh_path)
+    mesh = read_off(mesh_path)
     sources = secondary_sources(mesh, source)
     targets = set(sources) | {goal}
     digest = hashlib.sha256()

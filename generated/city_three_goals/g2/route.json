@@ -180,7 +180,7 @@
   "length": 133.5408575221003,
   "world": "funnel_physics_surface_delivery_g2",
   "mode": "force_feedback_point_mass",
-  "source_route_sha256": "e82a0991b2af5f6d565a3cf47a4c08346d98f8251cacb2bedb34485379fc55fd",
+  "source_route_sha256": "098fd6f2d5c482c5a668f123b4bd36d879ee9b1434a59264af0e174630c2a622",
   "original_model_length": 35.27067103597678,
   "original_waypoints": [
     [
@@ -417,7 +417,7 @@
     ]
   },
   "dwell": 0.0,
-  "surface_plan_sha256": "e82a0991b2af5f6d565a3cf47a4c08346d98f8251cacb2bedb34485379fc55fd",
+  "surface_plan_sha256": "098fd6f2d5c482c5a668f123b4bd36d879ee9b1434a59264af0e174630c2a622",
   "surface_following_length": 127.07374626836192,
   "surface_waypoints": [
     [

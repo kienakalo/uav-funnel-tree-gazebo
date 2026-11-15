@@ -55,8 +55,8 @@ def main():
            'stats':all_stats,'length':sum(math.dist(a,b) for a,b in zip(waypoints,waypoints[1:]))}
     (out/'route.json').write_text(json.dumps(route,indent=2)+'\n')
     (out/'city_metadata.json').write_text(json.dumps(meta,ensure_ascii=False,indent=2)+'\n')
-    with (out/'flight_surface.geom').open('w') as f:
-        f.write('4 2 5\n')
+    with (out/'flight_surface.off').open('w') as f:
+        f.write('OFF\n4 2 5\n')
         for point in mesh.points:f.write(f'{point.x} {point.y} {point.z}\n')
         for face in mesh.faces:f.write('3 '+' '.join(map(str,face))+'\n')
     sdf=ET.Element('sdf',version='1.9');world=ET.SubElement(sdf,'world',name='hcm_demo')

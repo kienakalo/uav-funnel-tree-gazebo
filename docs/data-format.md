@@ -1,8 +1,8 @@
 # Định dạng dữ liệu và kế hoạch chuyển đổi
 
-Tài liệu này chốt hai định dạng dữ liệu của repo và mô tả kế hoạch chuyển
-đổi. Trạng thái tại thời điểm commit: **định hướng đã chốt, migration chưa
-thực hiện**; các tệp trên đĩa vẫn dùng `.geom` như mô tả ở mục 2.
+Tài liệu này chốt hai định dạng dữ liệu của repo và ghi lại kế hoạch chuyển
+đổi. Trạng thái: **migration `.geom` → `.off` đã áp dụng**; bước xử lý dữ liệu
+đầu vào `scene.glb` vẫn chưa triển khai.
 
 ## 1. Quyết định
 
@@ -17,7 +17,7 @@ Hai định dạng đầu là quyết định chính. Hai định dạng sau đ�
 nằm trong đợt chuyển đổi này: đường đi là dữ liệu ngữ nghĩa, lưới ô là mảng
 số lớn.
 
-## 2. Hiện trạng
+## 2. Hiện trạng trước migration
 
 - 18 tệp `.geom` được Git theo dõi: 5 fixture `data/input/`, 5 tham chiếu
   `data/expected/`, 8 mesh dẫn xuất trong `generated/`.
@@ -158,7 +158,7 @@ Funnel Tree **không** đọc `scene.glb`; nó chỉ nhận mesh `.off` đã d�
 
 Hai cách xử lý:
 
-- **A (khuyến nghị):** chạy lại `run_funnel_benchmark.py`,
+- **A (khuyến nghị khi đổi hình học):** chạy lại `run_funnel_benchmark.py`,
   `plan_surface_delivery.py`, `compare_surface_geodesic.py`,
   `run_city_three_goals.py --stage plan`, `run_surface_sensitivity.py` trong
   môi trường Ubuntu có NumPy/Shapely. Không cần chạy lại Gazebo vì STL và
@@ -166,16 +166,20 @@ Hai cách xử lý:
 - **B:** propagate hash cơ học kèm script chứng minh từng đỉnh và từng mặt
   khớp tuyệt đối trước/sau chuyển đổi.
 
+Đợt migration này dùng **cách B**: chuyển đổi chỉ thêm dòng `OFF` vào mesh và
+đổi container của đường đi sang JSON, nên hình học giữ nguyên từng đỉnh và
+từng mặt. Hash được propagate có kiểm chứng; không chạy lại Gazebo.
+
 ## 10. Thứ tự thực hiện
 
 1. Viết `tools/dev/migrate_geom_to_off.py`: đọc legacy, ghi OFF, đọc lại và
    so khớp từng đỉnh, từng mặt; in báo cáo.
-2. Chuyển 10 fixture bằng script; `git mv` 8 mesh dẫn xuất.
+2. Chuyển 5 fixture và 5 tệp đường đi bằng script; đổi tên 8 mesh dẫn xuất.
 3. Sửa parser, writer và toàn bộ đường dẫn.
 4. Chạy `check.py` trong môi trường có NumPy.
 5. Chạy lại pipeline hoặc propagate hash theo mục 9.
 6. `tools/verify_project_results.py` phải in `Project results: READY`.
-7. `grep -rn "\.geom"` phải rỗng, trừ ghi chú lịch sử.
+7. `grep -rn "\.geom"` phải rỗng, trừ script migration và ghi chú lịch sử.
 8. Commit một lần, ghi rõ định dạng cũ/mới và cách bảo toàn hình học.
 
 Tiêu chí hoàn thành:
@@ -188,8 +192,8 @@ Tiêu chí hoàn thành:
 
 ## 11. Rủi ro
 
-- **Sai số khi ghi**: dùng `repr(float)` để giữ nguyên giá trị nhị phân; nếu
-  đổi cách làm tròn, `check.py` có thể lệch.
+- **Sai số khi ghi**: mesh chỉ được thêm dòng `OFF` nên giữ nguyên văn bản gốc;
+  đường đi được JSON hoá trực tiếp từ float đã đọc, không làm tròn lại.
 - **`mesh_sha256` là định danh hình học**: đổi byte là đổi hash dù hình học y
   nguyên; phải cập nhật đồng bộ.
 - **GLB float32**: fixture `demo_mesh` có toạ độ double (~300), chuyển sang
@@ -202,5 +206,7 @@ Tiêu chí hoàn thành:
 ## 12. Trạng thái
 
 - Định hướng: đã chốt.
-- Migration: chưa thực hiện.
-- Bước xử lý dữ liệu đầu vào (`scene.glb`): chưa có trong mã nguồn.
+- Migration `.geom` → `.off` và `.paths.json`: đã áp dụng.
+- Bước xử lý dữ liệu đầu vào (`scene.glb`): chưa triển khai; sẽ quyết định sau.
+- Kiểm chứng sau migration: `check.py` pass và
+  `tools/verify_project_results.py` báo `Project results: READY`.

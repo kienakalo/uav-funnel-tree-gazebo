@@ -9,7 +9,7 @@ này; script mới cần thêm cùng một dòng.
 
 | Module | Vai trò | Import nội bộ |
 | --- | --- | --- |
-| `mesh.py` | `Point`, `Mesh`, `read_geom`: dữ liệu bề mặt, quan hệ kề, góc và khoảng cách | — |
+| `mesh.py` | `Point`, `Mesh`, `read_off`: dữ liệu bề mặt, quan hệ kề, góc và khoảng cách | — |
 | `funnel_tree.py` | Lan truyền Funnel, `clip_children`, `reconstruct`, `solve`, `propagate` | — (dùng giao diện `Mesh`, không import) |
 | `verification.py` | `read_mesh`, `read_paths`, `path_length`, `edge_distances`, `segment_on_mesh` | — (chỉ stdlib) |
 | `city.py` | `load_city`, `write_stl`: đọc GLB, bake transform, xuất lưới và STL | — (NumPy) |
