@@ -28,6 +28,29 @@ file này. Không sửa file gốc; mọi dẫn xuất nằm trong `generated/`.
 Một bản `city.glb` đặt ở `data/raw/meshes/` sẽ bị `.gitignore` bỏ qua để tránh
 chép trùng mô hình; đường dẫn chuẩn duy nhất là `data/raw/scenes/city.glb`.
 
+## Metadata cạnh từng tệp
+
+Mỗi tệp trong `raw/` có một sidecar cùng tên cộng `.json`, ví dụ
+`raw/meshes/L.off.json` hoặc `raw/scenes/city.glb.json`. Sidecar ghi:
+
+- `sha256`, `bytes` và số đỉnh/mặt/cạnh (tính lại từ tệp).
+- `origin`, `license`, `expected` của riêng tệp đó.
+- `units`, `axis` và ghi chú.
+
+Với OFF, `declared_edges` là giá trị `E` trong header còn `computed_edges` là
+số cạnh suy ra từ danh sách mặt; hai giá trị có thể lệch vì vài fixture khai
+báo `E` chưa chính xác.
+
+Sinh hoặc cập nhật sidecar:
+
+```bash
+python3 tools/raw_sidecars.py --write
+python3 tools/raw_sidecars.py --check
+```
+
+`tools/verify_project_results.py` gọi bước `--check`, nên sửa tay một mesh mà
+không cập nhật sidecar sẽ làm kiểm tra cuối thất bại.
+
 ## Định dạng `.off`
 
 `data/raw/meshes/*.off` là lưới tam giác dạng văn bản theo chuẩn OFF:

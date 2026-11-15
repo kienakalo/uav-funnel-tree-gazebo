@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "file": "city.glb",
+  "format": "GLB2",
+  "nodes": 55,
+  "meshes": 53,
+  "triangles": 301490,
+  "sha256": "a3b642e8a4674a278975981247d97b836bda60977ce609bf3044b1b7839f4f22",
+  "bytes": 20565192,
+  "origin": "third-party",
+  "license": "CC-BY-4.0",
+  "expected": null,
+  "units": "original model units",
+  "axis": "Y-up (glTF)",
+  "notes": "Saigon 3D City asset; see ATTRIBUTION.md."
+}

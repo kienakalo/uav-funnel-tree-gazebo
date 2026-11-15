@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "file": "demo_mesh.off",
+  "format": "OFF",
+  "vertices": 31,
+  "faces": 62,
+  "declared_edges": 0,
+  "computed_edges": 93,
+  "sha256": "363549c6f0f35cddefa2ee73f618966879c836d82bd372097af39e1889462f09",
+  "bytes": 2280,
+  "origin": "first-party",
+  "license": "BSD-3-Clause",
+  "expected": "data/expected/demo_mesh.paths.json",
+  "units": "model units",
+  "axis": "as authored",
+  "notes": "Imported demo mesh with high-precision coordinates."
+}

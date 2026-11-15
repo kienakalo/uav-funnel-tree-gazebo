@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "file": "L.off",
+  "format": "OFF",
+  "vertices": 12,
+  "faces": 20,
+  "declared_edges": 10,
+  "computed_edges": 30,
+  "sha256": "f6220d7d50da97b47281dda48296b16b257e5b0e5686151f344c697859adee21",
+  "bytes": 263,
+  "origin": "first-party",
+  "license": "BSD-3-Clause",
+  "expected": "data/expected/L.paths.json",
+  "units": "model units",
+  "axis": "as authored",
+  "notes": "L-shaped surface with a concave edge."
+}

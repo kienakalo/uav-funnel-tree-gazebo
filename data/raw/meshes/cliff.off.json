@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "file": "cliff.off",
+  "format": "OFF",
+  "vertices": 7,
+  "faces": 10,
+  "declared_edges": 15,
+  "computed_edges": 15,
+  "sha256": "d4c9c65ad0fd6c64b4e5ae3e70a034d4761d093d02f431159fabf345fb914f75",
+  "bytes": 155,
+  "origin": "first-party",
+  "license": "BSD-3-Clause",
+  "expected": "data/expected/cliff.paths.json",
+  "units": "model units",
+  "axis": "as authored",
+  "notes": "Concave step used by the clipping checks."
+}

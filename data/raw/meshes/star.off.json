@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "file": "star.off",
+  "format": "OFF",
+  "vertices": 16,
+  "faces": 28,
+  "declared_edges": 42,
+  "computed_edges": 42,
+  "sha256": "6cdb241372a64d4b5e6c76f9356e4b129ec9cbeb89b511b2c6eabf063134f078",
+  "bytes": 370,
+  "origin": "first-party",
+  "license": "BSD-3-Clause",
+  "expected": "data/expected/star.paths.json",
+  "units": "model units",
+  "axis": "as authored",
+  "notes": "Reference data covers source 0 only."
+}
