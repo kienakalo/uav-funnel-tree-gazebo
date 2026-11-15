@@ -424,23 +424,23 @@
       "note": "added with the data pipeline"
     },
     {
-      "path": "tools/prepare_scene.py",
+      "path": "tools/standardize.py",
       "old_sha256": null,
-      "new_sha256": "2e27c1d87be2feed40f48c5f61373a078597d4673dc0065d88a283edf254e5b3",
+      "new_sha256": "7286f89f2bd1c42be8107cba96cbfdc13c337fc4e55c491bfe41a747158a81a2",
       "python_ast_unchanged": true,
       "note": "added with the data pipeline"
     },
     {
-      "path": "tools/off_to_glb.py",
+      "path": "tools/off2glb.py",
       "old_sha256": null,
-      "new_sha256": "e9fa724a1692d7af00bcc7c4030e0a14ef87222633e99f4c42526a914d6aea9a",
+      "new_sha256": "aded6279021e491cdaf50b02c1ff7432ef6ef95229344915087d97a2e03a6b92",
       "python_ast_unchanged": true,
       "note": "added with the data pipeline"
     },
     {
-      "path": "tools/prepare_surface.py",
+      "path": "tools/triangulation.py",
       "old_sha256": null,
-      "new_sha256": "601789ca4a8a1ffbfb3f3886bd8eac4180d6c56cfde58d049ac8abc8b21a54fa",
+      "new_sha256": "271546bb979613765e05c060312ceacc0b165b0e3cf918bafa2cecade294715f",
       "python_ast_unchanged": true,
       "note": "added with the data pipeline"
     }
@@ -501,5 +501,5 @@
   "off_migration_changed_source_count": 26,
   "gazebo_release": "Jetty (gz-sim10, gz-math9)",
   "gazebo_migration": "Migrated scripts, plugin imports and documentation from Gazebo Harmonic (gz.sim8, gz.math7) to Gazebo Jetty (gz.sim10, gz.math9). No simulation was rerun in this environment; the recorded results remain those produced with Harmonic.",
-  "data_pipeline": "data/raw holds the untouched sources (city.glb, nine .off fixtures). tools/prepare_scene.py writes a standardized Y-up scene, tools/off_to_glb.py converts fixtures to Z-up GLB for Gazebo, and tools/prepare_surface.py triangulates the navigation surface. The scene GLB is a derived cache and is not committed."
+  "data_pipeline": "data/raw holds the untouched sources. tools/standardize.py writes a standardized Y-up scene, tools/off2glb.py converts fixtures to Z-up GLB for Gazebo, and tools/triangulation.py builds the navigation surface. The standardized scene is a derived cache and is not committed."
 }

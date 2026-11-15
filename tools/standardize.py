@@ -5,7 +5,7 @@
 """Standardize a raw city GLB into a scene with a documented contract.
 
 Input:  data/raw/scenes/city.glb (third-party, Y-up, Sketchfab node names)
-Output: data/processed/scenes/city.scene.glb
+Output: data/processed/standardized/city.standardized.glb
 
 The output keeps one node per city object, applies the scene transforms once,
 drops materials and textures, and records provenance, axis and counts in the
@@ -27,7 +27,7 @@ from glb import indexed_from_triangles, read_glb, write_glb
 from inspect_flight_levels_fixed import transformed_objects
 
 DEFAULT_INPUT = ROOT / 'data/raw/scenes/city.glb'
-DEFAULT_OUTPUT = ROOT / 'data/processed/scenes/city.scene.glb'
+DEFAULT_OUTPUT = ROOT / 'data/processed/standardized/city.standardized.glb'
 
 
 def asset_extras(path):
@@ -76,7 +76,7 @@ def main():
         'policy': 'transforms baked once; materials and textures dropped; node names normalized',
     }
     report = write_glb(args.output, meshes, extras=manifest,
-                       generator='uav-funnel-tree-gazebo prepare_scene')
+                       generator='uav-funnel-tree-gazebo standardize')
 
     reloaded = read_glb(args.output)
     if sum(len(faces) for _, _, faces in reloaded) != triangles:

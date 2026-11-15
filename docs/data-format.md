@@ -39,7 +39,7 @@ số lớn.
   tên node và bổ sung `extras`, không phải viết lại bộ đọc.
 - Gazebo **không** tự xoay glTF từ Y-up sang Z-up: `gz-common`'s
   `AssimpLoader.cc` giữ nguyên root transform của glTF. Nguồn Y-up phải bake
-  `(x, y, z) → (x, -z, y)` trước khi dùng làm `.sim.glb`.
+  `(x, y, z) → (x, -z, y)` trước khi dùng làm `.off2glb.glb`.
 
 ## 4. Vì sao OFF cho mesh dẫn xuất
 
@@ -85,20 +85,20 @@ bằng mắt, và là dữ liệu dẫn xuất.
 
 ```text
 data/raw/scenes/city.glb
-        │ tools/prepare_scene.py
+        │ tools/standardize.py
         ▼
-data/processed/scenes/city.scene.glb          Y-up, để xem/trao đổi
-        │ tools/prepare_surface.py            (cùng STL chuẩn của delivery plan)
+data/processed/standardized/city.standardized.glb   Y-up, để xem/trao đổi
+        │ tools/triangulation.py                     (cùng STL chuẩn của delivery plan)
         ▼
-data/processed/meshes/city.surface.cell5.off  Z-up, hệ Gazebo đã chuẩn hoá
+data/processed/triangulation/city.triangulation.cell5.off  Z-up, hệ Gazebo
         │
         ▼
     Funnel Tree
 
 data/raw/meshes/*.off
-        │ tools/off_to_glb.py
+        │ tools/off2glb.py
         ▼
-data/processed/scenes/meshes/*.sim.glb        Z-up, cho Gazebo
+data/processed/off2glb/*.off2glb.glb          Z-up, cho Gazebo
 ```
 
 `scene.glb` là output của bước xử lý đầu vào và là input của bước tạo lưới.
@@ -210,9 +210,9 @@ Tiêu chí hoàn thành:
 - Migration `.geom` → `.off` và `.paths.json`: đã áp dụng.
 - `data/raw/meshes/` hiện có 9 fixture: 5 bản gốc và 4 mesh bổ sung từ bài báo
   (`cube`, `dome`, `icosahedron`, `terrain`), không có tệp `expected/`.
-- Ba quy trình dữ liệu: đã triển khai trong `tools/prepare_scene.py`,
-  `tools/off_to_glb.py` và `tools/prepare_surface.py`.
-- Sản phẩm nằm trong `data/processed/`; `city.scene.glb` là cache dẫn xuất
-  (không commit), `.sim.glb` và `city.surface.cell5.off` được commit.
+- Ba quy trình dữ liệu: đã triển khai trong `tools/standardize.py`,
+  `tools/off2glb.py` và `tools/triangulation.py`.
+- Sản phẩm nằm trong `data/processed/`; `city.standardized.glb` là cache dẫn xuất
+  (không commit), `.off2glb.glb` và `city.triangulation.cell5.off` được commit.
 - Kiểm chứng sau migration: `check.py` pass và
   `tools/verify_project_results.py` báo `Project results: READY`.

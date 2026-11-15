@@ -5,12 +5,12 @@
 """Convert raw OFF fixtures into simulation-ready GLB for Gazebo.
 
 Input:  data/raw/meshes/*.off (model units, Z-up, as used by the planner)
-Output: data/processed/scenes/meshes/*.sim.glb
+Output: data/processed/off2glb/*.off2glb.glb
 
 Coordinates are kept unchanged by default: the fixtures use Z as the
 elevation axis, which matches Gazebo. Pass --to-z-up for Y-up sources; Gazebo
 does not convert glTF axes, so the rotation (x, y, z) -> (x, -z, y) has to be
-baked into the file. glTF viewers assume Y-up, so a Z-up .sim.glb appears
+baked into the file. glTF viewers assume Y-up, so a Z-up .off2glb.glb appears
 rotated there; that is expected for a simulation asset.
 """
 import argparse
@@ -25,7 +25,7 @@ from glb import read_glb, write_glb
 from mesh import read_off
 
 DEFAULT_INPUT = ROOT / 'data/raw/meshes'
-DEFAULT_OUTPUT = ROOT / 'data/processed/scenes/meshes'
+DEFAULT_OUTPUT = ROOT / 'data/processed/off2glb'
 
 
 def convert(source, output, to_z_up=False):
@@ -49,7 +49,7 @@ def convert(source, output, to_z_up=False):
     }
     report = write_glb(output, [{'name': source.stem, 'vertices': vertices,
                                  'faces': faces, 'extras': extras}],
-                       extras=extras, generator='uav-funnel-tree-gazebo off_to_glb')
+                       extras=extras, generator='uav-funnel-tree-gazebo off2glb')
     name, reloaded_vertices, reloaded_faces = read_glb(output)[0]
     if len(reloaded_vertices) != len(vertices) or len(reloaded_faces) != len(faces):
         raise ValueError(f'{source}: reloaded counts differ')
@@ -72,7 +72,7 @@ def main():
     if not sources:
         parser.error(f'No .off fixtures found in {args.input}')
     for source in sources:
-        output = args.output / f'{source.stem}.sim.glb'
+        output = args.output / f'{source.stem}.off2glb.glb'
         report = convert(source, output, args.to_z_up)
         print(f'{source.stem}: {json.dumps(report)}')
         print(f'Save at: {output}')

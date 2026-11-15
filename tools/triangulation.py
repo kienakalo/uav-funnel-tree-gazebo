@@ -5,10 +5,10 @@
 # plan_surface_delivery).
 """Triangulate a navigation surface from the standardized city scene.
 
-Input:  data/processed/scenes/city.scene.glb
+Input:  data/processed/standardized/city.standardized.glb
         generated/funnel_physics/delivery/horizontal_plan.json
-Output: data/processed/meshes/city.surface.cell5.off
-        data/processed/meshes/city.surface.cell5.json
+Output: data/processed/triangulation/city.triangulation.cell5.off
+        data/processed/triangulation/city.triangulation.cell5.json
 
 The surface is the same conservative clearance envelope used by the delivery
 experiment: whole cells over the city, raised by the vertical clearance and
@@ -32,9 +32,9 @@ from build_navigation_surface import write_off
 from city import load_city, write_stl
 from plan_surface_delivery import CLEARANCE, HALF_WIDTH, MAX_AXIS_SLOPE, build_surface
 
-DEFAULT_SCENE = ROOT / 'data/processed/scenes/city.scene.glb'
+DEFAULT_SCENE = ROOT / 'data/processed/standardized/city.standardized.glb'
 DEFAULT_PLAN = ROOT / 'generated/funnel_physics/delivery/horizontal_plan.json'
-DEFAULT_OUTPUT = ROOT / 'data/processed/meshes/city.surface.cell5.off'
+DEFAULT_OUTPUT = ROOT / 'data/processed/triangulation/city.triangulation.cell5.off'
 
 
 def main():
@@ -50,14 +50,14 @@ def main():
                         help='Rebuild the STL from the scene instead of using the canonical STL')
     args = parser.parse_args()
     if not args.scene.is_file():
-        parser.error(f'Missing standardized scene: {args.scene}. Run tools/prepare_scene.py first.')
+        parser.error(f'Missing standardized scene: {args.scene}. Run tools/standardize.py first.')
     if not args.plan.is_file():
         parser.error(f'Missing delivery plan: {args.plan}')
 
     vertices, faces, metadata = load_city(args.scene)
     temporary = tempfile.TemporaryDirectory()
     if args.from_scene:
-        stl_path = Path(temporary.name) / 'city.scene.stl'
+        stl_path = Path(temporary.name) / 'city.standardized.stl'
         write_stl(stl_path, vertices, faces)
     else:
         if not args.stl.is_file():
