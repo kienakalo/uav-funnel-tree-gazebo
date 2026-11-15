@@ -4,7 +4,7 @@
 # local modules (glb, mesh).
 """Convert raw OFF fixtures into simulation-ready GLB for Gazebo.
 
-Input:  data/raw/meshes/*.off (model units; see each sidecar for axis)
+Input:  data/raw/meshes/*.off (model units; axis documented in data/README.md)
 Output: data/processed/scenes/meshes/*.off2glb.glb
 
 Coordinates are kept unchanged by default: the fixtures use Z as the

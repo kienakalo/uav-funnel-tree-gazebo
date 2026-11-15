@@ -5,7 +5,7 @@ Nguồn nằm ở [`data/raw/`](../raw/).
 
 | Tệp | Bước | Công cụ |
 | --- | --- | --- |
-| `meshes/*.off` + `*.off.json` | Pass-through (validate + copy) | `tools/copy_meshes.py` |
+| `meshes/*.off` | Pass-through (validate + copy) | `tools/copy_meshes.py` |
 | `scenes/city.standardized.glb` | Standardize | `tools/standardize.py` |
 | `scenes/meshes/*.off2glb.glb` | OFF → GLB cho Gazebo | `tools/off2glb.py` |
 | `meshes/city.triangulation.off` | Tam giác phân bề mặt | `tools/triangulation.py` |
@@ -17,7 +17,6 @@ Bề mặt hiện dùng ô 5, khe hở dọc 1,5 và dự phòng ngang 1,6.
 ## Chạy
 
 ```bash
-python3 tools/raw_sidecars.py --write
 python3 tools/copy_meshes.py --write
 python3 tools/standardize.py
 python3 tools/off2glb.py

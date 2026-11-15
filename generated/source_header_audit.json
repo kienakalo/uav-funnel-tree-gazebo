@@ -1,6 +1,6 @@
 {
   "scope": "all first-party Python files at repository root, src, tools, tests; scripts/*.sh; excludes generated outputs, environments and third-party assets",
-  "source_file_count": 74,
+  "source_file_count": 73,
   "changed_source_count": 56,
   "python_ast_preserved": true,
   "algorithm_or_simulation_rerun": false,
@@ -333,7 +333,7 @@
     {
       "path": "tools/verify_project_results.py",
       "old_sha256": "bc7367389f50f06abe6c3f4c63fbe815a4b2efde7ece46d669160c26d7e967b9",
-      "new_sha256": "31e429c2c3b67290cca002b0affdd1b0a13abd16a1ce353877a31dbf50c2df5d",
+      "new_sha256": "d7b0e56576ec81f10ce1857f3859e808f621683635c11cc8750f1efc5f7d2b01",
       "python_ast_unchanged": true
     },
     {
@@ -433,7 +433,7 @@
     {
       "path": "tools/off2glb.py",
       "old_sha256": null,
-      "new_sha256": "f38ec93d64fde9739a0165f7765ed7e8332b4cb5a92cb7116c4828bb2f6bc2c4",
+      "new_sha256": "f72d95a01411488c825883ab5fc121d1a60cbfc7c1ba8cca422e6ae2dbbb5da0",
       "python_ast_unchanged": true,
       "note": "added with the data pipeline"
     },
@@ -445,16 +445,9 @@
       "note": "added with the data pipeline"
     },
     {
-      "path": "tools/raw_sidecars.py",
-      "old_sha256": null,
-      "new_sha256": "c47004455dd76ff231dc64881fc5c80665b30003afd3c544b5d26542e2f152e5",
-      "python_ast_unchanged": true,
-      "note": "added with raw sidecar metadata"
-    },
-    {
       "path": "tools/copy_meshes.py",
       "old_sha256": null,
-      "new_sha256": "1d21bbefaf1ad094e14cc3e420778be4c3e219f8bc2a39f8225ffd93c50a5df0",
+      "new_sha256": "be1bf0a60774999b329e5e35c17871251c04b936399dc25738ad88273e1901cf",
       "python_ast_unchanged": true,
       "note": "added with the processed mesh pass-through"
     }
@@ -516,6 +509,5 @@
   "gazebo_release": "Jetty (gz-sim10, gz-math9)",
   "gazebo_migration": "Migrated scripts, plugin imports and documentation from Gazebo Harmonic (gz.sim8, gz.math7) to Gazebo Jetty (gz.sim10, gz.math9). No simulation was rerun in this environment; the recorded results remain those produced with Harmonic.",
   "data_pipeline": "data/raw holds the untouched sources. tools/standardize.py writes a standardized Y-up scene, tools/off2glb.py converts fixtures to Z-up GLB for Gazebo, and tools/triangulation.py builds the navigation surface. The standardized scene is a derived cache and is not committed.",
-  "raw_sidecars": "Each file under data/raw has a <file>.json sidecar with hash, counts, origin, license and expected reference.",
-  "data_layout": "raw/ holds untouched sources with per-file sidecars; processed/ holds validated fixture copies, the standardized scene, Gazebo GLB conversions and the triangulated surface."
+  "data_layout": "raw/ holds untouched sources; processed/ holds validated fixture copies, the standardized scene, Gazebo GLB conversions and the triangulated surface. Per-file provenance lives in data/README.md and ATTRIBUTION.md."
 }

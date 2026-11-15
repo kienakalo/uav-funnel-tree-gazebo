@@ -35,87 +35,34 @@ city.standardized.glb + delivery plan
 | `.triangulation.json` | Manifest tham số và nguồn của bề mặt | `city.triangulation.json` |
 | `.paths.json` | Đường đi tham chiếu cho kiểm thử | `L.paths.json` |
 | `.off`, `.glb` (không hậu tố) | Nguồn chưa qua xử lý | `L.off`, `city.glb` |
-| `<tệp>.json` | Sidecar metadata của đúng tệp đó | `L.off.json` |
 
 Hậu tố mô tả **bước đã qua**, không dùng các từ chung chung như `_final` hay
 `_new`. Tham số tam giác phân không nằm trong tên tệp mà nằm trong manifest.
 
-## Sidecar metadata
+## Thông tin từng tệp
 
-Mỗi tệp trong `raw/` và mỗi bản sao trong `processed/meshes/` có một sidecar
-cùng tên cộng `.json`. Sidecar đi kèm tệp, nên metadata của từng mesh có thể
-khác nhau mà không ảnh hưởng mesh khác.
+Không dùng sidecar JSON cho từng tệp. Thông tin cần cho giấy phép, trục và dữ
+liệu tham chiếu nằm trong bảng dưới đây và trong
+[ATTRIBUTION.md](../ATTRIBUTION.md). Hash và số đỉnh/mặt có thể tính lại từ
+tệp; phần kiểm tra toàn vẹn kết quả nằm trong `tools/verify_project_results.py`.
 
-| Trường | Ý nghĩa |
-| --- | --- |
-| `schema` | Phiên bản schema, hiện là `1`. Tăng khi đổi cấu trúc. |
-| `kind` | `raw-asset` hoặc `processed-asset`. Quyết định có trường `source` hay không. |
-| `file` | Tên tệp mà sidecar mô tả. |
-| `format` | `OFF` hoặc `GLB2`. |
-| `sha256` | Hash nội dung tệp, tính lại mỗi lần chạy `--write`. |
-| `bytes` | Kích thước tệp. |
-| `geometry` | Số đỉnh, tam giác; OFF thêm `declared_edges`/`computed_edges`; GLB thêm `nodes`/`meshes`. |
-| `units` | `model-units` cho mọi tệp; không phải mét khảo sát. |
-| `axis` | `Y-up`, `Z-up` hoặc `as-authored`. Dùng khi chuyển sang Gazebo. |
-| `origin` | `first-party`, `paper-derived` hoặc `third-party`. |
-| `license` | SPDX identifier, ví dụ `BSD-3-Clause` hoặc `CC-BY-4.0`. |
-| `expected` | Đường dẫn tới `.paths.json`, hoặc `null` nếu chỉ kiểm tra hình học. |
-| `notes` | Ghi chú riêng của tệp. |
-| `source` | Chỉ có ở `processed-asset`: tệp raw và hash của nó. |
-
-Ví dụ sidecar raw:
-
-```json
-{
-  "schema": 1,
-  "kind": "raw-asset",
-  "file": "terrain.off",
-  "format": "OFF",
-  "sha256": "7a6cc43c...",
-  "bytes": 2115,
-  "geometry": {
-    "vertices": 49,
-    "triangles": 72,
-    "declared_edges": 108,
-    "computed_edges": 120
-  },
-  "units": "model-units",
-  "axis": "Z-up",
-  "origin": "paper-derived",
-  "license": "BSD-3-Clause",
-  "expected": null,
-  "notes": "Height field; z is elevation."
-}
-```
-
-Bản trong `processed/meshes/` giữ nguyên các trường trên, đổi `kind` thành
-`processed-asset` và thêm:
-
-```json
-"source": {
-  "file": "data/raw/meshes/terrain.off",
-  "sha256": "7a6cc43c..."
-}
-```
-
-Với OFF, `declared_edges` là giá trị `E` trong header còn `computed_edges` là
-số cạnh suy ra từ danh sách mặt. Hai giá trị có thể lệch vì vài fixture khai
-báo `E` chưa chính xác; ví dụ `terrain.off` khai báo 108 nhưng thực tế có 120.
-
-Sinh hoặc cập nhật:
-
-```bash
-python3 tools/raw_sidecars.py --write
-python3 tools/copy_meshes.py --write
-```
-
-`tools/verify_project_results.py` gọi cả hai bước `--check`, nên sửa tay một
-mesh mà không cập nhật sidecar sẽ làm kiểm tra cuối thất bại.
+| Tệp | Nguồn | Giấy phép | Axis | Expected |
+| --- | --- | --- | --- | --- |
+| `raw/scenes/city.glb` | third-party, Saigon 3D City | CC BY 4.0 | Y-up | — |
+| `raw/meshes/cliff.off` | first-party | BSD-3-Clause | as-authored | `expected/cliff.paths.json` |
+| `raw/meshes/demo_mesh.off` | first-party | BSD-3-Clause | as-authored | `expected/demo_mesh.paths.json` |
+| `raw/meshes/J17.off` | first-party | BSD-3-Clause | as-authored | `expected/J17.paths.json` |
+| `raw/meshes/L.off` | first-party | BSD-3-Clause | as-authored | `expected/L.paths.json` |
+| `raw/meshes/star.off` | first-party | BSD-3-Clause | as-authored | `expected/star.paths.json` (nguồn 0) |
+| `raw/meshes/cube.off` | paper-derived | BSD-3-Clause | as-authored | — |
+| `raw/meshes/dome.off` | paper-derived | BSD-3-Clause | Z-up | — |
+| `raw/meshes/icosahedron.off` | paper-derived | BSD-3-Clause | as-authored | — |
+| `raw/meshes/terrain.off` | paper-derived | BSD-3-Clause | Z-up | — |
 
 ## Manifest của bước tam giác phân
 
-`processed/meshes/city.triangulation.json` không phải sidecar của một tệp mà
-là manifest của **quá trình** sinh ra `city.triangulation.off`:
+`processed/meshes/city.triangulation.json` là manifest của **quá trình** sinh
+ra `city.triangulation.off`:
 
 | Trường | Ý nghĩa |
 | --- | --- |
@@ -186,8 +133,8 @@ cận dưới Euclid và cận trên, không so sánh với dữ liệu tham chi
   `*.off -text` để Git không đổi kiểu xuống dòng.
 - `check.py` so sánh chiều dài với dung sai dựa trên việc làm tròn 4 chữ số
   thập phân trong `expected/`. Sửa toạ độ phải cập nhật cả mesh lẫn expected.
-- Muốn thêm mesh: thêm `raw/meshes/<tên>.off`, thêm mục vào `CURATED` trong
-  `tools/raw_sidecars.py`, chạy `raw_sidecars.py --write` và
-  `copy_meshes.py --write`, rồi cập nhật `check.py`.
+- Muốn thêm mesh: thêm `raw/meshes/<tên>.off`, thêm dòng vào bảng
+  *Thông tin từng tệp*, chạy `python3 tools/copy_meshes.py --write`, rồi cập
+  nhật `check.py`.
 - Muốn thêm bề mặt khác: chạy `tools/triangulation.py --cell ... --output ...`;
   manifest sẽ ghi tham số tương ứng.

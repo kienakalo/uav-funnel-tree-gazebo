@@ -395,7 +395,7 @@ dấu vân tay trong `generated/` đã được tính lại.
 | Tam giác phân bề mặt | `tools/triangulation.py` | `city.standardized.glb` + delivery plan → `data/processed/meshes/city.triangulation.off` |
 
 Gazebo **không** tự xoay glTF từ Y-up sang Z-up; nguồn Y-up phải được bake
-`(x, y, z) → (x, -z, y)`. Trục của từng fixture ghi trong sidecar `axis`; cờ
+`(x, y, z) → (x, -z, y)`. Trục của từng fixture ghi trong bảng ở `data/README.md`; cờ
 `--to-z-up` dùng cho nguồn Y-up. Xem
 [data/processed/README.md](data/processed/README.md).
 
