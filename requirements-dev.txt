@@ -1,0 +1,4 @@
+# Survey and maintenance tools in tools/dev/. Not used by the demo pipeline.
+# Those scripts are historical, so trimesh is only bounded by major version.
+-r requirements-demo.txt
+trimesh>=4,<5

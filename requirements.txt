@@ -1,1 +1,3 @@
+# Minimal dependency for the planner core: check.py, plan.py and tests/.
+# The full demo pins exact versions in requirements-demo.txt.
 numpy>=1.24,<3

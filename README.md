@@ -116,9 +116,10 @@ nằm trong `figure_metadata.json`.
 Toàn bộ mã Python của nhóm ở thư mục gốc, `src/`, `tools/`, `tests/` và các
 script trong `scripts/` có thông báo BSD-3-Clause cùng thư viện hoặc runtime
 chính ở phần đầu. Module nội bộ được ghi riêng với thư viện bên ngoài.
-`requirements-demo.txt` và `requirements-reference.txt` lưu các
-phiên bản đã dùng; một thư viện có trong bộ cài không đồng nghĩa mọi module
-đều sử dụng nó. Gazebo dùng Python bindings cài qua hệ thống Ubuntu.
+`requirements-demo.txt`, `requirements-reference.txt` và
+`requirements-dev.txt` lưu các phiên bản đã dùng; một thư viện có trong bộ
+cài không đồng nghĩa mọi module đều sử dụng nó. Gazebo dùng Python bindings
+cài qua hệ thống Ubuntu.
 
 [Biên bản rà soát header](generated/source_header_audit.json) ghi nhận các
 file đã kiểm tra. Việc bổ sung chú thích giữ nguyên cấu trúc thực thi Python;
@@ -283,6 +284,7 @@ uav-funnel-tree-gazebo/
 ├── requirements.txt           # Phụ thuộc tối thiểu (NumPy)
 ├── requirements-demo.txt      # Phiên bản thư viện dùng cho demo
 ├── requirements-reference.txt # pygeodesic cho phép đối chiếu MMP
+├── requirements-dev.txt       # trimesh cho công cụ khảo sát tools/dev
 ├── animate.py                 # Gửi lệnh pose để xem trước, không điều khiển vật lý
 ├── check.py                   # Kiểm thử hồi quy hình học và thuật toán
 ├── plan.py                    # Chạy Funnel Tree trên các mesh .geom mẫu
