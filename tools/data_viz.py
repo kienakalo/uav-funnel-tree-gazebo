@@ -111,6 +111,8 @@ def main():
         saved = render(path, output, not args.no_paths, args.source, args.show)
         if saved is not None:
             print(f'Save at: {saved}')
+    if not args.show:
+        print(f'Rendered {len(paths)} mesh(es) to {args.output}')
 
 
 if __name__ == '__main__':

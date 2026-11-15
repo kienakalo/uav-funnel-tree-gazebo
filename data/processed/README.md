@@ -35,6 +35,45 @@ cần Shapely và dùng STL chuẩn `generated/funnel_preview/city.stl` (cùng h
 `horizontal_plan.json`). Thêm `--from-scene` nếu muốn dựng lại STL từ scene;
 khi đó bề mặt có thể lệch khoảng 1e-6 do scene lưu float32 và bị chuẩn hoá lại.
 
+## Xem mesh `.off`
+
+GLB mở được bằng Blender, MeshLab hoặc trình xem glTF; `.off` cần
+`tools/data_viz.py`.
+
+```bash
+# một mesh (tên không cần .off)
+.venv/bin/python tools/data_viz.py L
+
+# nhiều mesh
+.venv/bin/python tools/data_viz.py L terrain cube
+
+# bề mặt thành phố
+.venv/bin/python tools/data_viz.py city.triangulation
+
+# đường dẫn đầy đủ, kể cả file ngoài data/processed/meshes
+.venv/bin/python tools/data_viz.py data/processed/meshes/L.off
+
+# tất cả
+.venv/bin/python tools/data_viz.py --all
+```
+
+PNG ghi vào `generated/data_viz/<tên>.png`.
+
+| Cờ | Tác dụng |
+| --- | --- |
+| `--show` | Mở cửa sổ 3D tương tác thay vì ghi PNG |
+| `--source N` | Đánh dấu đỉnh nguồn N bằng màu cam |
+| `--no-paths` | Không vẽ đè đường tham chiếu từ `data/expected/` |
+| `--input DIR` | Đổi thư mục tìm mesh, mặc định `data/processed/meshes` |
+| `--output DIR` | Đổi thư mục ghi ảnh, mặc định `generated/data_viz` |
+
+Với `--show`, cửa sổ Matplotlib cho xoay/zoom bằng chuột; đóng cửa sổ để
+thoát. Cần môi trường có giao diện (Ubuntu/WSLg); nếu backend không mở được,
+dùng chế độ ghi PNG.
+
+Mesh có `data/expected/<tên>.paths.json` sẽ được vẽ đè các đường tham chiếu
+màu đỏ. `python3 main.py data` render tất cả ở bước cuối của stage `data`.
+
 ## Tham số bề mặt hiện tại
 
 | Tham số | Giá trị |

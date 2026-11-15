@@ -13,6 +13,7 @@ Stages:
   flow      print the stages and the commands they run
 
 Examples:
+  python3 main.py             # same as: python3 main.py data
   python3 main.py flow
   python3 main.py data
   python3 main.py data verify
@@ -90,6 +91,7 @@ def show_flow():
             print('            ' + display(command))
     print('\nAliases:')
     print('  all       data + verify (no Gazebo)')
+    print('\nNo stage given: data is executed. Use "flow" to only print this list.')
 
 
 def run_stage(name, dry_run):
@@ -114,7 +116,7 @@ def main():
     parser.add_argument('--dry-run', action='store_true',
                         help='Print the commands without running them')
     args = parser.parse_args()
-    stages = args.stages or ['flow']
+    stages = args.stages or ['data']
     if 'flow' in stages:
         show_flow()
         stages = [stage for stage in stages if stage != 'flow']
