@@ -5,6 +5,7 @@ tuyến trên bề mặt đa diện và mô phỏng một UAV bám tuyến trong
 Quy trình đọc mô hình thành phố `city.glb`,
 dựng bề mặt dẫn đường 3D phía trên địa hình và công trình, chạy Funnel Tree,
 đối chiếu độ dài với bộ giải MMP độc lập, rồi mô phỏng tiếp cận điểm giao hàng.
+Luồng xử lý chi tiết theo năm tầng ở mục **Luồng xử lý và các tầng kiểm chứng**.
 
 ![Bản đồ và tuyến bay](generated/funnel_physics/surface_delivery/city_overview.png)
 
@@ -269,6 +270,80 @@ kết quả telemetry để đánh giá bản mới.
 Kế hoạch lưu SHA256 của đầu vào và mã liên quan. Nếu sửa một tệp đầu vào,
 cần lập lại kế hoạch tương ứng. Khi thay đổi cả pipeline miền phẳng, xem
 [hướng dẫn chi tiết](RUNBOOK_CURRENT.md) và các công cụ trong `tools/`.
+
+## Luồng xử lý và các tầng kiểm chứng
+
+Cài đặt môi trường (`.venv`, Gazebo, `pygeodesic`) là bước chuẩn bị, không
+tính vào năm tầng dưới đây. Mỗi tầng ghi SHA256 của đầu vào, và tầng sau từ
+chối chạy nếu đầu vào đã đổi; vì vậy không thể ghép kết quả cũ với mã hoặc
+bản đồ mới.
+
+```text
+data/source/city.glb
+        │  tools/build_navigation_surface.py   → navigation_y2p00.geom + grid
+        │  tools/prepare_funnel_input.py       → funnel_input_y2p00.geom
+        │  tools/run_funnel_route.py           → candidate route + cache
+        │  tools/check_funnel_candidate.py     → candidate validation
+        │  tools/prepare_funnel_gazebo.py      → funnel_preview/
+        ▼
+generated/funnel_preview/  city.stl, route.json, funnel_demo.sdf
+        │  tools/plan_funnel_delivery.py
+        ▼
+generated/funnel_physics/delivery/horizontal_plan.json
+        │  tools/plan_surface_delivery.py --cell 5 --coverage city
+        ▼
+surface.geom/.stl, surface_plan.json, surface_report.json    ← Funnel Tree
+        │  tools/compare_surface_geodesic.py
+        ▼
+generated/funnel_surface_reference/comparison.json           ← MMP độc lập
+        │  tools/prepare_funnel_physics.py --case surface_delivery
+        ▼
+generated/funnel_physics/surface_delivery/funnel_physics.sdf
+        │  scripts/run_funnel_physics.sh surface_delivery
+        ▼
+physics_telemetry.csv, telemetry_metadata.json               ← Gazebo
+        │  tools/analyze_surface_delivery.py
+        ▼
+surface_validation.json
+        │  tools/export_funnel_physics_results.py --case surface_delivery
+        ▼
+summary, hình  →  tools/verify_project_results.py  →  Project results: READY
+```
+
+| Tầng | Việc làm | Lệnh chính | Đầu ra |
+| --- | --- | --- | --- |
+| 1 | Dựng miền phẳng và dữ liệu nền | `tools/build_navigation_surface.py` → `tools/prepare_funnel_input.py` → `tools/run_funnel_route.py` → `tools/check_funnel_candidate.py` → `tools/prepare_funnel_gazebo.py` | `funnel_input_y2p00.geom`, `generated/funnel_preview/` |
+| 2 | Lập tuyến bằng Funnel Tree, đối chiếu MMP | `tools/plan_funnel_delivery.py`, `tools/plan_surface_delivery.py`, `tools/compare_surface_geodesic.py` | `horizontal_plan.json`, `surface.*`, `comparison.json` |
+| 3 | Dựng world vật lý | `tools/prepare_funnel_physics.py --case surface_delivery` | `funnel_physics.sdf`, `route.json` |
+| 4 | Mô phỏng Gazebo và ghi telemetry | `bash scripts/run_funnel_physics.sh surface_delivery` | `physics_telemetry.csv`, `telemetry_metadata.json` |
+| 5 | Kiểm chứng và xuất kết quả | `tools/analyze_surface_delivery.py`, `tools/export_funnel_physics_results.py`, `tools/verify_project_results.py` | `surface_validation.json`, summary, `READY` |
+
+Bốn điểm cần biết:
+
+- **Tầng 1** chỉ chạy lại khi đổi `data/source/city.glb` hoặc tham số hình học.
+- **Tầng 2** là nơi duy nhất lập tuyến. Funnel Tree tính đường; `pygeodesic`
+  (MMP) chạy trên cùng lưới và cùng hai đầu mút để đối chiếu, không tham gia
+  lập tuyến.
+- **Tầng 3 và 4** dùng hai môi trường Python: `.venv` chuẩn bị world, Python
+  hệ thống chạy plugin trong Gazebo. Plugin ghi telemetry; không có bước nào
+  sửa tay số liệu.
+- **Tầng 5** kiểm tra chuỗi hash và in `Project results: READY`. Đây là kiểm
+  tra nhất quán file, không chạy lại mô phỏng hay bộ giải.
+
+`generated/` đã được commit sẵn và `run_funnel_physics.sh` tự gọi tầng 3, nên
+bản clone mới chỉ cần chạy tầng 4. Chỉ lặp lại tầng 2 khi đổi bản đồ, tham số
+bề mặt hoặc mã Funnel; xem mục *Lập lại tuyến khi thay đổi bản đồ hoặc thuật
+toán* bên trên.
+
+### Các nhánh thí nghiệm
+
+| Nhánh | Lệnh | Kết quả |
+| --- | --- | --- |
+| Bốn ca phẳng | `tools/run_funnel_benchmark.py`, `tools/compare_funnel_reference.py` | `generated/funnel_benchmark/`, `funnel_reference/` |
+| Một START, ba đích | `tools/run_city_three_goals.py --stage all` | `generated/city_three_goals/g1..g3` |
+| Nhiệm vụ đô thị | `prepare_urban.py`, `scripts/run_urban.sh`, `tools/check_urban_flight.py` | `generated/urban_report.json`, telemetry |
+| Demo phẳng cũ | `scripts/run.sh pose\|physics`, `scripts/run_funnel.sh` | `generated/hcm_demo.sdf`, `funnel_preview/` |
+| Độ nhạy ô lưới | `tools/run_surface_sensitivity.py` | `generated/surface_sensitivity/` |
 
 ## Cấu trúc thư mục
 
