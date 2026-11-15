@@ -18,7 +18,7 @@ raw/meshes/*.off ────copy_meshes───→ processed/meshes/*.off
                    └─off2glb────────→ processed/scenes/meshes/*.off2glb.glb
 
 city.standardized.glb + delivery plan
-        └─triangulation──→ processed/meshes/city.triangulation.off
+        └─triangulation──→ processed/meshes/city.standardized.triangulation.off
 ```
 
 `check.py`, `plan.py` và `tests/` đọc fixture từ `processed/meshes/`.
@@ -31,12 +31,13 @@ city.standardized.glb + delivery plan
 | --- | --- | --- |
 | `.standardized.glb` | Scene đã chuẩn hoá: bake transform, đổi tên node, bỏ material/texture, ghi provenance vào `extras` | `city.standardized.glb` |
 | `.off2glb.glb` | Fixture Z-up chuyển sang GLB Y-up cho viewer; `--keep-z-up` nếu world cần Z-up | `terrain.off2glb.glb` |
-| `.triangulation.off` | Bề mặt dẫn đường đã tam giác phân, hệ Gazebo đã chuẩn hoá, Z-up | `city.triangulation.off` |
+| `.standardized.triangulation.off` | Bề mặt tam giác phân từ scene đã chuẩn hoá; hệ Gazebo, Z-up | `city.standardized.triangulation.off` |
 | `.paths.json` | Đường đi tham chiếu cho kiểm thử | `L.paths.json` |
 | `.off`, `.glb` (không hậu tố) | Nguồn chưa qua xử lý | `L.off`, `city.glb` |
 
-Hậu tố mô tả **bước đã qua**, không dùng các từ chung chung như `_final` hay
-`_new`. Tham số tam giác phân nằm trong `processed/README.md`.
+Hậu tố mô tả **các bước đã qua, theo đúng thứ tự**. `city.standardized.triangulation.off`
+nghĩa là `city` → standardize → triangulation. Không dùng các từ chung chung
+như `_final` hay `_new`. Tham số tam giác phân nằm trong `processed/README.md`.
 
 ## Thông tin từng tệp
 
@@ -60,7 +61,7 @@ tệp; phần kiểm tra toàn vẹn kết quả nằm trong `tools/verify_proje
 
 ## Tham số của bề mặt
 
-`processed/meshes/city.triangulation.off` được dựng với ô 5, phủ toàn thành
+`processed/meshes/city.standardized.triangulation.off` được dựng với ô 5, phủ toàn thành
 phố, khe hở dọc 1,5, dự phòng ngang 1,6 và độ dốc tối đa 0,5. Bảng tham số
 đầy đủ nằm trong
 [processed/README.md](processed/README.md). Không có file metadata đi kèm;

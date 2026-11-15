@@ -90,7 +90,7 @@ data/raw/scenes/city.glb
 data/processed/scenes/city.standardized.glb          Y-up, để xem/trao đổi
         │ tools/triangulation.py                     (cùng STL chuẩn của delivery plan)
         ▼
-data/processed/meshes/city.triangulation.off         Z-up, hệ Gazebo
+data/processed/meshes/city.standardized.triangulation.off         Z-up, hệ Gazebo
         │
         ▼
     Funnel Tree
@@ -213,6 +213,6 @@ Tiêu chí hoàn thành:
 - Ba quy trình dữ liệu: đã triển khai trong `tools/standardize.py`,
   `tools/off2glb.py` và `tools/triangulation.py`.
 - Sản phẩm nằm trong `data/processed/`; `city.standardized.glb` là cache dẫn xuất
-  (không commit), `.off2glb.glb` và `city.triangulation.off` được commit.
+  (không commit), `.off2glb.glb` và `city.standardized.triangulation.off` được commit.
 - Kiểm chứng sau migration: `check.py` pass và
   `tools/verify_project_results.py` báo `Project results: READY`.

@@ -7,7 +7,7 @@
 
 Input:  data/processed/scenes/city.standardized.glb
         generated/funnel_physics/delivery/horizontal_plan.json
-Output: data/processed/meshes/city.triangulation.off
+Output: data/processed/meshes/city.standardized.triangulation.off
 
 The surface is the same conservative clearance envelope used by the delivery
 experiment: whole cells over the city, raised by the vertical clearance and
@@ -35,7 +35,7 @@ from plan_surface_delivery import CLEARANCE, HALF_WIDTH, MAX_AXIS_SLOPE, build_s
 
 DEFAULT_SCENE = ROOT / 'data/processed/scenes/city.standardized.glb'
 DEFAULT_PLAN = ROOT / 'generated/funnel_physics/delivery/horizontal_plan.json'
-DEFAULT_OUTPUT = ROOT / 'data/processed/meshes/city.triangulation.off'
+DEFAULT_OUTPUT = ROOT / 'data/processed/meshes/city.standardized.triangulation.off'
 DEFAULT_STL = ROOT / 'generated/funnel_preview/city.stl'
 
 

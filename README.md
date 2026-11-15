@@ -408,7 +408,7 @@ dấu vân tay trong `generated/` đã được tính lại.
 | Pass-through (validate + copy) | `tools/copy_meshes.py` | `data/raw/meshes/*.off` → `data/processed/meshes/*.off` |
 | Standardize | `tools/standardize.py` | `data/raw/scenes/city.glb` → `data/processed/scenes/city.standardized.glb` |
 | OFF → GLB (Y-up) | `tools/off2glb.py` | `data/raw/meshes/*.off` → `data/processed/scenes/meshes/*.off2glb.glb` |
-| Tam giác phân bề mặt | `tools/triangulation.py` | `city.standardized.glb` + delivery plan → `data/processed/meshes/city.triangulation.off` |
+| Tam giác phân bề mặt | `tools/triangulation.py` | `city.standardized.glb` + delivery plan → `data/processed/meshes/city.standardized.triangulation.off` |
 | Visualization | `tools/data_viz.py` | `data/processed/meshes/*.off` → `generated/data_viz/*.png` |
 
 Gazebo **không** tự xoay glTF từ Y-up sang Z-up. `.off2glb.glb` được xuất

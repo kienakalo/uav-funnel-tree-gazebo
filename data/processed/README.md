@@ -8,10 +8,23 @@ Nguồn nằm ở [`data/raw/`](../raw/).
 | `meshes/*.off` | Pass-through (validate + copy) | `tools/copy_meshes.py` |
 | `scenes/city.standardized.glb` | Standardize | `tools/standardize.py` |
 | `scenes/meshes/*.off2glb.glb` | OFF → GLB (Y-up) | `tools/off2glb.py` |
-| `meshes/city.triangulation.off` | Tam giác phân bề mặt | `tools/triangulation.py` |
+| `meshes/city.standardized.triangulation.off` | Tam giác phân bề mặt | `tools/triangulation.py` |
 
 Tên file theo quy trình. Không có file metadata đi kèm; tham số được ghi ở
 dưới và in ra khi chạy tool.
+
+## Vì sao từng bước
+
+| Bước | Vì sao cần |
+| --- | --- |
+| Pass-through | Downstream chỉ đọc `processed/`; bản copy byte-identical tách "nguồn" khỏi "đầu vào đã kiểm tra" và phát hiện lệch giữa hai bản. |
+| Standardize | `city.glb` là scene Sketchfab thô: 55 node, tên `Object_N`, material/texture, transform lồng nhau. Chuẩn hoá bake transform, đổi tên, bỏ material và ghi provenance vào `extras` để mọi công cụ đọc cùng một hợp đồng. |
+| OFF → GLB | OFF không mở được bằng Blender/MeshLab; GLB thì được. Xuất Y-up đúng chuẩn glTF để xem đúng chiều; `--keep-z-up` cho world Gazebo. |
+| Triangulation | Funnel Tree cần một mặt liên tục, đỉnh dùng chung, toạ độ double. `city.glb` là các vỏ công trình rời, không đi được. Bước này dựng envelope an toàn rồi tam giác phân thành 2.295 đỉnh / 4.400 mặt. |
+| Visualization | `.off` không có viewer phổ quát; render PNG hoặc cửa sổ 3D để kiểm tra hình học và overlay đường tham chiếu. |
+
+Tên tệp phản ánh chuỗi bước: `city.standardized.triangulation.off` = city →
+standardize → triangulation.
 
 ## Chạy
 
@@ -48,7 +61,7 @@ GLB mở được bằng Blender, MeshLab hoặc trình xem glTF; `.off` cần
 .venv/bin/python tools/data_viz.py L terrain cube
 
 # bề mặt thành phố
-.venv/bin/python tools/data_viz.py city.triangulation
+.venv/bin/python tools/data_viz.py city.standardized.triangulation
 
 # đường dẫn đầy đủ, kể cả file ngoài data/processed/meshes
 .venv/bin/python tools/data_viz.py data/processed/meshes/L.off
@@ -98,7 +111,7 @@ tái lập thì dùng đúng lệnh và tham số ở trên.
   **Y-up** `(x, y, z) → (x, z, -y)` để mở đúng chiều trong mọi glTF viewer.
 - Nếu world Gazebo cần Z-up, chạy `tools/off2glb.py --keep-z-up`, hoặc giữ
   file Y-up và đặt model pose roll +90°: `1.5707963 0 0`.
-- `city.triangulation.off` ở hệ **Gazebo đã chuẩn hoá, Z-up**, cùng hệ với
+- `city.standardized.triangulation.off` ở hệ **Gazebo đã chuẩn hoá, Z-up**, cùng hệ với
   `horizontal_plan.json`.
 
 ## Lưu trong Git
@@ -106,5 +119,5 @@ tái lập thì dùng đúng lệnh và tham số ở trên.
 - `scenes/city.standardized.glb`: **không commit** (khoảng 6 MB, sinh lại
   được từ `data/raw/scenes/city.glb`).
 - `scenes/meshes/*.off2glb.glb`: commit, mỗi file vài KB.
-- `meshes/city.triangulation.off`: commit, đây là đầu vào thuật toán và có
+- `meshes/city.standardized.triangulation.off`: commit, đây là đầu vào thuật toán và có
   hash trong kết quả thí nghiệm.
