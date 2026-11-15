@@ -40,7 +40,7 @@ STAGES = {
         [PYTHON, 'tools/standardize.py'],
         [PYTHON, 'tools/off2glb.py'],
         [PYTHON, 'tools/triangulation.py', '--force'],
-        [PYTHON, 'tools/view_off.py', '--all'],
+        [PYTHON, 'tools/data_viz.py', '--all'],
     ],
     'plan': [
         [PYTHON, 'tools/plan_funnel_delivery.py'],

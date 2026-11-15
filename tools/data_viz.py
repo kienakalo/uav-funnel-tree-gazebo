@@ -10,9 +10,9 @@ surface, can overlay the expected paths from data/expected, and saves one PNG
 per mesh under generated/previews/.
 
 Examples:
-  .venv/bin/python tools/view_off.py --all
-  .venv/bin/python tools/view_off.py L terrain
-  .venv/bin/python tools/view_off.py L --show
+  .venv/bin/python tools/data_viz.py --all
+  .venv/bin/python tools/data_viz.py L terrain
+  .venv/bin/python tools/data_viz.py L --show
 """
 import argparse
 import sys

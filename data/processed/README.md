@@ -20,7 +20,7 @@ python3 tools/copy_meshes.py --write
 python3 tools/standardize.py
 python3 tools/off2glb.py
 .venv/bin/python tools/triangulation.py --force
-.venv/bin/python tools/view_off.py --all
+.venv/bin/python tools/data_viz.py --all
 ```
 
 Bước cuối render mỗi mesh `.off` thành một ảnh PNG trong

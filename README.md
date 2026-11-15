@@ -409,7 +409,7 @@ dấu vân tay trong `generated/` đã được tính lại.
 | Standardize | `tools/standardize.py` | `data/raw/scenes/city.glb` → `data/processed/scenes/city.standardized.glb` |
 | OFF → GLB cho Gazebo | `tools/off2glb.py` | `data/raw/meshes/*.off` → `data/processed/scenes/meshes/*.off2glb.glb` |
 | Tam giác phân bề mặt | `tools/triangulation.py` | `city.standardized.glb` + delivery plan → `data/processed/meshes/city.triangulation.off` |
-| Visualization | `tools/view_off.py` | `data/processed/meshes/*.off` → `generated/previews/*.png` |
+| Visualization | `tools/data_viz.py` | `data/processed/meshes/*.off` → `generated/previews/*.png` |
 
 Gazebo **không** tự xoay glTF từ Y-up sang Z-up; nguồn Y-up phải được bake
 `(x, y, z) → (x, -z, y)`. Trục của từng fixture ghi trong bảng ở `data/README.md`; cờ
@@ -511,7 +511,7 @@ uav-funnel-tree-gazebo/
 | `tools/analyze_surface_delivery.py` | Kiểm tra telemetry trên lưới 3D |
 | `tools/run_city_three_goals.py` | Thí nghiệm một START đến ba đích |
 | `tools/verify_project_results.py` | Kiểm tra nhất quán file và SHA256 của kết quả |
-| `tools/view_off.py` | Render mesh `.off` thành PNG hoặc mở cửa sổ 3D |
+| `tools/data_viz.py` | Render mesh `.off` thành PNG hoặc mở cửa sổ 3D |
 | `tests/` | Kiểm thử cắt tỉa, phạm vi đích và gọi dịch vụ pose |
 | `tools/dev/` | Công cụ khảo sát và bảo trì của các giai đoạn trước |
 | `scripts/` | Cài đặt và mở mô phỏng |

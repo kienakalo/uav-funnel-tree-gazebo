@@ -454,16 +454,16 @@
     {
       "path": "main.py",
       "old_sha256": null,
-      "new_sha256": "f463975d93cafd9cd2599d845d0622958a9475bcc5632ebbee59489913a5906f",
+      "new_sha256": "9e23763c7e1360d5f4e841b010c85fa41be56c8ecec7726f40dd47d555602a40",
       "python_ast_unchanged": true,
       "note": "pipeline entry point"
     },
     {
-      "path": "tools/view_off.py",
+      "path": "tools/data_viz.py",
       "old_sha256": null,
-      "new_sha256": "cf5f607e61a1ae1494df0e8b8051849560b16107a09c77ea258d9cea6005e883",
+      "new_sha256": "f6b61bc8ffe9600fb5c259d87d0408921903f72716470290a35296d34699e271",
       "python_ast_unchanged": true,
-      "note": "added with the data visualization step"
+      "note": "renamed from tools/view_off.py; data-stage visualization"
     }
   ],
   "metadata_updated": [
