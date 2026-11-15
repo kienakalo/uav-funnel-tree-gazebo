@@ -4,6 +4,10 @@ Thư mục này chứa cả dữ liệu của bên thứ ba và dữ liệu do n
 chạy nằm trong [README chính](../README.md); nguồn và giấy phép chi tiết ở
 [ATTRIBUTION.md](../ATTRIBUTION.md).
 
+Định hướng định dạng đã chốt là GLB cho scene và OFF cho mesh dẫn xuất; xem
+[docs/data-format.md](../docs/data-format.md). Các fixture trong thư mục này
+hiện vẫn dùng `.geom` cho tới khi migration được thực hiện.
+
 ## Ba thư mục con
 
 | Thư mục | Nội dung | Nguồn | Giấy phép |

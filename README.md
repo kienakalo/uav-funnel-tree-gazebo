@@ -345,6 +345,47 @@ toán* bên trên.
 | Demo phẳng cũ | `scripts/run.sh pose\|physics`, `scripts/run_funnel.sh` | `generated/hcm_demo.sdf`, `funnel_preview/` |
 | Độ nhạy ô lưới | `tools/run_surface_sensitivity.py` | `generated/surface_sensitivity/` |
 
+## Định dạng dữ liệu
+
+Repo dùng hai định dạng chính, chia theo vai trò thay vì ép mọi thứ vào một
+kiểu tệp.
+
+| Vai trò | Định dạng | Lý do chính |
+| --- | --- | --- |
+| Scene đầu vào, xem hình học, dựng world | **GLB** (`.glb`) | Giữ object, transform và metadata; mở xem được |
+| Mesh dẫn xuất cho thuật toán | **OFF** (`.off`) | Text, toạ độ double, đỉnh dùng chung, hash ổn định |
+
+Đường đi tham chiếu dùng `.paths.json`; lưới ô dùng `.npz`. Hai loại này giữ
+nguyên, không nằm trong đợt chuyển đổi.
+
+**Vì sao GLB cho scene.** `city.glb` vốn đã là GLB với **44 object** và
+transform trong scene graph; chuyển sang định dạng phẳng sẽ mất cấu trúc mà
+các công cụ phân tích đang dùng. GLB còn mang metadata trong `extras` (tác
+giả, giấy phép CC BY 4.0, nguồn), mở được bằng Blender, MeshLab và các trình
+xem glTF. Đây là định dạng duy nhất vừa xem được, vừa giữ scene, vừa là ứng
+viên cho Gazebo qua Assimp.
+
+**Vì sao OFF cho mesh dẫn xuất.** Funnel Tree cần một mặt liên tục, đỉnh dùng
+chung giữa các tam giác và toạ độ double. glTF quy định `POSITION` là float32
+và cho phép tách đỉnh theo normal/UV, cả hai đều đi ngược yêu cầu của thuật
+toán. OFF có đúng header `V F E` như định dạng hiện tại, chỉ thêm dòng `OFF`;
+là text nên hash ổn định giữa các môi trường và diff được trên Git; ghi bằng
+`repr(float)` bảo toàn giá trị double.
+
+**Vì sao không dùng một định dạng cho cả hai.** Scene cần object, transform và
+khả năng mở xem; mesh dẫn xuất cần double, đỉnh dùng chung và hash ổn định.
+Ép chung một kiểu sẽ phải hy sinh một trong hai: GLB làm mesh bị float32 và
+tách đỉnh, còn OFF làm scene mất object và metadata.
+
+**Vì sao không chọn định dạng khác.** NPZ không mở xem trực tiếp được; OBJ
+không có header và metadata, lại thành ~22 MB text cho thành phố; PLY không
+giữ object/transform; STL không có chỉ số đỉnh nên phải weld lại trước khi
+chạy Funnel.
+
+Hiện tại các mesh vẫn ở `.geom`. Kế hoạch chuyển đổi, danh sách tệp, ảnh
+hưởng chuỗi hash và thứ tự thực hiện nằm trong
+[định dạng dữ liệu](docs/data-format.md).
+
 ## Cấu trúc thư mục
 
 Sơ đồ dưới đây chỉ liệt kê các tệp và thư mục chính; log, cache lan truyền,
@@ -371,6 +412,7 @@ uav-funnel-tree-gazebo/
 │   ├── input/                 # Năm mesh mẫu .geom do nhóm tạo
 │   └── expected/              # Dữ liệu đối chiếu cho từng mesh
 ├── docs/
+│   ├── data-format.md         # Định hướng GLB/OFF và kế hoạch chuyển đổi
 │   └── experiments/           # Ghi chép các giai đoạn khảo sát trước
 ├── reference/                 # Ảnh và báo cáo mốc cho mặt cắt Y = 2
 ├── scripts/
