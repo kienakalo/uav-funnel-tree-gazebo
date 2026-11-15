@@ -20,7 +20,12 @@ python3 tools/copy_meshes.py --write
 python3 tools/standardize.py
 python3 tools/off2glb.py
 .venv/bin/python tools/triangulation.py --force
+.venv/bin/python tools/view_off.py --all
 ```
+
+Bước cuối render mỗi mesh `.off` thành một ảnh PNG trong
+`generated/previews/`, kèm các đường tham chiếu trong `data/expected/` nếu có.
+Dùng `--show` để mở cửa sổ 3D tương tác thay vì ghi PNG.
 
 `check.py`, `plan.py` và `tests/` đọc fixture từ `data/processed/meshes/`,
 không đọc thẳng `data/raw/`.

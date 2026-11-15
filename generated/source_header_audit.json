@@ -1,6 +1,6 @@
 {
   "scope": "all first-party Python files at repository root, src, tools, tests; scripts/*.sh; excludes generated outputs, environments and third-party assets",
-  "source_file_count": 74,
+  "source_file_count": 75,
   "changed_source_count": 56,
   "python_ast_preserved": true,
   "algorithm_or_simulation_rerun": false,
@@ -454,9 +454,16 @@
     {
       "path": "main.py",
       "old_sha256": null,
-      "new_sha256": "a5d5e7a391fd76d594d6d7fe41577b8ff487e8016691e5999ed5764302ac81e7",
+      "new_sha256": "f463975d93cafd9cd2599d845d0622958a9475bcc5632ebbee59489913a5906f",
       "python_ast_unchanged": true,
       "note": "pipeline entry point"
+    },
+    {
+      "path": "tools/view_off.py",
+      "old_sha256": null,
+      "new_sha256": "cf5f607e61a1ae1494df0e8b8051849560b16107a09c77ea258d9cea6005e883",
+      "python_ast_unchanged": true,
+      "note": "added with the data visualization step"
     }
   ],
   "metadata_updated": [

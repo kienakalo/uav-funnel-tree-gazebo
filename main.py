@@ -6,7 +6,7 @@
 
 Stages:
   data      raw -> processed: copy fixtures, standardize the scene, convert
-            fixtures to GLB, triangulate the navigation surface
+            fixtures to GLB, triangulate the navigation surface, render previews
   plan      rebuild the delivery plan, the surface plan and the MMP comparison
   simulate  open the force-feedback Gazebo run (needs a display)
   verify    geometry checks and artifact/hash consistency
@@ -40,6 +40,7 @@ STAGES = {
         [PYTHON, 'tools/standardize.py'],
         [PYTHON, 'tools/off2glb.py'],
         [PYTHON, 'tools/triangulation.py', '--force'],
+        [PYTHON, 'tools/view_off.py', '--all'],
     ],
     'plan': [
         [PYTHON, 'tools/plan_funnel_delivery.py'],
@@ -56,7 +57,7 @@ STAGES = {
 }
 
 DESCRIPTIONS = {
-    'data': 'raw -> processed (fixtures, scene, GLB, surface)',
+    'data': 'raw -> processed (fixtures, scene, GLB, surface, previews)',
     'plan': 'rebuild delivery/surface plan and the MMP comparison',
     'simulate': 'Gazebo force-feedback run (needs a display)',
     'verify': 'geometry checks and artifact/hash consistency',
