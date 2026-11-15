@@ -2,7 +2,7 @@
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: NumPy; Python stdlib (argparse, hashlib, json, struct, pathlib);
 # local modules (glb, inspect_flight_levels_fixed).
-"""Standardize a raw city GLB into a scene with a documented contract.
+"""Standardize a raw city GLB into a scene with a documented layout.
 
 Input:  data/raw/scenes/city.glb (third-party, Y-up, Sketchfab node names)
 Output: data/processed/scenes/city.standardized.glb

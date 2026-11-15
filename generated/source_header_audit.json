@@ -426,7 +426,7 @@
     {
       "path": "tools/standardize.py",
       "old_sha256": null,
-      "new_sha256": "7a83e3a5ec4c7cbda7f5630d4711ff8b98fafe827cbb06bea9398c64b1941e0d",
+      "new_sha256": "8d11b5197c1cd4b83847daf3bd093d553488e0cfc604dab95e2c5e51b32bd79f",
       "python_ast_unchanged": true,
       "note": "added with the data pipeline"
     },
