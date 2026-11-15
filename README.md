@@ -409,7 +409,7 @@ dấu vân tay trong `generated/` đã được tính lại.
 | Standardize | `tools/standardize.py` | `data/raw/scenes/city.glb` → `data/processed/scenes/city.standardized.glb` |
 | OFF → GLB cho Gazebo | `tools/off2glb.py` | `data/raw/meshes/*.off` → `data/processed/scenes/meshes/*.off2glb.glb` |
 | Tam giác phân bề mặt | `tools/triangulation.py` | `city.standardized.glb` + delivery plan → `data/processed/meshes/city.triangulation.off` |
-| Visualization | `tools/data_viz.py` | `data/processed/meshes/*.off` → `generated/previews/*.png` |
+| Visualization | `tools/data_viz.py` | `data/processed/meshes/*.off` → `generated/data_viz/*.png` |
 
 Gazebo **không** tự xoay glTF từ Y-up sang Z-up; nguồn Y-up phải được bake
 `(x, y, z) → (x, -z, y)`. Trục của từng fixture ghi trong bảng ở `data/README.md`; cờ

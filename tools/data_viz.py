@@ -7,7 +7,7 @@
 GLB files can be opened by Blender, MeshLab or any glTF viewer; OFF files need
 a dedicated reader. This tool is that reader. It draws the triangulated
 surface, can overlay the expected paths from data/expected, and saves one PNG
-per mesh under generated/previews/.
+per mesh under generated/data_viz/.
 
 Examples:
   .venv/bin/python tools/data_viz.py --all
@@ -30,7 +30,7 @@ from mesh import read_off
 from verification import read_paths
 
 DEFAULT_INPUT = ROOT / 'data/processed/meshes'
-DEFAULT_OUTPUT = ROOT / 'generated/previews'
+DEFAULT_OUTPUT = ROOT / 'generated/data_viz'
 
 
 def render(path, output, show_paths, source, show):

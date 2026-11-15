@@ -24,7 +24,7 @@ python3 tools/off2glb.py
 ```
 
 Bước cuối render mỗi mesh `.off` thành một ảnh PNG trong
-`generated/previews/`, kèm các đường tham chiếu trong `data/expected/` nếu có.
+`generated/data_viz/`, kèm các đường tham chiếu trong `data/expected/` nếu có.
 Dùng `--show` để mở cửa sổ 3D tương tác thay vì ghi PNG.
 
 `check.py`, `plan.py` và `tests/` đọc fixture từ `data/processed/meshes/`,
