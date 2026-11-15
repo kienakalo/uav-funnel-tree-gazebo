@@ -30,7 +30,7 @@ city.standardized.glb + delivery plan
 | Hậu tố | Ý nghĩa | Ví dụ |
 | --- | --- | --- |
 | `.standardized.glb` | Scene đã chuẩn hoá: bake transform, đổi tên node, bỏ material/texture, ghi provenance vào `extras` | `city.standardized.glb` |
-| `.off2glb.glb` | Kết quả chuyển một fixture `.off` sang GLB cho Gazebo; toạ độ giữ nguyên, xem `axis` | `terrain.off2glb.glb` |
+| `.off2glb.glb` | Fixture Z-up chuyển sang GLB Y-up cho viewer; `--keep-z-up` nếu world cần Z-up | `terrain.off2glb.glb` |
 | `.triangulation.off` | Bề mặt dẫn đường đã tam giác phân, hệ Gazebo đã chuẩn hoá, Z-up | `city.triangulation.off` |
 | `.paths.json` | Đường đi tham chiếu cho kiểm thử | `L.paths.json` |
 | `.off`, `.glb` (không hậu tố) | Nguồn chưa qua xử lý | `L.off`, `city.glb` |

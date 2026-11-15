@@ -433,7 +433,7 @@
     {
       "path": "tools/off2glb.py",
       "old_sha256": null,
-      "new_sha256": "f72d95a01411488c825883ab5fc121d1a60cbfc7c1ba8cca422e6ae2dbbb5da0",
+      "new_sha256": "a89a226ca27f76d3d737c88a7c9a81cc243553b607849ad26eea3f5ec7f50eeb",
       "python_ast_unchanged": true,
       "note": "added with the data pipeline"
     },

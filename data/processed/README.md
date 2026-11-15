@@ -7,7 +7,7 @@ Nguồn nằm ở [`data/raw/`](../raw/).
 | --- | --- | --- |
 | `meshes/*.off` | Pass-through (validate + copy) | `tools/copy_meshes.py` |
 | `scenes/city.standardized.glb` | Standardize | `tools/standardize.py` |
-| `scenes/meshes/*.off2glb.glb` | OFF → GLB cho Gazebo | `tools/off2glb.py` |
+| `scenes/meshes/*.off2glb.glb` | OFF → GLB (Y-up) | `tools/off2glb.py` |
 | `meshes/city.triangulation.off` | Tam giác phân bề mặt | `tools/triangulation.py` |
 
 Tên file theo quy trình. Không có file metadata đi kèm; tham số được ghi ở
@@ -94,9 +94,10 @@ tái lập thì dùng đúng lệnh và tham số ở trên.
 - `city.standardized.glb` giữ **Y-up** đúng chuẩn glTF để mở bằng viewer.
 - Gazebo **không** tự xoay glTF từ Y-up sang Z-up (xem `gz-common`
   `AssimpLoader.cc`: với glTF, root transform được giữ nguyên).
-- Muốn dùng GLB Y-up trong Gazebo phải bake `(x, y, z) → (x, -z, y)`.
-- Fixture `.off` dùng **Z-up** (z là cao độ), nên `.off2glb.glb` giữ nguyên
-  toạ độ. Cờ `--to-z-up` dành cho nguồn Y-up.
+- Fixture `.off` dùng **Z-up** (z là cao độ). `.off2glb.glb` chuyển sang
+  **Y-up** `(x, y, z) → (x, z, -y)` để mở đúng chiều trong mọi glTF viewer.
+- Nếu world Gazebo cần Z-up, chạy `tools/off2glb.py --keep-z-up`, hoặc giữ
+  file Y-up và đặt model pose roll +90°: `1.5707963 0 0`.
 - `city.triangulation.off` ở hệ **Gazebo đã chuẩn hoá, Z-up**, cùng hệ với
   `horizontal_plan.json`.
 

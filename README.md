@@ -407,13 +407,14 @@ dấu vân tay trong `generated/` đã được tính lại.
 | --- | --- | --- |
 | Pass-through (validate + copy) | `tools/copy_meshes.py` | `data/raw/meshes/*.off` → `data/processed/meshes/*.off` |
 | Standardize | `tools/standardize.py` | `data/raw/scenes/city.glb` → `data/processed/scenes/city.standardized.glb` |
-| OFF → GLB cho Gazebo | `tools/off2glb.py` | `data/raw/meshes/*.off` → `data/processed/scenes/meshes/*.off2glb.glb` |
+| OFF → GLB (Y-up) | `tools/off2glb.py` | `data/raw/meshes/*.off` → `data/processed/scenes/meshes/*.off2glb.glb` |
 | Tam giác phân bề mặt | `tools/triangulation.py` | `city.standardized.glb` + delivery plan → `data/processed/meshes/city.triangulation.off` |
 | Visualization | `tools/data_viz.py` | `data/processed/meshes/*.off` → `generated/data_viz/*.png` |
 
-Gazebo **không** tự xoay glTF từ Y-up sang Z-up; nguồn Y-up phải được bake
-`(x, y, z) → (x, -z, y)`. Trục của từng fixture ghi trong bảng ở `data/README.md`; cờ
-`--to-z-up` dùng cho nguồn Y-up. Xem
+Gazebo **không** tự xoay glTF từ Y-up sang Z-up. `.off2glb.glb` được xuất
+**Y-up** để mở đúng chiều trong viewer; dùng `tools/off2glb.py --keep-z-up`
+nếu world cần Z-up, hoặc đặt model pose roll +90°. Trục của từng fixture ghi
+trong bảng ở `data/README.md`. Xem
 [data/processed/README.md](data/processed/README.md).
 
 ## Cấu trúc thư mục
@@ -442,7 +443,7 @@ uav-funnel-tree-gazebo/
 │   │   ├── scenes/city.glb    # Mô hình thành phố gốc của bên thứ ba (CC BY 4.0)
 │   │   └── meshes/*.off       # Chín mesh mẫu do nhóm tạo
 │   ├── processed/
-│   │   ├── scenes/            # Scene chuẩn hoá (Y-up) + .off2glb.glb cho Gazebo
+│   │   ├── scenes/            # Scene Y-up + .off2glb.glb (Y-up)
 │   │   └── meshes/            # Fixture .off đã validate + bề mặt dẫn đường
 │   └── expected/              # Đường đi tham chiếu .paths.json
 ├── docs/
