@@ -1,6 +1,6 @@
 {
   "scope": "all first-party Python files at repository root, src, tools, tests; scripts/*.sh; excludes generated outputs, environments and third-party assets",
-  "source_file_count": 73,
+  "source_file_count": 74,
   "changed_source_count": 56,
   "python_ast_preserved": true,
   "algorithm_or_simulation_rerun": false,
@@ -450,6 +450,13 @@
       "new_sha256": "be1bf0a60774999b329e5e35c17871251c04b936399dc25738ad88273e1901cf",
       "python_ast_unchanged": true,
       "note": "added with the processed mesh pass-through"
+    },
+    {
+      "path": "main.py",
+      "old_sha256": null,
+      "new_sha256": "a5d5e7a391fd76d594d6d7fe41577b8ff487e8016691e5999ed5764302ac81e7",
+      "python_ast_unchanged": true,
+      "note": "pipeline entry point"
     }
   ],
   "metadata_updated": [

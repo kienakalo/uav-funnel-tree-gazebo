@@ -168,6 +168,22 @@ ngay từ terminal mới.
 Plugin điều khiển trong Gazebo dùng Python hệ thống và các gói `gz` được cài
 bằng apt. `scripts/gazebo_system_python.sh` thiết lập môi trường cho tiến trình đó.
 
+## Chạy nhanh bằng `main.py`
+
+`main.py` ở thư mục gốc gom các bước thành một lối vào thống nhất:
+
+```bash
+python3 main.py flow      # in các bước và lệnh tương ứng
+python3 main.py data      # raw -> processed
+python3 main.py verify    # check.py + verify_project_results.py
+python3 main.py all       # data + verify, không mở Gazebo
+python3 main.py simulate  # mở Gazebo (cần màn hình)
+```
+
+`data` và `verify` chỉ cần NumPy (thêm Shapely cho bước tam giác phân).
+`plan` ghi lại artifact trong `generated/` nên làm đổi fingerprint; chỉ chạy
+khi đổi asset hoặc mã lập tuyến. Thêm `--dry-run` để xem lệnh mà không chạy.
+
 ## Chạy mô phỏng hiện tại
 
 Đóng phiên Gazebo cũ. Trong **Ubuntu 1**:
@@ -410,6 +426,7 @@ uav-funnel-tree-gazebo/
 ├── RUNBOOK_CURRENT.md         # Hướng dẫn vận hành chi tiết theo từng bước
 ├── ATTRIBUTION.md             # Nguồn và giấy phép mô hình thành phố
 ├── LICENSE                    # BSD-3-Clause cho mã nguồn nhóm đóng góp
+├── main.py                    # Chạy các bước dữ liệu và kiểm tra từ một lối vào
 ├── requirements.txt           # Phụ thuộc tối thiểu (NumPy)
 ├── requirements-demo.txt      # Phiên bản thư viện dùng cho demo
 ├── requirements-reference.txt # pygeodesic cho phép đối chiếu MMP
