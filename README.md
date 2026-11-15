@@ -409,7 +409,7 @@ uav-funnel-tree-gazebo/
 ├── data/
 │   ├── source/                # Mô hình thành phố gốc của bên thứ ba (CC BY 4.0)
 │   │   └── city.glb
-│   ├── input/                 # Năm mesh mẫu .off do nhóm tạo
+│   ├── input/                 # Chín mesh mẫu .off do nhóm tạo
 │   └── expected/              # Đường đi tham chiếu .paths.json
 ├── docs/
 │   ├── data-format.md         # Định hướng GLB/OFF và kế hoạch chuyển đổi

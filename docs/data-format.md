@@ -207,6 +207,8 @@ Tiêu chí hoàn thành:
 
 - Định hướng: đã chốt.
 - Migration `.geom` → `.off` và `.paths.json`: đã áp dụng.
+- `data/input/` hiện có 9 fixture: 5 bản gốc và 4 mesh bổ sung từ bài báo
+  (`cube`, `dome`, `icosahedron`, `terrain`), không có tệp `expected/`.
 - Bước xử lý dữ liệu đầu vào (`scene.glb`): chưa triển khai; sẽ quyết định sau.
 - Kiểm chứng sau migration: `check.py` pass và
   `tools/verify_project_results.py` báo `Project results: READY`.

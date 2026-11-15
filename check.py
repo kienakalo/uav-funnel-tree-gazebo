@@ -14,7 +14,10 @@ from verification import read_paths,path_length,edge_distances,segment_on_mesh
 
 def main():
     rows=[]
-    for name,source in [('cliff',1),('J17',1),('L',1),('demo_mesh',1),('star',0),('star',1)]:
+    # Meshes from the original paper's construction have no expected paths.
+    no_reference={('star',1),('cube',1),('dome',1),('icosahedron',1),('terrain',1)}
+    for name,source in [('cliff',1),('J17',1),('L',1),('demo_mesh',1),('star',0),('star',1),
+                        ('cube',1),('dome',1),('icosahedron',1),('terrain',1)]:
         m=read_off(ROOT/f'data/input/{name}.off');t=time.monotonic();paths,stats=solve(m,source)
         points=[(p.x,p.y,p.z) for p in m.points];upper=edge_distances(points,m.faces,source)
         for v,path in enumerate(paths):
@@ -23,14 +26,14 @@ def main():
             assert math.dist(points[source],points[v])-1e-7<=length<=upper[v]+1e-7
             assert all(segment_on_mesh(a,b,points,m.faces,1e-7) for a,b in zip(path,path[1:])),(name,v)
         row={'mesh':name,'source':source,'seconds':time.monotonic()-t,'geometric_checks':True,'stats':stats}
-        if (name,source)!=('star',1):
+        if (name,source) not in no_reference:
             expected=read_paths(ROOT/f'data/expected/{name}.paths.json')
             differences=[abs(path_length(a)-path_length(b)) for a,b in zip(paths,expected)]
             # Four-decimal coordinate rounding accumulates with the number of segments.
             for got,ref,diff in zip(paths,expected,differences):
                 assert diff<=2*math.sqrt(3)*5e-5*max(len(ref)-1,1)+1e-8
             row['max_reference_length_difference']=max(differences)
-        rows.append(row);print(name,source,'PASS',row.get('max_reference_length_difference','no reference data for source 1'))
+        rows.append(row);print(name,source,'PASS',row.get('max_reference_length_difference','no reference data'))
     # Analytic planar case: all source/target pairs must equal straight Euclidean distance.
     m=Mesh([Point(0,0,0),Point(2,0,0),Point(0,2,0),Point(2,2,0)],[(0,1,2),(1,3,2)])
     for s in range(4):

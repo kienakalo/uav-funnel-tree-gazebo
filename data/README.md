@@ -63,9 +63,18 @@ trong định dạng cũ không còn cần thiết.
 | `J17` | 10 đỉnh, 16 mặt | `check.py` |
 | `L` | 12 đỉnh, 20 mặt | `check.py`, `tests/test_funnel_target_scope.py` |
 | `star` | 16 đỉnh, 28 mặt | `check.py` (nguồn 0 và 1), `tests/test_funnel_target_scope.py` |
+| `cube` | 8 đỉnh, 12 mặt | `check.py`, `plan.py` — không có expected |
+| `dome` | 25 đỉnh, 40 mặt | `check.py`, `plan.py` — không có expected |
+| `icosahedron` | 12 đỉnh, 20 mặt | `check.py`, `plan.py` — không có expected |
+| `terrain` | 49 đỉnh, 72 mặt | `check.py`, `plan.py` — không có expected |
 
 `check.py` đối chiếu chiều dài đường đi với `expected/`, trừ cặp `star` nguồn
 1 vì không có dữ liệu tham chiếu cho trường hợp đó.
+
+Bốn mesh `cube`, `dome`, `icosahedron`, `terrain` được bổ sung từ ý tưởng của
+bài báo gốc về Funnel Tree. Chúng **không có tệp `expected/`** tương ứng, nên
+`check.py` chỉ chạy kiểm tra hình học: đường đi nằm trên lưới và độ dài nằm
+giữa cận dưới Euclid và cận trên, không so sánh với dữ liệu tham chiếu.
 
 ## Quy tắc sửa dữ liệu
 
