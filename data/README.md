@@ -14,7 +14,12 @@ chạy nằm trong [README chính](../README.md); nguồn và giấy phép chi t
 | --- | --- | --- | --- |
 | `raw/scenes/` | `city.glb`, mô hình thành phố 20 MB | Saigon 3D City | CC BY 4.0 |
 | `raw/meshes/` | Chín mesh `.off` cho kiểm thử hồi quy | Nhóm tác giả | BSD-3-Clause |
+| `processed/scenes/` | Scene chuẩn hoá và fixture `.sim.glb` | Sinh tự động | BSD-3-Clause |
+| `processed/meshes/` | Bề mặt dẫn đường `.off` + manifest | Sinh tự động | BSD-3-Clause |
 | `expected/` | Đường đi tham chiếu `.paths.json` | Nhóm tác giả | BSD-3-Clause |
+
+Ba quy trình sinh `processed/` được mô tả trong
+[processed/README.md](processed/README.md). Không sửa tay thư mục đó.
 
 `raw/scenes/city.glb` là **input của pipeline**, không phải asset trình diễn:
 `prepare.py`, `prepare_urban.py` và các công cụ dựng miền bay đọc trực tiếp

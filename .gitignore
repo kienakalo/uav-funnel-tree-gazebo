@@ -21,6 +21,9 @@ Thumbs.db
 # into the raw/meshes location stay local.
 /data/raw/meshes/city.glb
 
+# Derived scene rebuilt by tools/prepare_scene.py (about 6 MB).
+/data/processed/scenes/city.scene.glb
+
 # Keep a curated set of checked inputs and results. Other generated data,
 # profiling dumps, runtime packages and large propagation caches stay local.
 /generated/**

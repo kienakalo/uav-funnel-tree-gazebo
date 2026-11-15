@@ -1,0 +1,50 @@
+{
+  "process": "triangulate",
+  "method": "conservative cell envelope over city triangles",
+  "parameters": {
+    "cell": 5.0,
+    "coverage": "city",
+    "vertical_clearance": 1.5,
+    "horizontal_half_width": 1.6,
+    "max_axis_slope": 0.5
+  },
+  "scene": {
+    "file": "data/processed/scenes/city.scene.glb",
+    "sha256": "24f4054260e50c7b561690e09e84d62d0316cf189ff7a41f8e1ea5ad8d48b0c2",
+    "scale": 3.602816129441021,
+    "origin": [
+      27.756065368652344,
+      24.36496925353926,
+      5.080794149932202e-15
+    ]
+  },
+  "stl": {
+    "file": "generated/funnel_preview/city.stl",
+    "sha256": "4a3cdc07575642f0efbf443b5ae47681cb3d722d941de4b055d8f9e6e6cd1132",
+    "mode": "canonical delivery STL"
+  },
+  "plan": {
+    "file": "generated/funnel_physics/delivery/horizontal_plan.json",
+    "sha256": "a505787f538888976e42529f6ba812e7546bd8fa4cb35ddb2b7c75a253ebe46e",
+    "start": [
+      -38.7521239854311,
+      22.103391740920674,
+      7.205632472302205
+    ],
+    "goal": [
+      74.73658745332892,
+      -55.35715733632823,
+      3.988472318649292
+    ]
+  },
+  "result": {
+    "vertices": 2295,
+    "triangles": 4400,
+    "edges": 6694,
+    "surface_source": 792,
+    "surface_target": 1810,
+    "nonmanifold_edges": 0
+  },
+  "coordinates": "normalized Gazebo units, Z-up; same frame as the delivery plan",
+  "scope": "safety envelope above the city, not the bare terrain or rooftops"
+}

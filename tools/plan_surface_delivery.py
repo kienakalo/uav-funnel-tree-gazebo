@@ -35,9 +35,9 @@ HALF_WIDTH = 1.6
 MAX_AXIS_SLOPE = .5
 
 
-def build_surface(start, goal, step, coverage='city'):
+def build_surface(start, goal, step, coverage='city', stl_path=None):
     """Every whole mesh cell clears all inflated city-triangle AABBs below it."""
-    triangles = np.fromfile(ROOT / 'generated/funnel_preview/city.stl',
+    triangles = np.fromfile(stl_path or (ROOT / 'generated/funnel_preview/city.stl'),
                             dtype=CITY_STL_RECORD, offset=84)['triangle']
     low, high = triangles.min(axis=1), triangles.max(axis=1)
     spatial = STRtree(polygons(triangles[:, :, :2]))

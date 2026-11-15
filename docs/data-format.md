@@ -37,8 +37,9 @@ số lớn.
   không phải chuyển đổi, không mất gì.
 - `src/city.py` đã có reader GLB, nên bước xử lý đầu vào chỉ cần chuẩn hoá
   tên node và bổ sung `extras`, không phải viết lại bộ đọc.
-- Gazebo (Jetty hoặc Harmonic) dùng Assimp nên thường đọc được glTF/GLB; cần kiểm tra một
-  lần trước khi bỏ hẳn `city.stl`.
+- Gazebo **không** tự xoay glTF từ Y-up sang Z-up: `gz-common`'s
+  `AssimpLoader.cc` giữ nguyên root transform của glTF. Nguồn Y-up phải bake
+  `(x, y, z) → (x, -z, y)` trước khi dùng làm `.sim.glb`.
 
 ## 4. Vì sao OFF cho mesh dẫn xuất
 
@@ -83,21 +84,21 @@ bằng mắt, và là dữ liệu dẫn xuất.
 ## 7. Kiến trúc đích
 
 ```text
-data/raw/scenes/city.glb ─┐
-data/raw/meshes/*.off     ─┴→ [xử lý dữ liệu đầu vào] → scene.glb
-                                                      │
-                        ┌─────────────────────────────┤
-                        ▼                             ▼
-              xem hình học (viewer)          build_navigation_surface
-                                                      │
-                                                      ▼
-                                            navigation_y2p00.off
-                                                      │
-                                                      ▼
-                                            funnel_input_y2p00.off
-                                                      │
-                                                      ▼
-                                                Funnel Tree
+data/raw/scenes/city.glb
+        │ tools/prepare_scene.py
+        ▼
+data/processed/scenes/city.scene.glb          Y-up, để xem/trao đổi
+        │ tools/prepare_surface.py            (cùng STL chuẩn của delivery plan)
+        ▼
+data/processed/meshes/city.surface.cell5.off  Z-up, hệ Gazebo đã chuẩn hoá
+        │
+        ▼
+    Funnel Tree
+
+data/raw/meshes/*.off
+        │ tools/off_to_glb.py
+        ▼
+data/processed/scenes/meshes/*.sim.glb        Z-up, cho Gazebo
 ```
 
 `scene.glb` là output của bước xử lý đầu vào và là input của bước tạo lưới.
@@ -209,6 +210,9 @@ Tiêu chí hoàn thành:
 - Migration `.geom` → `.off` và `.paths.json`: đã áp dụng.
 - `data/raw/meshes/` hiện có 9 fixture: 5 bản gốc và 4 mesh bổ sung từ bài báo
   (`cube`, `dome`, `icosahedron`, `terrain`), không có tệp `expected/`.
-- Bước xử lý dữ liệu đầu vào (`scene.glb`): chưa triển khai; sẽ quyết định sau.
+- Ba quy trình dữ liệu: đã triển khai trong `tools/prepare_scene.py`,
+  `tools/off_to_glb.py` và `tools/prepare_surface.py`.
+- Sản phẩm nằm trong `data/processed/`; `city.scene.glb` là cache dẫn xuất
+  (không commit), `.sim.glb` và `city.surface.cell5.off` được commit.
 - Kiểm chứng sau migration: `check.py` pass và
   `tools/verify_project_results.py` báo `Project results: READY`.

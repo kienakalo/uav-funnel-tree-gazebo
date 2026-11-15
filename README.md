@@ -383,8 +383,19 @@ giữ object/transform; STL không có chỉ số đỉnh nên phải weld lại
 chạy Funnel.
 
 Migration đã áp dụng: mesh dùng `.off`, đường đi dùng `.paths.json`; toàn bộ
-dấu vân tay trong `generated/` đã được tính lại. Bước xử lý đầu vào
-`scene.glb` chưa triển khai; xem [định dạng dữ liệu](docs/data-format.md).
+dấu vân tay trong `generated/` đã được tính lại.
+
+### Ba quy trình dữ liệu
+
+| Quy trình | Công cụ | Đầu vào → đầu ra |
+| --- | --- | --- |
+| Standardize | `tools/prepare_scene.py` | `data/raw/scenes/city.glb` → `data/processed/scenes/city.scene.glb` |
+| OFF → GLB cho Gazebo | `tools/off_to_glb.py` | `data/raw/meshes/*.off` → `data/processed/scenes/meshes/*.sim.glb` |
+| Tam giác phân bề mặt | `tools/prepare_surface.py` | `city.scene.glb` + delivery plan → `data/processed/meshes/city.surface.cell5.off` |
+
+Gazebo **không** tự xoay glTF từ Y-up sang Z-up; nguồn Y-up phải được bake
+`(x, y, z) → (x, -z, y)`. Fixture `.off` của repo đã dùng Z-up nên `.sim.glb`
+giữ nguyên toạ độ. Xem [data/processed/README.md](data/processed/README.md).
 
 ## Cấu trúc thư mục
 
@@ -410,6 +421,9 @@ uav-funnel-tree-gazebo/
 │   ├── raw/
 │   │   ├── scenes/city.glb    # Mô hình thành phố gốc của bên thứ ba (CC BY 4.0)
 │   │   └── meshes/*.off       # Chín mesh mẫu do nhóm tạo
+│   ├── processed/
+│   │   ├── scenes/            # Scene chuẩn hoá và .sim.glb cho Gazebo
+│   │   └── meshes/            # Bề mặt dẫn đường .off + manifest
 │   └── expected/              # Đường đi tham chiếu .paths.json
 ├── docs/
 │   ├── data-format.md         # Định hướng GLB/OFF và kế hoạch chuyển đổi

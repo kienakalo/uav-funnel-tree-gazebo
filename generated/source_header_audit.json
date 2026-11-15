@@ -1,6 +1,6 @@
 {
   "scope": "all first-party Python files at repository root, src, tools, tests; scripts/*.sh; excludes generated outputs, environments and third-party assets",
-  "source_file_count": 68,
+  "source_file_count": 72,
   "changed_source_count": 56,
   "python_ast_preserved": true,
   "algorithm_or_simulation_rerun": false,
@@ -267,7 +267,7 @@
     {
       "path": "tools/plan_surface_delivery.py",
       "old_sha256": "d692270e98c644cc60a72ad8fec8371528834bd80e1d1babdc443648f39a602d",
-      "new_sha256": "3e84cf71b418d5e976ad33fe33034aef5921877c6bf115596c0e974c5dffdb5e",
+      "new_sha256": "e2dc8c71e651816bd74accb9a9dfec96d50dc43ea8b8e59578fb79f57a2ae3a1",
       "python_ast_unchanged": true
     },
     {
@@ -415,6 +415,34 @@
       "new_sha256": "84d5e9119f9315d454aaaccb21ec4834c51010b537686b9387ce03283b1be807",
       "python_ast_unchanged": true,
       "note": "added during the .geom to .off migration"
+    },
+    {
+      "path": "src/glb.py",
+      "old_sha256": null,
+      "new_sha256": "06ef1617adbe00ab0577caa73b1b4291dcf3f37037b21c815ec5b5f513fb509f",
+      "python_ast_unchanged": true,
+      "note": "added with the data pipeline"
+    },
+    {
+      "path": "tools/prepare_scene.py",
+      "old_sha256": null,
+      "new_sha256": "2e27c1d87be2feed40f48c5f61373a078597d4673dc0065d88a283edf254e5b3",
+      "python_ast_unchanged": true,
+      "note": "added with the data pipeline"
+    },
+    {
+      "path": "tools/off_to_glb.py",
+      "old_sha256": null,
+      "new_sha256": "e9fa724a1692d7af00bcc7c4030e0a14ef87222633e99f4c42526a914d6aea9a",
+      "python_ast_unchanged": true,
+      "note": "added with the data pipeline"
+    },
+    {
+      "path": "tools/prepare_surface.py",
+      "old_sha256": null,
+      "new_sha256": "601789ca4a8a1ffbfb3f3886bd8eac4180d6c56cfde58d049ac8abc8b21a54fa",
+      "python_ast_unchanged": true,
+      "note": "added with the data pipeline"
     }
   ],
   "metadata_updated": [
@@ -472,5 +500,6 @@
   "off_migration": "Converted the five data/input meshes and eight tracked generated meshes from .geom to OFF by prepending the OFF magic line, and the five data/expected path fixtures to .paths.json. Parsers were unified on src/mesh.read_off and src/verification.read_paths; writers emit OFF and JSON. Geometry, telemetry and simulation results are unchanged; dependent fingerprints were propagated and verified.",
   "off_migration_changed_source_count": 26,
   "gazebo_release": "Jetty (gz-sim10, gz-math9)",
-  "gazebo_migration": "Migrated scripts, plugin imports and documentation from Gazebo Harmonic (gz.sim8, gz.math7) to Gazebo Jetty (gz.sim10, gz.math9). No simulation was rerun in this environment; the recorded results remain those produced with Harmonic."
+  "gazebo_migration": "Migrated scripts, plugin imports and documentation from Gazebo Harmonic (gz.sim8, gz.math7) to Gazebo Jetty (gz.sim10, gz.math9). No simulation was rerun in this environment; the recorded results remain those produced with Harmonic.",
+  "data_pipeline": "data/raw holds the untouched sources (city.glb, nine .off fixtures). tools/prepare_scene.py writes a standardized Y-up scene, tools/off_to_glb.py converts fixtures to Z-up GLB for Gazebo, and tools/prepare_surface.py triangulates the navigation surface. The scene GLB is a derived cache and is not committed."
 }
