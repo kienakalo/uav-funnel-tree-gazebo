@@ -389,9 +389,9 @@ dấu vân tay trong `generated/` đã được tính lại.
 
 | Quy trình | Công cụ | Đầu vào → đầu ra |
 | --- | --- | --- |
-| Standardize | `tools/standardize.py` | `data/raw/scenes/city.glb` → `data/processed/standardized/city.standardized.glb` |
-| OFF → GLB cho Gazebo | `tools/off2glb.py` | `data/raw/meshes/*.off` → `data/processed/off2glb/*.off2glb.glb` |
-| Tam giác phân bề mặt | `tools/triangulation.py` | `city.standardized.glb` + delivery plan → `data/processed/triangulation/city.triangulation.cell5.off` |
+| Standardize | `tools/standardize.py` | `data/raw/scenes/city.glb` → `data/processed/scenes/city.standardized.glb` |
+| OFF → GLB cho Gazebo | `tools/off2glb.py` | `data/raw/meshes/*.off` → `data/processed/scenes/meshes/*.off2glb.glb` |
+| Tam giác phân bề mặt | `tools/triangulation.py` | `city.standardized.glb` + delivery plan → `data/processed/meshes/city.triangulation.off` |
 
 Gazebo **không** tự xoay glTF từ Y-up sang Z-up; nguồn Y-up phải được bake
 `(x, y, z) → (x, -z, y)`. Fixture `.off` của repo đã dùng Z-up nên `.off2glb.glb`
@@ -422,9 +422,8 @@ uav-funnel-tree-gazebo/
 │   │   ├── scenes/city.glb    # Mô hình thành phố gốc của bên thứ ba (CC BY 4.0)
 │   │   └── meshes/*.off       # Chín mesh mẫu do nhóm tạo
 │   ├── processed/
-│   │   ├── standardized/      # Scene chuẩn hoá (Y-up)
-│   │   ├── off2glb/           # Fixture .off2glb.glb cho Gazebo (Z-up)
-│   │   └── triangulation/     # Bề mặt dẫn đường .off + manifest
+│   │   ├── scenes/            # Scene chuẩn hoá (Y-up) + .off2glb.glb cho Gazebo
+│   │   └── meshes/            # Bề mặt dẫn đường .off + manifest
 │   └── expected/              # Đường đi tham chiếu .paths.json
 ├── docs/
 │   ├── data-format.md         # Định hướng GLB/OFF và kế hoạch chuyển đổi

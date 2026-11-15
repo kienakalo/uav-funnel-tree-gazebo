@@ -426,21 +426,21 @@
     {
       "path": "tools/standardize.py",
       "old_sha256": null,
-      "new_sha256": "7286f89f2bd1c42be8107cba96cbfdc13c337fc4e55c491bfe41a747158a81a2",
+      "new_sha256": "7a83e3a5ec4c7cbda7f5630d4711ff8b98fafe827cbb06bea9398c64b1941e0d",
       "python_ast_unchanged": true,
       "note": "added with the data pipeline"
     },
     {
       "path": "tools/off2glb.py",
       "old_sha256": null,
-      "new_sha256": "aded6279021e491cdaf50b02c1ff7432ef6ef95229344915087d97a2e03a6b92",
+      "new_sha256": "6a508d783b6d7ef599a977c9aa5f4f08c5fc4b20acecd9281211cce2c0f4a459",
       "python_ast_unchanged": true,
       "note": "added with the data pipeline"
     },
     {
       "path": "tools/triangulation.py",
       "old_sha256": null,
-      "new_sha256": "271546bb979613765e05c060312ceacc0b165b0e3cf918bafa2cecade294715f",
+      "new_sha256": "5ae6e8e76ea5dbc40504105bf514cd0e452e04c8b76b368767525e2644c3ea44",
       "python_ast_unchanged": true,
       "note": "added with the data pipeline"
     }

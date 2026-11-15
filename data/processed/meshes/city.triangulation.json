@@ -9,7 +9,7 @@
     "max_axis_slope": 0.5
   },
   "scene": {
-    "file": "data/processed/standardized/city.standardized.glb",
+    "file": "data/processed/scenes/city.standardized.glb",
     "sha256": "78e5fae929496ff1c9c9862551efe9473d7bf5cce3a6ae3a4ee69da97bcd9770",
     "scale": 3.602816129441021,
     "origin": [

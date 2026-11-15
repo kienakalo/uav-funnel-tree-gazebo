@@ -5,7 +5,7 @@
 """Convert raw OFF fixtures into simulation-ready GLB for Gazebo.
 
 Input:  data/raw/meshes/*.off (model units, Z-up, as used by the planner)
-Output: data/processed/off2glb/*.off2glb.glb
+Output: data/processed/scenes/meshes/*.off2glb.glb
 
 Coordinates are kept unchanged by default: the fixtures use Z as the
 elevation axis, which matches Gazebo. Pass --to-z-up for Y-up sources; Gazebo
@@ -25,7 +25,7 @@ from glb import read_glb, write_glb
 from mesh import read_off
 
 DEFAULT_INPUT = ROOT / 'data/raw/meshes'
-DEFAULT_OUTPUT = ROOT / 'data/processed/off2glb'
+DEFAULT_OUTPUT = ROOT / 'data/processed/scenes/meshes'
 
 
 def convert(source, output, to_z_up=False):

@@ -22,7 +22,7 @@ Thumbs.db
 /data/raw/meshes/city.glb
 
 # Derived scene rebuilt by tools/standardize.py (about 6 MB).
-/data/processed/standardized/city.standardized.glb
+/data/processed/scenes/city.standardized.glb
 
 # Keep a curated set of checked inputs and results. Other generated data,
 # profiling dumps, runtime packages and large propagation caches stay local.

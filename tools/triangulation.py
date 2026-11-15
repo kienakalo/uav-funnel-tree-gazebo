@@ -5,10 +5,10 @@
 # plan_surface_delivery).
 """Triangulate a navigation surface from the standardized city scene.
 
-Input:  data/processed/standardized/city.standardized.glb
+Input:  data/processed/scenes/city.standardized.glb
         generated/funnel_physics/delivery/horizontal_plan.json
-Output: data/processed/triangulation/city.triangulation.cell5.off
-        data/processed/triangulation/city.triangulation.cell5.json
+Output: data/processed/meshes/city.triangulation.off
+        data/processed/meshes/city.triangulation.json
 
 The surface is the same conservative clearance envelope used by the delivery
 experiment: whole cells over the city, raised by the vertical clearance and
@@ -32,9 +32,9 @@ from build_navigation_surface import write_off
 from city import load_city, write_stl
 from plan_surface_delivery import CLEARANCE, HALF_WIDTH, MAX_AXIS_SLOPE, build_surface
 
-DEFAULT_SCENE = ROOT / 'data/processed/standardized/city.standardized.glb'
+DEFAULT_SCENE = ROOT / 'data/processed/scenes/city.standardized.glb'
 DEFAULT_PLAN = ROOT / 'generated/funnel_physics/delivery/horizontal_plan.json'
-DEFAULT_OUTPUT = ROOT / 'data/processed/triangulation/city.triangulation.cell5.off'
+DEFAULT_OUTPUT = ROOT / 'data/processed/meshes/city.triangulation.off'
 
 
 def main():
@@ -46,6 +46,8 @@ def main():
     parser.add_argument('--output', type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument('--stl', type=Path, default=ROOT / 'generated/funnel_preview/city.stl',
                         help='Canonical normalized city STL used by the delivery plan')
+    parser.add_argument('--force', action='store_true',
+                        help='Overwrite an existing surface built with other parameters')
     parser.add_argument('--from-scene', action='store_true',
                         help='Rebuild the STL from the scene instead of using the canonical STL')
     args = parser.parse_args()
@@ -53,6 +55,14 @@ def main():
         parser.error(f'Missing standardized scene: {args.scene}. Run tools/standardize.py first.')
     if not args.plan.is_file():
         parser.error(f'Missing delivery plan: {args.plan}')
+    manifest_path = args.output.with_suffix('.json')
+    if manifest_path.exists() and not args.force:
+        previous = json.loads(manifest_path.read_text(encoding='utf-8')).get('parameters', {})
+        requested = {'cell': args.cell, 'coverage': args.coverage,
+                     'vertical_clearance': CLEARANCE, 'horizontal_half_width': HALF_WIDTH,
+                     'max_axis_slope': MAX_AXIS_SLOPE}
+        if previous != requested:
+            parser.error('Existing surface was built with different parameters; pass --force to overwrite')
 
     vertices, faces, metadata = load_city(args.scene)
     temporary = tempfile.TemporaryDirectory()
@@ -103,7 +113,6 @@ def main():
         'coordinates': 'normalized Gazebo units, Z-up; same frame as the delivery plan',
         'scope': 'safety envelope above the city, not the bare terrain or rooftops',
     }
-    manifest_path = args.output.with_suffix('.json')
     manifest_path.write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
     temporary.cleanup()
     print(json.dumps(manifest['result'], indent=2))

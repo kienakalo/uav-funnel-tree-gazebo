@@ -87,10 +87,10 @@ bằng mắt, và là dữ liệu dẫn xuất.
 data/raw/scenes/city.glb
         │ tools/standardize.py
         ▼
-data/processed/standardized/city.standardized.glb   Y-up, để xem/trao đổi
+data/processed/scenes/city.standardized.glb          Y-up, để xem/trao đổi
         │ tools/triangulation.py                     (cùng STL chuẩn của delivery plan)
         ▼
-data/processed/triangulation/city.triangulation.cell5.off  Z-up, hệ Gazebo
+data/processed/meshes/city.triangulation.off         Z-up, hệ Gazebo
         │
         ▼
     Funnel Tree
@@ -98,7 +98,7 @@ data/processed/triangulation/city.triangulation.cell5.off  Z-up, hệ Gazebo
 data/raw/meshes/*.off
         │ tools/off2glb.py
         ▼
-data/processed/off2glb/*.off2glb.glb          Z-up, cho Gazebo
+data/processed/scenes/meshes/*.off2glb.glb     Z-up, cho Gazebo
 ```
 
 `scene.glb` là output của bước xử lý đầu vào và là input của bước tạo lưới.
@@ -213,6 +213,6 @@ Tiêu chí hoàn thành:
 - Ba quy trình dữ liệu: đã triển khai trong `tools/standardize.py`,
   `tools/off2glb.py` và `tools/triangulation.py`.
 - Sản phẩm nằm trong `data/processed/`; `city.standardized.glb` là cache dẫn xuất
-  (không commit), `.off2glb.glb` và `city.triangulation.cell5.off` được commit.
+  (không commit), `.off2glb.glb` và `city.triangulation.off` được commit.
 - Kiểm chứng sau migration: `check.py` pass và
   `tools/verify_project_results.py` báo `Project results: READY`.
