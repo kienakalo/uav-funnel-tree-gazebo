@@ -87,9 +87,25 @@ def plan_mission(path, seconds, max_nodes, clipping):
 
     started = time.monotonic()
     try:
-        paths, stats = solve_targets(mesh, source, [vertex for _, vertex in goals],
-                                     timeout=seconds, max_nodes=max_nodes,
-                                     clipping=clipping)
+        if mission['mode'] == 'explicit' and len(goals) > 1:
+            # One search per goal: a combined search keeps a frontier sized by
+            # the farthest goal, which is slower than three shorter searches.
+            paths, propagations, considered = {}, 0, 0
+            for _, vertex in goals:
+                found, search = solve_targets(mesh, source, [vertex],
+                                              timeout=seconds, max_nodes=max_nodes,
+                                              clipping=clipping)
+                paths.update(found)
+                propagations += search['propagations']
+                considered = max(considered, search['sources_considered'])
+            stats = {'sources_considered': considered,
+                     'propagations': propagations, 'mode': 'per-goal',
+                     'clipping': clipping}
+        else:
+            paths, stats = solve_targets(mesh, source, [vertex for _, vertex in goals],
+                                         timeout=seconds, max_nodes=max_nodes,
+                                         clipping=clipping)
+            stats['mode'] = 'combined'
     except (ValueError, TimeoutError, RuntimeError) as error:
         fail(f'{relative(path)}: {error}')
     elapsed = round(time.monotonic() - started, 3)

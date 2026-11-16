@@ -338,9 +338,10 @@ def solve_targets(mesh, source, targets, timeout=20., max_nodes=200000,
 
     coords = np.array([[point.x, point.y, point.z] for point in mesh.points])
     goal_coords = coords[targets]
+    to_goals = np.linalg.norm(coords[:, None, :] - goal_coords[None, :, :], axis=2)
 
     def heuristic(vertex):
-        return float(np.min(np.linalg.norm(goal_coords - coords[vertex], axis=1)))
+        return float(to_goals[vertex].min())
 
     costs = {source: 0.}
     previous = {}                       # vertex -> (source, funnel)
@@ -358,9 +359,19 @@ def solve_targets(mesh, source, targets, timeout=20., max_nodes=200000,
         if (all(value < math.inf for value in best.values()) and
                 estimate >= max(best.values()) - 1e-12):
             break
+        # Only ask for the sources that could still improve a target: a path
+        # through `s` is at least cost + |vertex-s| + |s-target| long, so if
+        # that bound reaches every current best, `s` is useless.
+        bounds = (cost + np.linalg.norm(coords - coords[vertex], axis=1)[:, None]
+                  + to_goals)
+        finite = np.array([best[target] for target in targets], dtype=float)
+        useful = (bounds < finite[None, :]).any(axis=1)
+        scope = set(targets)
+        for other in sources:
+            if other not in settled and useful[other]:
+                scope.add(other)
         distances, funnels, _ = propagate(
-            mesh, vertex, deadline, max_nodes, clipping,
-            target_vertices=set(targets) | source_set)
+            mesh, vertex, deadline, max_nodes, clipping, target_vertices=scope)
         runs += 1
         for target in targets:
             value = cost + distances[target]

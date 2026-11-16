@@ -126,7 +126,8 @@ Tool tạo file này khi bạn chọn; không có file mẫu nào được ship 
     {"id": "v1", "vertex": 1, "length": 2.828427125,
      "waypoints": [[2.0, 2.0, 0.0], [0.0, 0.0, 0.0]]}
   ],
-  "stats": {"sources_considered": 3, "propagations": 2},
+  "stats": {"sources_considered": 3, "propagations": 2,
+            "mode": "combined", "clipping": true},
   "planning_seconds": 0.004,
   "environment": {"python": "3.14.8", "numpy": "2.5.4"}
 }
@@ -135,6 +136,8 @@ Tool tạo file này khi bạn chọn; không có file mẫu nào được ship 
 - `length` là tổng khoảng cách Euclid giữa các waypoint liên tiếp, trên mặt.
 - `mode: all-goals` giữ mọi đỉnh trừ `source`; `explicit` chỉ giữ các goal
   trong mission.
+- `stats.mode` là `per-goal` khi mission có nhiều goal (mỗi goal một lượt tìm,
+  nhanh hơn một lượt gộp) và `combined` khi chỉ có một goal hoặc all-goals.
 - Ba hash khoá kết quả vào đúng mission, đúng mesh và đúng mã thuật toán.
 - `planning_seconds` là số đo, nên chạy lại sẽ làm tệp thay đổi.
 

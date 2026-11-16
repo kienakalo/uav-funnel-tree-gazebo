@@ -7,7 +7,7 @@
   "solver": {
     "name": "funnel_tree",
     "module": "algo/funnel_tree.py",
-    "module_sha256": "fc55632a2bcf91e59633a61a3a26394eb40906990931d47756a8d62a3ee185d6",
+    "module_sha256": "717e016f376b02d67b7dbee88e9dcecf07a9f6f3bb4f96d0dc0c8a73251ab9dd",
     "timeout_seconds": 300.0,
     "max_nodes": 200000,
     "clipping": true
@@ -474,9 +474,10 @@
     "sources_considered": 9,
     "propagations": 9,
     "clipping": true,
-    "implementation_status": "experimental; validate per mesh"
+    "implementation_status": "experimental; validate per mesh",
+    "mode": "combined"
   },
-  "planning_seconds": 0.082,
+  "planning_seconds": 0.099,
   "environment": {
     "python": "3.14.8",
     "numpy": "2.5.4"

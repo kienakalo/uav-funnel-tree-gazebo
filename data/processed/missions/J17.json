@@ -3,92 +3,19 @@
   "mesh_sha256": "9805fe0c3bce1f67e24419d4598695aad3795c1559b53a50d49b811376636e0e",
   "mesh_vertices": 10,
   "mesh_faces": 16,
-  "boundary_edges": 24,
+  "boundary_edges": 0,
   "vertex_spacing": 0.707107,
   "snap_mode": "xy",
   "max_snap": 0.5,
   "mode": "all-goals",
-  "selected_by": "console",
+  "selected_by": "cli",
   "start": {
-    "vertex": 0,
+    "vertex": 1,
     "xyz": [
-      1.0,
+      -1.0,
       1.0,
       0.840896
     ]
   },
-  "goals": [
-    {
-      "vertex": 1,
-      "xyz": [
-        -1.0,
-        1.0,
-        0.840896
-      ]
-    },
-    {
-      "vertex": 2,
-      "xyz": [
-        0.0,
-        0.0,
-        2.25511
-      ]
-    },
-    {
-      "vertex": 3,
-      "xyz": [
-        1.0,
-        -1.0,
-        0.840896
-      ]
-    },
-    {
-      "vertex": 4,
-      "xyz": [
-        1.414214,
-        0.0,
-        -0.840896
-      ]
-    },
-    {
-      "vertex": 5,
-      "xyz": [
-        0.0,
-        1.414214,
-        -0.840896
-      ]
-    },
-    {
-      "vertex": 6,
-      "xyz": [
-        0.0,
-        0.0,
-        -2.25511
-      ]
-    },
-    {
-      "vertex": 7,
-      "xyz": [
-        -1.0,
-        -1.0,
-        0.840896
-      ]
-    },
-    {
-      "vertex": 8,
-      "xyz": [
-        -1.414214,
-        0.0,
-        -0.840896
-      ]
-    },
-    {
-      "vertex": 9,
-      "xyz": [
-        0.0,
-        -1.414214,
-        -0.840896
-      ]
-    }
-  ]
+  "goals": []
 }
