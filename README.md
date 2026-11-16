@@ -155,16 +155,16 @@ tools/data/
   data_viz.py            # render PNG / cửa sổ 3D
   set_start_goal.py      # chọn START/GOAL, lưu JSON
   glb2off.py             # đọc GLB (duyệt cây node, bake transform) + ghi OFF
-src/
+lib/
   funnel_tree.py         # lan truyền và dựng lại tuyến
-  glb.py                 # container GLB
-  off.py                 # đọc/ghi/kiểm topology OFF
+  mesh_glb.py            # container GLB
+  mesh_off.py            # đọc/ghi/kiểm topology OFF
 generated/               # đầu ra, không commit
 docs/data-format.md      # quy ước định dạng
 ```
 
-`src/` không phải package: các module được import theo tên sau khi thêm `src/`
-vào `sys.path`, xem [`src/README.md`](src/README.md).
+`lib/` không phải package: các module được import theo tên sau khi thêm `lib/`
+vào `sys.path`, xem [`lib/README.md`](lib/README.md).
 
 ## Lưu trong Git
 

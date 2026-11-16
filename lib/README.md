@@ -1,19 +1,19 @@
 # Mã nguồn dùng chung
 
 Ba module. Đây **không phải package**: không có `__init__.py`, các module được
-import trực tiếp theo tên (`from glb import write_glb`) sau khi chương trình
-thêm `src/` vào `sys.path`. Tool mới dùng `src/` cần thêm cùng một dòng.
+import trực tiếp theo tên (`from mesh_glb import write_glb`) sau khi chương trình
+thêm `lib/` vào `sys.path`. Tool mới dùng `lib/` cần thêm cùng một dòng.
 
 | Module | Vai trò | Import nội bộ |
 | --- | --- | --- |
 | `funnel_tree.py` | `seeds`, `propagate`, `reconstruct`, `solve`, `clip_children`: lan truyền Funnel và dựng lại tuyến | — (chỉ NumPy) |
-| `glb.py` | `read_glb`, `write_glb`, `indexed_from_triangles`: container GLB 2 | — (chỉ stdlib + NumPy) |
-| `off.py` | `read_off`, `write_off`, `inspect_mesh`, `unique_edge_count`: định dạng OFF | — (chỉ stdlib + NumPy) |
+| `mesh_glb.py` | `read_glb`, `write_glb`, `indexed_from_triangles`: container GLB 2 | — (chỉ stdlib + NumPy) |
+| `mesh_off.py` | `read_off`, `write_off`, `inspect_mesh`, `unique_edge_count`: định dạng OFF | — (chỉ stdlib + NumPy) |
 
 ## Trạng thái sử dụng
 
-`glb.py` được `tools/data/standardize.py` và `tools/data/off2glb.py` dùng;
-`off.py` là reader/writer OFF duy nhất, dùng ở cả năm tool còn lại.
+`mesh_glb.py` được `tools/data/standardize.py` và `tools/data/off2glb.py` dùng;
+`mesh_off.py` là reader/writer OFF duy nhất, dùng ở cả năm tool còn lại.
 `funnel_tree.py` **chưa tool nào import**: `set_start_goal.py` chỉ chọn điểm,
 không chạy Funnel, nên phần lõi này đang chờ tool lập tuyến.
 

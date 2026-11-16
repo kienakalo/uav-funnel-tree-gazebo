@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: NumPy; Python stdlib (argparse, hashlib, json, pathlib);
-# local modules (glb, off).
+# local modules (mesh_glb, mesh_off).
 """Convert raw OFF fixtures into glTF binary (Y-up by default).
 
 Input:  data/raw/meshes/*.off (model units; axis documented in data/README.md)
@@ -22,9 +22,9 @@ from pathlib import Path
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / 'src'))
-from glb import read_glb, write_glb
-from off import read_off
+sys.path.insert(0, str(ROOT / 'lib'))
+from mesh_glb import read_glb, write_glb
+from mesh_off import read_off
 
 DEFAULT_INPUT = ROOT / 'data/raw/meshes'
 DEFAULT_OUTPUT = ROOT / 'data/processed/scenes/meshes'

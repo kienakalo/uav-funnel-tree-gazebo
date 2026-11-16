@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: NumPy; Python stdlib (argparse, json, struct, sys, pathlib);
-# local modules (off).
+# local modules (mesh_off).
 """Convert a city GLB into a triangle OFF mesh.
 
 Input:  data/processed/scenes/city.standardized.glb
@@ -27,8 +27,8 @@ import sys
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / 'src'))
-from off import write_off
+sys.path.insert(0, str(ROOT / 'lib'))
+from mesh_off import write_off
 
 DEFAULT_INPUT = ROOT / 'data/processed/scenes/city.standardized.glb'
 DEFAULT_OUTPUT = ROOT / 'generated/meshes'

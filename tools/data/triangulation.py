@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: NumPy, Shapely; Python stdlib (argparse, heapq, json, math,
-# sys, pathlib); local modules (glb2off, off).
+# sys, pathlib); local modules (glb2off, mesh_off).
 """Triangulate a navigation surface over the standardized city scene.
 
 Input:  data/processed/scenes/city.standardized.glb
@@ -35,10 +35,10 @@ from shapely.geometry import box
 from shapely.strtree import STRtree
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / 'src'))
+sys.path.insert(0, str(ROOT / 'lib'))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from glb2off import read_glb_scene
-from off import inspect_mesh, write_off
+from mesh_off import inspect_mesh, write_off
 
 DEFAULT_SCENE = ROOT / 'data/processed/scenes/city.standardized.glb'
 DEFAULT_OUTPUT = ROOT / 'data/processed/meshes/city.standardized.triangulation.off'

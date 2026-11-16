@@ -28,9 +28,9 @@ Quy ước trong repo:
 - `E` không dùng để dựng topology; số cạnh thực được suy ra từ danh sách mặt.
   Vài fixture có `E` không chính xác, nên không được tin giá trị này.
 - Tệp `.off` được đối xử **byte-exact**: `.gitattributes` đặt `*.off -text`.
-- `src/off.py` là reader/writer duy nhất: `read_off` trả mảng NumPy, `write_off`
+- `lib/mesh_off.py` là reader/writer duy nhất: `read_off` trả mảng NumPy, `write_off`
   ghi toạ độ bằng `%.17g` để đọc lại đúng giá trị double đã tính.
-- `inspect_mesh` trong `src/off.py` kiểm topology: không mặt suy biến, mỗi cạnh
+- `inspect_mesh` trong `lib/mesh_off.py` kiểm topology: không mặt suy biến, mỗi cạnh
   kề tối đa hai mặt, mỗi đỉnh thuộc đúng một nhóm mặt liên thông;
   `set_start_goal` gọi thêm kiểm tra đỉnh trùng toạ độ.
 

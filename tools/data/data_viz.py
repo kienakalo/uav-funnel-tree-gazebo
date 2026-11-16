@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: NumPy, Matplotlib; Python stdlib (argparse, json, math, sys,
-# pathlib); local modules (glb2off, off).
+# pathlib); local modules (glb2off, mesh_off).
 """Render OFF meshes to PNG, or open them in an interactive 3D window.
 
 GLB files can be opened by Blender, MeshLab or any glTF viewer; OFF files need
@@ -31,10 +31,10 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / 'src'))
+sys.path.insert(0, str(ROOT / 'lib'))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from glb2off import read_glb_scene
-from off import read_off
+from mesh_off import read_off
 
 DEFAULT_INPUT = ROOT / 'data/processed/meshes'
 DEFAULT_OUTPUT = ROOT / 'generated/data_viz'

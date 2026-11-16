@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: NumPy; Python stdlib (argparse, pathlib, shutil); local
-# modules (off).
+# modules (mesh_off).
 """Copy the validated raw OFF fixtures into data/processed/meshes.
 
 The fixtures do not need a geometric transformation, but downstream code reads
@@ -16,8 +16,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / 'src'))
-from off import read_off
+sys.path.insert(0, str(ROOT / 'lib'))
+from mesh_off import read_off
 
 RAW = ROOT / 'data/raw/meshes'
 OUTPUT = ROOT / 'data/processed/meshes'

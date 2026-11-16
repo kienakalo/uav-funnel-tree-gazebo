@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: NumPy; Matplotlib (chỉ khi dùng --pick); Python stdlib
-# (argparse, hashlib, json, math, os, pathlib, sys); local modules (off).
+# (argparse, hashlib, json, math, os, pathlib, sys); local modules (mesh_off).
 """Choose START and GOAL vertices on an OFF mesh and save them as JSON.
 
 Input:  data/processed/meshes/city.standardized.triangulation.off (or --mesh)
@@ -48,8 +48,8 @@ import sys
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / 'src'))
-from off import inspect_mesh, read_off
+sys.path.insert(0, str(ROOT / 'lib'))
+from mesh_off import inspect_mesh, read_off
 
 DEFAULT_MESH = ROOT / 'data/processed/meshes/city.standardized.triangulation.off'
 DEFAULT_OUTPUT = ROOT / 'data/processed/missions'
