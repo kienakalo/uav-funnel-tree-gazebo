@@ -1,3 +1,7 @@
-# Minimal dependency for the planner core: check.py, plan.py and tests/.
-# The full demo pins exact versions in requirements-demo.txt.
-numpy>=1.24,<3
+# Stage `data`: fixtures, scene, surface, previews. Versions pinned so the
+# saved surface and figures reproduce exactly on Ubuntu 24.04 / Python 3.12.
+numpy==2.5.4
+matplotlib==3.11.2
+shapely==2.2.0
+# Transitive dependency of Matplotlib, pinned explicitly for reproducibility.
+pillow==13.0.0

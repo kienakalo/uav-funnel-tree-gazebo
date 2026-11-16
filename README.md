@@ -1,573 +1,140 @@
-# UAV giao hàng trên bề mặt 3D bằng Funnel Tree
+# UAV Funnel Tree — dữ liệu dẫn đường
 
-Trong dự án này, nhóm triển khai thuật toán Funnel Tree bằng Python để lập
-tuyến trên bề mặt đa diện và mô phỏng một UAV bám tuyến trong Gazebo Jetty.
-Quy trình đọc mô hình thành phố `city.glb`,
-dựng bề mặt dẫn đường 3D phía trên địa hình và công trình, chạy Funnel Tree,
-đối chiếu độ dài với bộ giải MMP độc lập, rồi mô phỏng tiếp cận điểm giao hàng.
-Luồng xử lý chi tiết theo năm tầng ở mục **Luồng xử lý và các tầng kiểm chứng**.
+Repo này dựng **dữ liệu đầu vào cho Funnel Tree**: từ scene thành phố thô
+(`data/raw/scenes/city.glb`) và chín mesh mẫu, stage `data` tạo ra scene đã
+chuẩn hoá, các bản GLB để xem, bề mặt tam giác phân dùng làm miền dẫn đường,
+ảnh kiểm tra hình học và một nhiệm vụ mẫu START → GOAL.
 
-![Bản đồ và tuyến bay](generated/funnel_physics/surface_delivery/city_overview.png)
+Thuật toán Funnel Tree chỉ đọc mesh `.off`; repo này không chứa phần mô phỏng,
+benchmark hay thí nghiệm.
 
-## Kết quả hiện tại
+## Kết quả của stage `data`
 
-| Thành phần | Kết quả đã kiểm tra |
+| Tệp | Nội dung |
 | --- | --- |
-| Mô hình thành phố | 301.490 tam giác, đổi trục và chuẩn hóa kích thước ngang về 200 đơn vị |
-| Bề mặt dẫn đường 3D | Phủ toàn thành phố: 2.295 đỉnh, 4.400 tam giác, ô danh nghĩa 5 đơn vị |
-| Khoảng hở dựng bề mặt | Đứng tối thiểu 1,5 đơn vị, dự phòng ngang 1,6 |
-| Độ dài chặng trên bề mặt bằng Funnel | 142,418721777849 đơn vị mô phỏng |
-| Độ dài MMP tham chiếu | 142,418721777849 đơn vị mô phỏng |
-| Sai lệch bám tuyến lớn nhất trong lượt đã lưu | Khoảng 0,002363 đơn vị mô phỏng |
-| Cao độ chặng bám bề mặt trong lượt đã lưu | Khoảng 7,68–16,57 đơn vị mô phỏng |
-| Giới hạn tốc độ / tốc độ hạ giao hàng | 5 / 1 đơn vị mô phỏng mỗi giây |
-| Thời gian hoàn tất kế hoạch | Khoảng 100,7 giây mô phỏng |
+| `data/processed/meshes/*.off` | Chín mesh mẫu, copy byte-identical từ `data/raw/meshes/` |
+| `data/processed/scenes/city.standardized.glb` | Scene thành phố đã bake transform, bỏ material |
+| `data/processed/scenes/meshes/*.off2glb.glb` | Mesh mẫu ở dạng GLB Y-up để mở bằng viewer |
+| `data/processed/meshes/city.standardized.triangulation.off` | Bề mặt dẫn đường 2.295 đỉnh / 4.400 tam giác |
+| `generated/data_viz/*.png` | Ảnh kiểm tra từng mesh, kèm đường tham chiếu |
+| `generated/missions/data-demo/plan.json`, `routes.png` | Nhiệm vụ mẫu và tuyến Funnel |
 
-Đối chiếu MMP dùng cùng lưới và cùng hai đầu mút của chặng trên bề mặt.
-Hai đường đều được kiểm tra thuộc bề mặt. Đây là kiểm chứng số cho ca đã lưu.
-Các đoạn tiếp cận bề mặt và hạ tại điểm giao được kiểm tra riêng bằng telemetry.
+## Cài đặt
 
-Lưới phủ toàn thành phố đã được đối chiếu MMP. Bộ kết quả bay đã lưu được
-đo trong Gazebo không giao diện, cùng bước vật lý 0,002 giây. Cấu hình hiện
-tại bỏ thời gian chờ tại waypoint, tăng giới hạn tốc độ từ 3 lên 5, giữ
-giới hạn gia tốc 3 và tốc độ hạ giao hàng 1. Thời gian kế hoạch giảm từ
-158,3 xuống 100,7 giây mô phỏng. Drone vẫn giảm tốc về 0 ở các góc của
-đường gấp khúc; chưa bo góc hay bay xuyên waypoint với vận tốc khác 0.
-Log tiến độ mỗi 10 giây chỉ phục vụ theo dõi, độc lập với chuyển động.
-
-- [Kết quả đối chiếu MMP](generated/funnel_surface_reference/comparison.md)
-- [Số liệu kiểm tra bám bề mặt](generated/funnel_physics/surface_delivery/surface_validation.json)
-- [Biểu đồ cao độ](generated/funnel_physics/surface_delivery/surface_altitude_profile.png)
-- [Ảnh gần điểm giao](generated/funnel_physics/surface_delivery/city_destination.png)
-
-## Thí nghiệm một START đến ba đích
-
-Ba ca `g1`, `g2`, `g3` sử dụng cùng điểm xuất phát và cùng lưới phủ toàn
-thành phố. G1 giữ nhà đích hiện tại; G2 và G3 là hai vị trí giao hàng khác,
-cách các đích đã chọn ít nhất 45 đơn vị, có nền đỡ, cột hạ trống và mặt nhà
-gần đó. Đây là ba truy vấn độc lập, không phải một hành trình ghé ba nhà.
-
-Trong **VS Code — Terminal 1**, chọn một ca để xem Gazebo; đóng phiên cũ
-trước khi đổi ca:
-
-```powershell
-wsl.exe -d Ubuntu-24.04 --cd /mnt/c/DroneDemo/drone_gazebo_demo -- bash scripts/run_surface_gpu.sh --destination=g1 --show-surface
-```
-
-Thay `g1` bằng `g2` hoặc `g3`. Để dùng CPU, thay `run_surface_gpu.sh` bằng
-`run_surface_cpu.sh`. Các lệnh mặc định không có `--destination` vẫn chạy
-demo giao hàng ban đầu.
-
-Sau lượt bay, trong **VS Code — Terminal 2**, phân tích ca vừa chạy và cập
-nhật bảng tổng hợp:
-
-```powershell
-wsl.exe -d Ubuntu-24.04 --cd /mnt/c/DroneDemo/drone_gazebo_demo -- .venv/bin/python tools/run_city_three_goals.py --stage analyze --destination g1
-```
-
-Tính lại toàn bộ ba tuyến, đối chiếu MMP và mô phỏng không giao diện:
-
-```powershell
-wsl.exe -d Ubuntu-24.04 --cd /mnt/c/DroneDemo/drone_gazebo_demo -- .venv/bin/python tools/run_city_three_goals.py --stage all
-```
-
-- [Bảng tổng hợp](generated/city_three_goals/summary.md)
-- [Số liệu ba ca](generated/city_three_goals/results.json)
-- [Hình ba tuyến](generated/city_three_goals/routes.png)
-
-Kết quả từng ca nằm trong `generated/city_three_goals/g1`, `g2`, `g3`.
-Thời gian lập tuyến được ghi rõ số nguồn tính mới và số nguồn dùng lại
-cache; không diễn giải các lượt nối tiếp này là phép so sánh cold-start.
-
-## Môi trường
-
-### Thí nghiệm bổ sung cho cách dựng bề mặt
-
-`tools/run_surface_sensitivity.py` so sánh ô danh nghĩa 5, 7,5 và 15 trên
-cùng miền ngang, cùng START và điểm giao hàng. Mỗi cấu hình được dựng và
-tính Funnel trong một tiến trình riêng với cache mới, sau đó đối chiếu MMP.
-Cao độ nguồn và đích trên bề mặt có thể khác nhau giữa các cấu hình; đây
-là đánh giá ảnh hưởng của mô hình hóa, không phải hội tụ trên một lưới cố định.
-
-```powershell
-wsl.exe -d Ubuntu-24.04 --cd /mnt/c/DroneDemo/drone_gazebo_demo -- .venv/bin/python tools/run_surface_sensitivity.py
-```
-
-Kết quả nằm tại `generated/surface_sensitivity/`. Thời gian gồm ghi
-checkpoint, chỉ đo một lượt mỗi cấu hình. Peak RSS là của toàn tiến trình
-đến sau MMP, không phải bộ nhớ riêng của Funnel. Các cấu hình này chưa có
-telemetry mô phỏng bay mới. Thí nghiệm không ghi đè ba ca demo đã lưu.
-
-Hai ảnh Gazebo người dùng cung cấp được giữ nguyên trong
-`generated/paper_figures/`; thông tin nguồn và cách cắt khung khi dàn trang
-nằm trong `figure_metadata.json`.
-
-### Các thư viện chính
-
-| Thư viện / runtime | Vai trò trong mã nguồn |
-| --- | --- |
-| NumPy | Mảng tọa độ, tính toán hình học và phép toán tuyến tính trong Funnel Tree, đọc GLB và xử lý telemetry |
-| Shapely | Truy vấn không gian, kiểm tra footprint và cột hạ, dựng bề mặt dẫn đường |
-| Matplotlib | Biểu đồ tuyến, cao độ và kết quả thực nghiệm |
-| Gazebo Jetty: `gz.sim10`, `gz.math9` | Mô phỏng vật lý, đọc trạng thái và tác dụng lực lên UAV |
-| pygeodesic | Bộ giải MMP độc lập để đối chiếu; không thay thế Funnel Tree khi lập tuyến |
-| Thư viện chuẩn Python | `math`, `json`, `csv`, `pathlib`, `hashlib`, `heapq`, `argparse`, `xml.etree.ElementTree` và các tiện ích hệ thống |
-| trimesh | Công cụ khảo sát cũ trong `tools/dev/`, không bắt buộc cho lệnh chạy demo hiện tại |
-
-Toàn bộ mã Python của nhóm ở thư mục gốc, `src/`, `tools/`, `tests/` và các
-script trong `scripts/` có thông báo BSD-3-Clause cùng thư viện hoặc runtime
-chính ở phần đầu. Module nội bộ được ghi riêng với thư viện bên ngoài.
-`requirements-demo.txt`, `requirements-reference.txt` và
-`requirements-dev.txt` lưu các phiên bản đã dùng; một thư viện có trong bộ
-cài không đồng nghĩa mọi module đều sử dụng nó. Gazebo dùng Python bindings
-cài qua hệ thống Ubuntu.
-
-[Biên bản rà soát header](generated/source_header_audit.json) ghi nhận các
-file đã kiểm tra. Việc bổ sung chú thích giữ nguyên cấu trúc thực thi Python;
-các dấu vân tay phụ thuộc mã nguồn được cập nhật, không tính lại số liệu bay.
-
-- Ubuntu 24.04, hoặc Ubuntu 24.04 trên WSL2 với WSLg để mở giao diện.
-- Gazebo Jetty / Gazebo Sim 10 và Python bindings của hệ thống.
-- Python 3.12. Các phiên bản thư viện đã dùng nằm trong `requirements-demo.txt`.
-
-Quy ước hai terminal trong hướng dẫn này:
-
-- **Ubuntu 1** mở Gazebo. Dùng `Ctrl+C` để kết thúc phiên.
-- **Ubuntu 2** cài thư viện, lập tuyến, kiểm tra và xuất kết quả.
-
-Mỗi terminal cần ở thư mục gốc của repository. Ví dụ trên máy đang phát triển:
+Cần Python 3.10+ với NumPy, Matplotlib (ảnh) và Shapely (tam giác phân):
 
 ```bash
-cd /mnt/c/DroneDemo/drone_gazebo_demo
-```
-
-Nếu clone sang vị trí khác, dùng đường dẫn thư mục clone tương ứng.
-
-## Cài đặt một lần
-
-Trong **Ubuntu 2**, tại thư mục gốc repository:
-
-```bash
-bash scripts/install_ubuntu.sh
 python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements-demo.txt
+.venv/bin/pip install -r requirements.txt
 ```
 
-Script cài Gazebo cần `sudo` và kết nối mạng. Script này dành cho Ubuntu 24.04.
-Các lệnh dưới đây gọi trực tiếp Python trong môi trường ảo, nên có thể dùng
-ngay từ terminal mới.
+`main.py` tự dùng `.venv/bin/python` nếu có, ngược lại dùng `python3`.
 
-Để chạy phép đối chiếu MMP, cài thêm bộ giải tham chiếu trong **Ubuntu 2**:
+## Chạy
 
 ```bash
-.venv/bin/python -m pip install --no-deps \
-  --target generated/funnel_surface_reference/runtime \
-  -r requirements-reference.txt
+python3 main.py flow        # liệt kê các bước và lệnh
+python3 main.py data        # chạy toàn bộ stage
+python3 main.py data --dry-run
 ```
 
-Plugin điều khiển trong Gazebo dùng Python hệ thống và các gói `gz` được cài
-bằng apt. `scripts/gazebo_system_python.sh` thiết lập môi trường cho tiến trình đó.
+Sáu bước, dừng ngay khi một bước lỗi:
 
-## Chạy nhanh bằng `main.py`
-
-`main.py` ở thư mục gốc gom các bước thành một lối vào thống nhất:
-
-```bash
-python3 main.py flow      # in các bước và lệnh tương ứng
-python3 main.py data      # raw -> processed
-python3 main.py verify    # check.py + verify_project_results.py
-python3 main.py all       # data + verify, không mở Gazebo
-python3 main.py simulate  # mở Gazebo (cần màn hình)
-```
-
-`data` và `verify` chỉ cần NumPy (thêm Shapely cho bước tam giác phân).
-`plan` ghi lại artifact trong `generated/` nên làm đổi fingerprint; chỉ chạy
-khi đổi asset hoặc mã lập tuyến. Thêm `--dry-run` để xem lệnh mà không chạy.
-
-## Chạy mô phỏng hiện tại
-
-Đóng phiên Gazebo cũ. Trong **Ubuntu 1**:
-
-```bash
-bash scripts/run_funnel_physics.sh surface_delivery
-```
-
-Drone bắt đầu tại START đã lưu, tiếp cận bề mặt dẫn đường, lên xuống theo
-tuyến Funnel màu cam, rồi hạ thẳng đứng và giữ vị trí trên bục giao màu xanh.
-Lượt hiện tại kéo dài khoảng 2 phút 38 giây mô phỏng. Dấu hồng phía trên
-drone giúp quan sát khi nhìn toàn thành phố.
-
-Muốn hiện thêm bề mặt dẫn đường trong suốt, chạy trong **Ubuntu 1**:
-
-```bash
-bash scripts/run_funnel_physics.sh surface_delivery --show-surface
-```
-
-### Hai lệnh chạy riêng cho CPU và GPU
-
-Trong **Ubuntu 1**, chọn một lệnh sau, mỗi lần mở một phiên Gazebo.
-
-GPU qua D3D12 trên WSLg, theo cấu hình đã chạy mượt trên máy phát triển:
-
-```bash
-bash scripts/run_surface_gpu.sh
-```
-
-CPU qua Mesa llvmpipe, dùng khi cần chạy bằng phần mềm:
-
-```bash
-bash scripts/run_surface_cpu.sh
-```
-
-Cả hai mặc định chạy `surface_delivery`. Có thể thêm `--show-surface` vào
-cuối lệnh. Script GPU xóa thiết lập ép render CPU được kế thừa từ terminal,
-còn script CPU đặt rõ `LIBGL_ALWAYS_SOFTWARE=1` và `GALLIUM_DRIVER=llvmpipe`.
-Chế độ GPU yêu cầu WSLg và driver hỗ trợ D3D12 trên máy chạy.
-
-Lệnh gốc `run_funnel_physics.sh` dùng driver mặc định của hệ thống. Tùy chọn
-`--software` của lệnh gốc bật render CPU. Hai script mới chọn rõ backend đồ
-họa cho cùng pipeline lập tuyến và mô phỏng vật lý.
-
-Nhóm sử dụng hai script trong `scripts/` để quản lý cấu hình render. Ca mô
-phỏng được chọn bằng biến môi trường. Ví dụ trong **Ubuntu 1**:
-
-```bash
-FUNNEL_DEMO_CASE=original bash scripts/run_surface_cpu.sh
-```
-
-Repository giữ một bộ dữ liệu đã lập tuyến để chạy ca hiện tại ngay sau cài
-đặt. Script luôn tạo lại SDF và đường dẫn tài nguyên theo vị trí clone.
-Các tệp SDF chạy thử, log và cache tính toán lớn được tạo cục bộ.
-
-## Kiểm tra sau lượt chạy
-
-Đóng Gazebo, rồi trong **Ubuntu 2**:
-
-```bash
-.venv/bin/python tools/analyze_surface_delivery.py
-.venv/bin/python tools/compare_surface_geodesic.py
-```
-
-Kết quả mong đợi lần lượt là `checks_passed: true` và
-`MATCHES_EXACT_REFERENCE`. Dữ liệu lưu tại:
-
-```text
-generated/funnel_physics/surface_delivery/surface_validation.json
-generated/funnel_physics/surface_delivery/surface_altitude_profile.png
-generated/funnel_surface_reference/comparison.json
-generated/funnel_surface_reference/comparison.md
-```
-
-Trong **Ubuntu 2**, có thể kiểm tra bộ bốn ca phẳng đã lưu:
-
-```bash
-.venv/bin/python tools/verify_project_results.py
-```
-
-## Lập lại tuyến khi thay đổi bản đồ hoặc thuật toán
-
-Trong **Ubuntu 2**, khi Gazebo đã đóng:
-
-```bash
-.venv/bin/python tools/plan_surface_delivery.py --cell 5 --coverage city
-.venv/bin/python tools/compare_surface_geodesic.py
-```
-
-Sau đó chạy lại mô phỏng trong **Ubuntu 1** và xuất telemetry mới. Bộ lập
-tuyến lưu checkpoint cho các nguồn Funnel. Thời gian tính phụ thuộc kích
-thước lưới và số nguồn phụ.
-
-`--coverage city` dựng lưới phủ toàn bộ giới hạn ngang của thành phố, thêm
-vùng đệm 16 đơn vị và làm tròn theo kích thước ô. Đây là chế độ mặc định.
-`--coverage mission` giới hạn lưới quanh START/GOAL như các lượt thử trước.
-Đổi phạm vi lưới cần chạy lại phép đối chiếu MMP và mô phỏng trước khi dùng
-kết quả telemetry để đánh giá bản mới.
-
-Kế hoạch lưu SHA256 của đầu vào và mã liên quan. Nếu sửa một tệp đầu vào,
-cần lập lại kế hoạch tương ứng. Khi thay đổi cả pipeline miền phẳng, xem
-[hướng dẫn chi tiết](RUNBOOK_CURRENT.md) và các công cụ trong `tools/`.
-
-## Luồng xử lý và các tầng kiểm chứng
-
-Cài đặt môi trường (`.venv`, Gazebo, `pygeodesic`) là bước chuẩn bị, không
-tính vào năm tầng dưới đây. Mỗi tầng ghi SHA256 của đầu vào, và tầng sau từ
-chối chạy nếu đầu vào đã đổi; vì vậy không thể ghép kết quả cũ với mã hoặc
-bản đồ mới.
-
-```text
-data/raw/scenes/city.glb
-        │  tools/build_navigation_surface.py   → navigation_y2p00.off + grid
-        │  tools/prepare_funnel_input.py       → funnel_input_y2p00.off
-        │  tools/run_funnel_route.py           → candidate route + cache
-        │  tools/check_funnel_candidate.py     → candidate validation
-        │  tools/prepare_funnel_gazebo.py      → funnel_preview/
-        ▼
-generated/funnel_preview/  city.stl, route.json, funnel_demo.sdf
-        │  tools/plan_funnel_delivery.py
-        ▼
-generated/funnel_physics/delivery/horizontal_plan.json
-        │  tools/plan_surface_delivery.py --cell 5 --coverage city
-        ▼
-surface.off/.stl, surface_plan.json, surface_report.json      ← Funnel Tree
-        │  tools/compare_surface_geodesic.py
-        ▼
-generated/funnel_surface_reference/comparison.json           ← MMP độc lập
-        │  tools/prepare_funnel_physics.py --case surface_delivery
-        ▼
-generated/funnel_physics/surface_delivery/funnel_physics.sdf
-        │  scripts/run_funnel_physics.sh surface_delivery
-        ▼
-physics_telemetry.csv, telemetry_metadata.json               ← Gazebo
-        │  tools/analyze_surface_delivery.py
-        ▼
-surface_validation.json
-        │  tools/export_funnel_physics_results.py --case surface_delivery
-        ▼
-summary, hình  →  tools/verify_project_results.py  →  Project results: READY
-```
-
-| Tầng | Việc làm | Lệnh chính | Đầu ra |
-| --- | --- | --- | --- |
-| 1 | Dựng miền phẳng và dữ liệu nền | `tools/build_navigation_surface.py` → `tools/prepare_funnel_input.py` → `tools/run_funnel_route.py` → `tools/check_funnel_candidate.py` → `tools/prepare_funnel_gazebo.py` | `funnel_input_y2p00.off`, `generated/funnel_preview/` |
-| 2 | Lập tuyến bằng Funnel Tree, đối chiếu MMP | `tools/plan_funnel_delivery.py`, `tools/plan_surface_delivery.py`, `tools/compare_surface_geodesic.py` | `horizontal_plan.json`, `surface.*`, `comparison.json` |
-| 3 | Dựng world vật lý | `tools/prepare_funnel_physics.py --case surface_delivery` | `funnel_physics.sdf`, `route.json` |
-| 4 | Mô phỏng Gazebo và ghi telemetry | `bash scripts/run_funnel_physics.sh surface_delivery` | `physics_telemetry.csv`, `telemetry_metadata.json` |
-| 5 | Kiểm chứng và xuất kết quả | `tools/analyze_surface_delivery.py`, `tools/export_funnel_physics_results.py`, `tools/verify_project_results.py` | `surface_validation.json`, summary, `READY` |
-
-Bốn điểm cần biết:
-
-- **Tầng 1** chỉ chạy lại khi đổi `data/raw/scenes/city.glb` hoặc tham số hình học.
-- **Tầng 2** là nơi duy nhất lập tuyến. Funnel Tree tính đường; `pygeodesic`
-  (MMP) chạy trên cùng lưới và cùng hai đầu mút để đối chiếu, không tham gia
-  lập tuyến.
-- **Tầng 3 và 4** dùng hai môi trường Python: `.venv` chuẩn bị world, Python
-  hệ thống chạy plugin trong Gazebo. Plugin ghi telemetry; không có bước nào
-  sửa tay số liệu.
-- **Tầng 5** kiểm tra chuỗi hash và in `Project results: READY`. Đây là kiểm
-  tra nhất quán file, không chạy lại mô phỏng hay bộ giải.
-
-`generated/` đã được commit sẵn và `run_funnel_physics.sh` tự gọi tầng 3, nên
-bản clone mới chỉ cần chạy tầng 4. Chỉ lặp lại tầng 2 khi đổi bản đồ, tham số
-bề mặt hoặc mã Funnel; xem mục *Lập lại tuyến khi thay đổi bản đồ hoặc thuật
-toán* bên trên.
-
-### Các nhánh thí nghiệm
-
-| Nhánh | Lệnh | Kết quả |
+| # | Lệnh | Vào → Ra |
 | --- | --- | --- |
-| Bốn ca phẳng | `tools/run_funnel_benchmark.py`, `tools/compare_funnel_reference.py` | `generated/funnel_benchmark/`, `funnel_reference/` |
-| Một START, ba đích | `tools/run_city_three_goals.py --stage all` | `generated/city_three_goals/g1..g3` |
-| Nhiệm vụ đô thị | `prepare_urban.py`, `scripts/run_urban.sh`, `tools/check_urban_flight.py` | `generated/urban_report.json`, telemetry |
-| Demo phẳng cũ | `scripts/run.sh pose\|physics`, `scripts/run_funnel.sh` | `generated/hcm_demo.sdf`, `funnel_preview/` |
-| Độ nhạy ô lưới | `tools/run_surface_sensitivity.py` | `generated/surface_sensitivity/` |
+| 1 | `tools/copy_meshes.py --write` | `data/raw/meshes/*.off` → `data/processed/meshes/*.off` |
+| 2 | `tools/standardize.py` | `data/raw/scenes/city.glb` → `scenes/city.standardized.glb` |
+| 3 | `tools/off2glb.py` | `raw/meshes/*.off` → `scenes/meshes/*.off2glb.glb` |
+| 4 | `tools/triangulation.py --force` | `city.standardized.glb` → `meshes/city.standardized.triangulation.off` |
+| 5 | `tools/data_viz.py --all` | `processed/meshes/*.off` → `generated/data_viz/*.png` |
+| 6 | `tools/set_start_goal.py …` | bề mặt → `generated/missions/data-demo/` |
 
-## Định dạng dữ liệu
+Bước 4 cần `--force` vì tệp đích đã tồn tại; nếu không, tool dừng để tránh ghi
+đè ngoài ý muốn. Tham số bề mặt được in ra console và ghi ở
+[`data/processed/README.md`](data/processed/README.md).
 
-Repo dùng hai định dạng chính, chia theo vai trò thay vì ép mọi thứ vào một
-kiểu tệp.
+## Bề mặt dẫn đường
 
-| Vai trò | Định dạng | Lý do chính |
-| --- | --- | --- |
-| Scene đầu vào, xem hình học, dựng world | **GLB** (`.glb`) | Giữ object, transform và metadata; mở xem được |
-| Mesh dẫn xuất cho thuật toán | **OFF** (`.off`) | Text, toạ độ double, đỉnh dùng chung, hash ổn định |
+Bề mặt không phải địa hình hay mái nhà: đó là **envelope an toàn** phía trên
+thành phố, dựng theo từng ô lưới, nâng lên theo khe hở dọc và mở rộng thành
+dốc. Nó chỉ tồn tại trong hành lang giữa START và GOAL:
 
-Đường đi tham chiếu dùng `.paths.json`; lưới ô dùng `.npz`. Hai loại này giữ
-nguyên, không nằm trong đợt chuyển đổi.
+```bash
+# mặc định: hai đầu nhiệm vụ giao hàng
+.venv/bin/python tools/triangulation.py --force
 
-**Vì sao GLB cho scene.** `city.glb` vốn đã là GLB với **44 object** và
-transform trong scene graph; chuyển sang định dạng phẳng sẽ mất cấu trúc mà
-các công cụ phân tích đang dùng. GLB còn mang metadata trong `extras` (tác
-giả, giấy phép CC BY 4.0, nguồn), mở được bằng Blender, MeshLab và các trình
-xem glTF. Đây là định dạng duy nhất vừa xem được, vừa giữ scene, vừa là ứng
-viên cho Gazebo qua Assimp.
+# nhiệm vụ khác
+.venv/bin/python tools/triangulation.py --force \
+  --start -38.752 22.103 7.206 --goal 74.737 -55.357 7.206 \
+  --cell 5 --coverage city --output /tmp/surface.off
+```
 
-**Vì sao OFF cho mesh dẫn xuất.** Funnel Tree cần một mặt liên tục, đỉnh dùng
-chung giữa các tam giác và toạ độ double. glTF quy định `POSITION` là float32
-và cho phép tách đỉnh theo normal/UV, cả hai đều đi ngược yêu cầu của thuật
-toán. OFF có đúng header `V F E` như định dạng hiện tại, chỉ thêm dòng `OFF`;
-là text nên hash ổn định giữa các môi trường và diff được trên Git; ghi bằng
-`repr(float)` bảo toàn giá trị double.
+## Kiểm tra và chọn điểm
 
-**Vì sao không dùng một định dạng cho cả hai.** Scene cần object, transform và
-khả năng mở xem; mesh dẫn xuất cần double, đỉnh dùng chung và hash ổn định.
-Ép chung một kiểu sẽ phải hy sinh một trong hai: GLB làm mesh bị float32 và
-tách đỉnh, còn OFF làm scene mất object và metadata.
+```bash
+# xem một mesh, hoặc so sánh scene với bề mặt
+.venv/bin/python tools/data_viz.py L
+.venv/bin/python tools/data_viz.py city.standardized.triangulation --scene
 
-**Vì sao không chọn định dạng khác.** NPZ không mở xem trực tiếp được; OBJ
-không có header và metadata, lại thành ~22 MB text cho thành phố; PLY không
-giữ object/transform; STL không có chỉ số đỉnh nên phải weld lại trước khi
-chạy Funnel.
+# chạy Funnel trên bề mặt cho một cặp START/GOAL
+.venv/bin/python tools/set_start_goal.py \
+  --start -38.752 22.103 7.206 --goal 74.737 -55.357 7.206 --name giao-hang
+```
 
-Migration đã áp dụng: mesh dùng `.off`, đường đi dùng `.paths.json`; toàn bộ
-dấu vân tay trong `generated/` đã được tính lại.
+Toạ độ được snap về đỉnh gần nhất và sai số được in ra. Kết quả **không** được
+chứng nhận tối ưu (`optimality_certified: false`). Chi tiết cờ và định dạng
+đầu ra ở [`data/processed/README.md`](data/processed/README.md).
 
-### Các bước dữ liệu
+## Định dạng
 
-| Bước | Công cụ | Đầu vào → đầu ra |
-| --- | --- | --- |
-| Pass-through (validate + copy) | `tools/copy_meshes.py` | `data/raw/meshes/*.off` → `data/processed/meshes/*.off` |
-| Standardize | `tools/standardize.py` | `data/raw/scenes/city.glb` → `data/processed/scenes/city.standardized.glb` |
-| OFF → GLB (Y-up) | `tools/off2glb.py` | `data/raw/meshes/*.off` → `data/processed/scenes/meshes/*.off2glb.glb` |
-| Tam giác phân bề mặt | `tools/triangulation.py` | `city.standardized.glb` + delivery plan → `data/processed/meshes/city.standardized.triangulation.off` |
-| Visualization | `tools/data_viz.py` | `data/processed/meshes/*.off` → `generated/data_viz/*.png`; `--scene` so sánh với scene chuẩn hoá |
-| Chọn START/GOAL thủ công | `tools/set_start_goal.py` | `data/processed/meshes/*.off` + điểm tự chọn → `generated/missions/<tên>/plan.json` |
+- `.off`: lưới tam giác văn bản, `OFF` + `V F E` + đỉnh + mặt.
+- `.glb`: glTF 2 nhị phân; scene chuẩn hoá giữ Y-up, mesh dẫn xuất dùng Z-up.
+- `.paths.json`: đường tham chiếu cho ảnh kiểm tra.
 
-Không có `city.standardized.off`: scene chuẩn hoá là GLB vì cần object và
-transform; `.off` chỉ dành cho mesh dẫn xuất. Ảnh trước/sau tam giác phân dựng
-bằng `tools/data_viz.py city.standardized.triangulation --scene`.
-
-Gazebo **không** tự xoay glTF từ Y-up sang Z-up. `.off2glb.glb` được xuất
-**Y-up** để mở đúng chiều trong viewer; dùng `tools/off2glb.py --keep-z-up`
-nếu world cần Z-up, hoặc đặt model pose roll +90°. Trục của từng fixture ghi
-trong bảng ở `data/README.md`. Xem
-[data/processed/README.md](data/processed/README.md).
+Quy ước chi tiết ở [`docs/data-format.md`](docs/data-format.md) và
+[`data/README.md`](data/README.md).
 
 ## Cấu trúc thư mục
 
-Sơ đồ dưới đây chỉ liệt kê các tệp và thư mục chính; log, cache lan truyền,
-world dựng lại và thư viện cài cục bộ bị `.gitignore` bỏ qua.
-
 ```text
-uav-funnel-tree-gazebo/
-├── README.md                  # Tổng quan, kết quả và hướng dẫn chạy
-├── RUNBOOK_CURRENT.md         # Hướng dẫn vận hành chi tiết theo từng bước
-├── ATTRIBUTION.md             # Nguồn và giấy phép mô hình thành phố
-├── LICENSE                    # BSD-3-Clause cho mã nguồn nhóm đóng góp
-├── main.py                    # Chạy các bước dữ liệu và kiểm tra từ một lối vào
-├── requirements.txt           # Phụ thuộc tối thiểu (NumPy)
-├── requirements-demo.txt      # Phiên bản thư viện dùng cho demo
-├── requirements-reference.txt # pygeodesic cho phép đối chiếu MMP
-├── requirements-dev.txt       # trimesh cho công cụ khảo sát tools/dev
-├── animate.py                 # Gửi lệnh pose để xem trước, không điều khiển vật lý
-├── check.py                   # Kiểm thử hồi quy hình học và thuật toán
-├── plan.py                    # Chạy Funnel Tree trên các mesh .off mẫu
-├── prepare.py                 # Tạo world Gazebo, STL thành phố, lưới bay và route
-├── prepare_urban.py           # Dựng nhiệm vụ đô thị thấp, tránh vật cản
-├── data/
-│   ├── raw/
-│   │   ├── scenes/city.glb    # Mô hình thành phố gốc của bên thứ ba (CC BY 4.0)
-│   │   └── meshes/*.off       # Chín mesh mẫu do nhóm tạo
-│   ├── processed/
-│   │   ├── scenes/            # Scene Y-up + .off2glb.glb (Y-up)
-│   │   └── meshes/            # Fixture .off đã validate + bề mặt dẫn đường
-│   └── expected/              # Đường đi tham chiếu .paths.json
-├── docs/
-│   ├── data-format.md         # Định hướng GLB/OFF và kế hoạch chuyển đổi
-│   └── experiments/           # Ghi chép các giai đoạn khảo sát trước
-├── reference/                 # Ảnh và báo cáo mốc cho mặt cắt Y = 2
-├── scripts/
-│   ├── install_ubuntu.sh      # Cài Gazebo Jetty và gói hệ thống
-│   ├── gazebo_system_python.sh # Thiết lập Python hệ thống cho plugin Gazebo
-│   ├── run.sh                 # Chạy chế độ pose hoặc physics
-│   ├── run_funnel.sh          # Chạy demo miền phẳng
-│   ├── run_funnel_physics.sh  # Chọn ca mô phỏng vật lý
-│   ├── run_surface_gpu.sh     # Render GPU (D3D12/WSLg)
-│   ├── run_surface_cpu.sh     # Render CPU (Mesa llvmpipe)
-│   └── run_urban.sh           # Chạy nhiệm vụ đô thị thấp
-├── src/
-│   ├── funnel_tree.py         # Lan truyền Funnel, cắt tỉa và tái dựng đường
-│   ├── mesh.py                # Lưới tam giác và quan hệ kề
-│   ├── city.py                # Đọc GLB, đổi trục, xuất STL
-│   ├── trajectory.py          # Tham số hóa thời gian và luật phản hồi
-│   ├── drone_system.py        # Mô hình chất điểm và telemetry trong Gazebo
-│   ├── funnel_drone_system.py # Plugin bám tuyến Funnel
-│   ├── urban_navigation.py    # Cột vật cản → hành lang lưới → Funnel Tree
-│   └── verification.py        # Đọc mesh/path và kiểm tra đoạn trên bề mặt
-├── tests/
-│   ├── test_funnel_clip.py    # Kiểm thử thủ tục cắt tỉa
-│   ├── test_funnel_target_scope.py # Kiểm thử giới hạn đỉnh đích
-│   └── test_pose_retries.py   # Kiểm thử retry dịch vụ pose
-├── tools/
-│   ├── plan_surface_delivery.py    # Dựng bề mặt 3D và tính tuyến Funnel
-│   ├── prepare_funnel_physics.py   # Tạo world, route, bục giao và giao diện
-│   ├── prepare_city_visual.py      # Phân màu hình học thành phố
-│   ├── compare_surface_geodesic.py # Đối chiếu với MMP qua pygeodesic
-│   ├── analyze_surface_delivery.py # Kiểm tra telemetry trên lưới 3D
-│   ├── run_city_three_goals.py     # Thí nghiệm một START đến ba đích
-│   ├── run_funnel_benchmark.py     # Bộ bốn ca kiểm tra hình học phẳng
-│   ├── verify_project_results.py   # Kiểm tra nhất quán và SHA256 kết quả
-│   ├── dev/                        # Công cụ khảo sát và bảo trì giai đoạn trước
-│   └── ...                         # Các công cụ lập tuyến, phân tích, xuất kết quả
-└── generated/
-    ├── funnel_preview/             # Hình học thành phố và cấu hình dựng demo
-    ├── funnel_physics/             # Telemetry, route và kết quả các ca mô phỏng
-    │   └── surface_delivery/       # Ca bám bề mặt 3D hiện tại
-    ├── funnel_surface_reference/   # Tuyến MMP độc lập và đối chiếu trên cùng lưới
-    ├── city_three_goals/           # Thí nghiệm một START đến ba đích (g1, g2, g3)
-    ├── funnel_benchmark/           # Kết quả bốn ca phẳng
-    ├── funnel_reference/           # Đối chiếu tham chiếu cho các ca phẳng
-    ├── funnel_comparison/          # Tổng hợp kết quả bám tuyến bốn ca
-    └── final_check/                # Bản tổng hợp và dấu vân tay bộ kết quả phẳng
+main.py                  # chạy stage data
+data/
+  raw/                   # nguồn, không sửa tay
+  processed/             # đầu vào đã xử lý, sinh lại bằng tools/
+  expected/              # đường tham chiếu cho ảnh kiểm tra
+tools/
+  copy_meshes.py         # validate + copy mesh mẫu
+  standardize.py         # chuẩn hoá scene GLB
+  off2glb.py             # OFF → GLB
+  triangulation.py       # dựng + tam giác phân bề mặt
+  data_viz.py            # render PNG / cửa sổ 3D
+  set_start_goal.py      # chạy Funnel cho START/GOAL
+  glb2off.py             # GLB → OFF (thư viện đọc scene + tool)
+  glb_nodes.py           # duyệt node GLB, bake transform
+  off_mesh.py            # kiểm tra topology + ghi OFF
+src/
+  funnel_tree.py         # lan truyền và dựng lại tuyến
+  verification.py        # kiểm tra đoạn thẳng nằm trên mesh
+  glb.py                 # container GLB
+generated/               # đầu ra, không commit
+docs/data-format.md      # quy ước định dạng
 ```
 
-| Đường dẫn | Nội dung |
-| --- | --- |
-| `src/funnel_tree.py` | Lan truyền Funnel, cắt tỉa và tái dựng đường |
-| `src/mesh.py` | Lưới tam giác và quan hệ kề |
-| `src/city.py` | Đọc GLB, đổi trục và xuất STL thành phố |
-| `src/trajectory.py` | Tham số hóa thời gian và luật phản hồi |
-| `src/drone_system.py` | Mô hình chất điểm 1 kg và telemetry trong Gazebo |
-| `src/funnel_drone_system.py` | Plugin bám tuyến Funnel |
-| `src/urban_navigation.py` | Dựng hành lang lưới tránh vật cản rồi chạy Funnel |
-| `src/verification.py` | Kiểm tra đoạn đường nằm trên bề mặt |
-| `tools/plan_surface_delivery.py` | Dựng bề mặt 3D và tính tuyến Funnel |
-| `tools/prepare_funnel_physics.py` | Tạo world, route, bục giao và cấu hình giao diện |
-| `tools/prepare_city_visual.py` | Phân màu hình học thành phố |
-| `tools/compare_surface_geodesic.py` | Đối chiếu với MMP qua pygeodesic |
-| `tools/analyze_surface_delivery.py` | Kiểm tra telemetry trên lưới 3D |
-| `tools/run_city_three_goals.py` | Thí nghiệm một START đến ba đích |
-| `tools/verify_project_results.py` | Kiểm tra nhất quán file và SHA256 của kết quả |
-| `tools/data_viz.py` | Render mesh `.off` thành PNG hoặc mở cửa sổ 3D |
-| `tests/` | Kiểm thử cắt tỉa, phạm vi đích và gọi dịch vụ pose |
-| `tools/dev/` | Công cụ khảo sát và bảo trì của các giai đoạn trước |
-| `scripts/` | Cài đặt và mở mô phỏng |
-| `data/raw/scenes/city.glb` | Mô hình thành phố gốc của bên thứ ba, kèm nguồn và giấy phép |
-| `data/raw/meshes`, `data/expected` | Chín mesh mẫu do nhóm tạo và dữ liệu đối chiếu |
-| `generated/` | Bộ dữ liệu đã kiểm tra và các kết quả sinh ra |
+`src/` không phải package: các module được import theo tên sau khi thêm `src/`
+vào `sys.path`, xem [`src/README.md`](src/README.md).
 
-`RUNBOOK_CURRENT.md` là hướng dẫn vận hành chi tiết.
-Các hướng dẫn khảo sát và phương án trước được lưu trong
-[tài liệu thử nghiệm](docs/experiments/README.md).
-Mục lục [dữ liệu và kết quả](generated/README.md) phân biệt bộ demo hiện tại,
-các thí nghiệm đã lưu và dữ liệu chạy tạm.
+## Lưu trong Git
 
-## Phạm vi kết quả
+- Commit: dữ liệu `raw/`, đầu ra `processed/`, mã nguồn và tài liệu.
+- Không commit: `.venv/`, `generated/**` (trừ `generated/README.md`) và
+  `data/processed/scenes/city.standardized.glb` vì sinh lại được ở bước 2.
 
-- Mô hình bay hiện là một khối điểm 1 kg điều khiển bằng lực, bù trọng lực,
-  feedforward và PD. Rotor là hình minh họa. Điều khiển tư thế, autopilot,
-  phần cứng thực và nhiều UAV còn là phần phát triển tiếp theo.
-- Lưới bay là bề mặt an toàn dựng phía trên thành phố. Tối ưu được xét trên
-  bề mặt đó. Các ô lấy chiều cao lớn nhất và tạo dốc nên khoảng hở có thể
-  lớn hơn giá trị tối thiểu.
-- Bản đồ được chuẩn hóa về đơn vị mô phỏng. Các kích thước chưa được đối
-  chiếu với đo đạc địa lý thực tế. Màu công trình được phân theo hình học.
-- Bản cài đặt Funnel còn thực nghiệm. Phần tái dựng trải phẳng dải mặt đã
-  chọn. Đối chiếu thành công cho ca hiện tại chưa chứng minh bản cài đặt
-  đúng trên mọi lưới.
+Chạy lại stage `data` phải cho ra đúng byte của
+`data/processed/meshes/city.standardized.triangulation.off`. Nếu khác, ghi lại
+SHA cũ/mới và lý do trong `data/processed/README.md`.
 
-## Giấy phép
+## Giấy phép và nguồn
 
-Phần mã nguồn, tài liệu và dữ liệu mẫu do nhóm đóng góp được phát hành theo
-**BSD-3-Clause**, xem [LICENSE](LICENSE). Bản quyền thuộc về
-**Đỗ Lê Chí Kiên** và **Nguyễn Trương Đăng Quang** (HCMUT); thông báo bản
-quyền được ghi ở đầu mỗi tệp mã nguồn bằng mã SPDX.
-
-Tài liệu trong `docs/` và dữ liệu/kết quả do mã nhóm sinh ra trong `generated/`
-cũng theo BSD-3-Clause. Riêng phần dẫn xuất từ `city.glb` (hình học, ảnh, mô
-hình) vẫn thuộc **CC BY 4.0** và cần giữ ghi công trong
-[ATTRIBUTION.md](ATTRIBUTION.md).
-
-Giấy phép này không thay thế giấy phép của thư viện, mã bên thứ ba hay dữ
-liệu được sử dụng trong dự án. Mô hình thành phố và các bản chuyển đổi của
-nó giữ giấy phép **CC BY 4.0**, với thông tin nguồn trong
-[ATTRIBUTION.md](ATTRIBUTION.md). Giấy phép bản thảo bài báo được quyết định riêng.
-
-## Tài liệu tham khảo
-
-Thuật toán dựa trên bài báo của Phan Thanh An, Tran Van Hoai và Vuong Ba Thinh,
-*The funnel tree algorithm for finding shortest paths on polyhedral surfaces*,
-DOI [10.1080/02331934.2023.2241496](https://doi.org/10.1080/02331934.2023.2241496).
-Bộ giải MMP độc lập dùng [pygeodesic](https://github.com/mhogg/pygeodesic).
-
-Mô hình thành phố của **Saigon 3D City**, giấy phép **CC BY 4.0**. Nguồn asset,
-các biến đổi và thông tin thuật toán nằm trong [ATTRIBUTION.md](ATTRIBUTION.md).
+Mã nguồn theo BSD-3-Clause ([LICENSE](LICENSE)). Nguồn, giấy phép và trục của
+từng tệp dữ liệu ở [ATTRIBUTION.md](ATTRIBUTION.md) và
+[`data/README.md`](data/README.md).

@@ -20,9 +20,9 @@ BSD-3-Clause together with the project code.
 # City asset
 
 Location in this repository: `data/raw/scenes/city.glb`. The asset is a pipeline
-input that the preparation scripts read to build the city STL, navigation
-surface and flight slice, so it is stored under `data/` rather than in a
-separate asset directory. Its third-party origin is recorded here and in the
+input that the preparation scripts read to build the standardized scene and
+the navigation surface, so it is stored under `data/` rather than in a separate
+asset directory. Its third-party origin is recorded here and in the
 file metadata instead of being implied by the directory name.
 
 Title: Ho Chi Minh City 2025 - Thành Phố Hồ Chí Minh
@@ -34,17 +34,15 @@ Source: https://sketchfab.com/3d-models/ho-chi-minh-city-2025-thanh-pho-ho-chi-m
 License embedded in the source GLB: CC BY 4.0
 https://creativecommons.org/licenses/by/4.0/
 
-Changes for this demo: scene transforms baked, Y-up to Z-up conversion, translated
-to origin and uniformly scaled to 200 simulation units horizontal extent,
-exported to binary STL without textures. The original GLB is retained.
-Normalization is for demonstration and does not represent surveyed metres.
+Changes for this demo: scene transforms baked, node names replaced, materials and
+textures dropped, and the geometry re-encoded as
+`data/processed/scenes/city.standardized.glb`. Derived meshes switch to Z-up and
+are normalized to 200 simulation units horizontal extent. The original GLB is
+retained. Normalization is for demonstration and does not represent surveyed
+metres.
 
-The current surface-delivery view additionally groups the original triangles by
-height and normal orientation and assigns illustrative colours to those groups.
-These colours are not semantic labels or photographic textures from the source.
-The original city triangle geometry is preserved for collision and clearance
-checks. A separate triangulated safety envelope is constructed above the city
-for surface-following flight planning.
+The original city triangle geometry is preserved. A separate triangulated safety
+envelope is constructed above the city for surface-following path planning.
 
 # Algorithm
 

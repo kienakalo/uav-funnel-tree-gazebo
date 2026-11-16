@@ -1,2 +1,0 @@
-# Install with --no-deps --target generated/funnel_surface_reference/runtime.
-pygeodesic==0.1.11

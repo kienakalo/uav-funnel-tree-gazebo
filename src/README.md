@@ -1,63 +1,41 @@
-# Mã nguồn
+# Mã nguồn dùng chung
 
-Tám module dùng chung. Đây **không phải package**: không có `__init__.py`,
-các module được import trực tiếp theo tên (`from mesh import ...`) sau khi
-chương trình thêm `src/` vào `sys.path`. Mọi script trong repo đều làm việc
-này; script mới cần thêm cùng một dòng.
-
-## Vai trò và phụ thuộc
+Ba module. Đây **không phải package**: không có `__init__.py`, các module được
+import trực tiếp theo tên (`from funnel_tree import propagate`) sau khi chương
+trình thêm `src/` vào `sys.path`. Mọi tool đều làm việc này; tool mới cần thêm
+cùng một dòng.
 
 | Module | Vai trò | Import nội bộ |
 | --- | --- | --- |
-| `mesh.py` | `Point`, `Mesh`, `read_off`: dữ liệu bề mặt, quan hệ kề, góc và khoảng cách | — |
-| `funnel_tree.py` | Lan truyền Funnel, `clip_children`, `reconstruct`, `solve`, `propagate` | — (dùng giao diện `Mesh`, không import) |
-| `verification.py` | `read_mesh`, `read_paths`, `path_length`, `edge_distances`, `segment_on_mesh` | — (chỉ stdlib) |
-| `city.py` | `load_city`, `write_stl`: đọc GLB, bake transform, xuất lưới và STL | — (NumPy) |
-| `trajectory.py` | `Trajectory`, `control_acceleration`: tham số hoá thời gian trên polyline | — |
-| `urban_navigation.py` | `obstacle_grid`, `intersects_boxes`, `plan_urban`: cột vật cản → hành lang lưới → Funnel | `mesh`, `funnel_tree`, `verification` |
-| `drone_system.py` | `DroneSystem`: plugin Gazebo, mô hình chất điểm 1 kg và telemetry | `trajectory`, `gz.sim10` |
-| `funnel_drone_system.py` | Plugin bám tuyến Funnel, kế thừa `DroneSystem` | `drone_system` |
+| `funnel_tree.py` | `seeds`, `propagate`, `reconstruct`, `solve`, `clip_children`: lan truyền Funnel và dựng lại tuyến | — (chỉ NumPy) |
+| `verification.py` | `read_paths`, `path_length`, `edge_distances`, `segment_on_mesh`: kiểm tra đường đi | — (chỉ stdlib) |
+| `glb.py` | `read_glb`, `write_glb`, `indexed_from_triangles`: container GLB 2 | — (chỉ stdlib + NumPy) |
 
-Thứ tự đọc gợi ý: `mesh` → `funnel_tree` → `verification`, rồi `city` và
-`trajectory`, sau cùng hai plugin Gazebo.
+## Giao diện `Mesh`
 
-`funnel_tree.py` không import `mesh`; nó chỉ gọi các thuộc tính và phương thức
-mà `Mesh` cung cấp. Đổi tên hoặc bỏ một thuộc tính của `Mesh` sẽ làm hỏng
-module này dù không có lỗi import.
+`funnel_tree.py` không import lớp mesh nào. Nó chỉ gọi các thuộc tính và phương
+thức sau của đối tượng truyền vào:
 
-## Hai môi trường chạy
-
-`src/drone_system.py` và `src/funnel_drone_system.py` chạy **bên trong Gazebo**,
-dùng Python hệ thống và binding `gz.sim10`, không dùng `.venv`. Vì vậy hai
-module này chỉ nên dùng thư viện chuẩn; thư viện phân tích (NumPy, Shapely,
-Matplotlib) phải nằm ở phần lập kế hoạch, không đặt trong plugin.
-
-Các module còn lại chạy bằng `.venv/bin/python` khi có, hoặc `python3` của hệ
-thống.
-
-## Bất biến: chữ ký phụ thuộc mã nguồn
-
-Nhiều kết quả trong `generated/` ghi SHA256 của mã nguồn. Sửa mã sẽ làm chữ
-ký thay đổi và các bước sau từ chối chạy cho tới khi tính lại:
-
-| Nơi ghi chữ ký | File mã nguồn được băm |
-| --- | --- |
-| `tools/run_funnel_benchmark.py` | `funnel_tree.py`, `mesh.py`, `verification.py` |
-| `tools/run_city_three_goals.py` | `funnel_tree.py` |
-| `tools/plan_surface_delivery.py` | `funnel_tree.py`, `mesh.py` |
-| `generated/source_header_audit.json` | Toàn bộ 66 file `.py` và `.sh` |
-
-`tools/prepare_funnel_physics.py` kiểm tra lại chữ ký benchmark trước khi
-dựng world, nên nếu sửa `funnel_tree.py` mà không chạy lại benchmark, lệnh mô
-phỏng sẽ dừng với thông báo "Benchmark inputs or code changed".
-
-Sau khi sửa mã:
-
-```bash
-.venv/bin/python check.py
-.venv/bin/python tools/verify_project_results.py
+```text
+points            danh sách đỉnh, mỗi đỉnh có .x .y .z
+faces             danh sách tam giác (a, b, c)
+vertex_faces[v]   các mặt chứa đỉnh v
+edge_faces[(a,b)] các mặt chứa cạnh đã sắp xếp (a, b)
+other_face(a, b, f)
+third_vertex(f, a, b)
+distance(a, b)
+angle(a, b, c)
 ```
 
-Nếu `verify_project_results.py` báo lệch, chạy lại đúng công cụ ở bảng trên
-rồi kiểm tra lại. Chỉ cập nhật tay dấu vân tay khi thay đổi thuần tuý chú
-thích, như đợt đổi tên chủ sở hữu bản quyền.
+Hiện `tools/set_start_goal.py` cung cấp lớp `Point`/`Mesh` đó, kèm reader OFF
+và kiểm tra topology (đỉnh trùng, mặt suy biến, cạnh kề hơn hai mặt). Đổi tên
+hoặc bỏ một thuộc tính của `Mesh` sẽ làm hỏng `funnel_tree.py` dù không có lỗi
+import.
+
+## Chữ ký phụ thuộc mã nguồn
+
+`tools/set_start_goal.py` băm `src/funnel_tree.py`, `src/verification.py` và
+chính nó để tạo chữ ký cache (`generated/missions/<tên>/plan.json` →
+`input_sha256`). Sửa một trong ba tệp sẽ đổi chữ ký, cache cũ bị bỏ và lần chạy
+sau lan truyền lại từ đầu. Đây là hành vi mong muốn: tuyến phải tương ứng với
+đúng mã đã sinh ra nó.

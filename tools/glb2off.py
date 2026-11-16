@@ -8,7 +8,7 @@ Input:  data/processed/scenes/city.standardized.glb
 Output: generated/meshes/city.standardized.glb2off.off
 
 The reader bakes the nested node transforms, converts the glTF Y-up frame to
-Gazebo Z-up and normalizes the width to 200 m, so the OFF shares the coordinate
+Z-up and normalizes the width to 200 m, so the OFF shares the coordinate
 frame of city.standardized.triangulation.off. Materials and textures are
 dropped. Vertices stay as stored per primitive; nothing is welded, so seams
 between glTF primitives remain.
@@ -94,7 +94,7 @@ def read_glb_scene(filename, width):
                     raise SystemExit('glb2off: only triangle primitives are supported')
                 positions = accessor(primitive['attributes']['POSITION']).astype(float)
                 positions = (np.c_[positions, np.ones(len(positions))] @ matrix.T)[:, :3]
-                # glTF scene Y-up -> Gazebo Z-up after all nested transforms.
+                # glTF scene Y-up -> Z-up after all nested transforms.
                 positions = positions[:, [0, 2, 1]] * np.array([1, -1, 1])
                 if 'indices' in primitive:
                     indices = accessor(primitive['indices']).ravel()

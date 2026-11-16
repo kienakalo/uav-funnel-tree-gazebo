@@ -8,7 +8,7 @@ Input:  data/raw/meshes/*.off (model units; axis documented in data/README.md)
 Output: data/processed/scenes/meshes/*.off2glb.glb (Y-up unless --keep-z-up)
 
 Coordinates are kept unchanged by default: the fixtures use Z as the
-elevation axis, which matches Gazebo. Pass --to-z-up for Y-up sources; Gazebo
+elevation axis. Pass --keep-z-up for Z-up simulation frames; the default output
 does not convert glTF axes, so the rotation (x, y, z) -> (x, -z, y) has to be
 baked into the file. glTF viewers assume Y-up, so a Z-up .off2glb.glb appears
 rotated there; that is expected for a simulation asset.
@@ -81,7 +81,7 @@ def main():
     parser.add_argument('--mesh', action='append', default=None,
                         help='Convert only these stems (default: all)')
     parser.add_argument('--keep-z-up', action='store_true',
-                        help='Keep Z-up coordinates for a Gazebo world instead of writing Y-up glTF')
+                        help='Keep Z-up coordinates for a simulation frame instead of writing Y-up glTF')
     args = parser.parse_args()
     sources = sorted(args.input.glob('*.off'))
     if args.mesh:

@@ -1,6 +1,6 @@
 # Dữ liệu đã xử lý
 
-Thư mục này chứa đầu vào đã xử lý cho thuật toán và mô phỏng, không sửa tay.
+Thư mục này chứa đầu vào đã xử lý cho thuật toán, không sửa tay.
 Nguồn nằm ở [`data/raw/`](../raw/).
 
 | Tệp | Bước | Công cụ |
@@ -19,7 +19,7 @@ dưới và in ra khi chạy tool.
 | --- | --- |
 | Pass-through | Downstream chỉ đọc `processed/`; bản copy byte-identical tách "nguồn" khỏi "đầu vào đã kiểm tra" và phát hiện lệch giữa hai bản. |
 | Standardize | `city.glb` là scene Sketchfab thô: 55 node, tên `Object_N`, material/texture, transform lồng nhau. Chuẩn hoá bake transform, đổi tên, bỏ material và ghi provenance vào `extras` để mọi công cụ đọc theo cùng một quy ước dữ liệu. |
-| OFF → GLB | OFF không mở được bằng Blender/MeshLab; GLB thì được. Xuất Y-up đúng chuẩn glTF để xem đúng chiều; `--keep-z-up` cho world Gazebo. |
+| OFF → GLB | OFF không mở được bằng Blender/MeshLab; GLB thì được. Xuất Y-up đúng chuẩn glTF để xem đúng chiều; `--keep-z-up` nếu cần giữ Z-up. |
 | Triangulation | Funnel Tree cần một mặt liên tục, đỉnh dùng chung, toạ độ double. `city.glb` là các vỏ công trình rời, không đi được. Bước này dựng envelope an toàn rồi tam giác phân thành 2.295 đỉnh / 4.400 mặt. |
 | Visualization | `.off` không có viewer phổ quát; render PNG hoặc cửa sổ 3D để kiểm tra hình học và overlay đường tham chiếu. |
 
@@ -30,7 +30,7 @@ standardize → triangulation.
 
 Scene chuẩn hoá là **GLB** vì cần giữ object, transform và mở được bằng
 Blender/MeshLab. `.off` chỉ dành cho mesh dẫn xuất: một lưới duy nhất, đỉnh
-dùng chung, toạ độ double. Thành phố ở hệ Gazebo đã chuẩn hoá được
+dùng chung, toạ độ double. Thành phố trong hệ Z-up đã chuẩn hoá được
 `tools/data_viz.py --scene` và `tools/triangulation.py` dựng trực tiếp từ
 `scenes/city.standardized.glb` qua `tools/glb2off.py: read_glb_scene` (bake
 transform, đổi Z-up, chuẩn hoá width 200), nên không cần thêm một bản OFF
@@ -54,13 +54,13 @@ Bước `data_viz` render mỗi mesh `.off` thành một ảnh PNG trong
 Dùng `--show` để mở cửa sổ 3D tương tác thay vì ghi PNG. Bước cuối dựng một
 nhiệm vụ mẫu trong `generated/missions/data-demo/`.
 
-`check.py`, `plan.py` và `tests/` đọc fixture từ `data/processed/meshes/`,
-không đọc thẳng `data/raw/`.
+Sau bước này, mọi công cụ chỉ đọc `data/processed/`, không đọc thẳng
+`data/raw/`.
 
 Thêm `--force` khi ghi đè bề mặt đã có; nếu không, tool dừng. `triangulation.py`
-cần Shapely, đọc thẳng `data/processed/scenes/city.standardized.glb` và lấy
-START/GOAL từ `generated/funnel_physics/delivery/horizontal_plan.json` (cùng hệ
-toạ độ). Không còn bước STL trung gian.
+cần Shapely, đọc thẳng `data/processed/scenes/city.standardized.glb` và nhận
+`--start/--goal` (mặc định là hai đầu nhiệm vụ giao hàng). Không có bước STL
+trung gian.
 
 ## Xem mesh `.off`
 
@@ -192,7 +192,8 @@ Fixture có thể chỉ định bằng chỉ số đỉnh:
 | Horizontal half width | 1,6 |
 | Max axis slope | 0,5 |
 | Scene đầu vào | `data/processed/scenes/city.standardized.glb` |
-| Plan đầu vào | `generated/funnel_physics/delivery/horizontal_plan.json` |
+| START mặc định | `-38.7521239854311 22.103391740920674 7.205632472302205` |
+| GOAL mặc định | `74.73658745332892 -55.35715733632823 7.205632472302205` |
 | Kết quả | 2.295 đỉnh, 4.400 tam giác, 6.694 cạnh |
 
 Tham số được in ra console mỗi lần chạy. Không có file metadata đi kèm; muốn
@@ -213,30 +214,25 @@ tái lập thì dùng đúng lệnh và tham số ở trên.
 | Toạ độ XY và danh sách mặt | — | giống tuyệt đối |
 | Cao độ z | — | lệch ≤ 1,822e-06 m (1385/2295 đỉnh) |
 
-Các manifest đã track trong `generated/city_three_goals/`,
-`generated/funnel_physics/surface_delivery/`,
-`generated/funnel_surface_reference/` và `generated/surface_sensitivity/` ghi SHA
-cũ như dấu vết của lần chạy trước; bản `surface.off` riêng của từng thí nghiệm
-vẫn nguyên nên kết quả bên trong vẫn tương ứng với hình học đã dùng. Đổi SHA này
-không làm thay đổi hình học ở mức có nghĩa (≈2 µm), nhưng phải chạy lại thí
-nghiệm nếu cần manifest khớp tuyệt đối.
+Bề mặt dựng từ GLB trùng hình học với bề mặt cũ ở mức ≈2 µm: cùng danh sách
+đỉnh theo XY và cùng danh sách mặt, chỉ cao độ z lệch trong sai số làm tròn
+float32. Các kết quả thí nghiệm cũ dùng SHA trước đây đã được xoá khỏi cây làm
+việc cùng đợt dọn repo; lấy lại ở tag `pre-data-only-cleanup` nếu cần đối chiếu.
 
 ## Trục toạ độ
 
 - `city.standardized.glb` giữ **Y-up** đúng chuẩn glTF để mở bằng viewer.
-- Gazebo **không** tự xoay glTF từ Y-up sang Z-up (xem `gz-common`
-  `AssimpLoader.cc`: với glTF, root transform được giữ nguyên).
+- glTF giữ **Y-up**; mọi phép tính trong repo dùng **Z-up**, nên `glb2off`
+  đổi trục khi đọc scene.
 - Fixture `.off` dùng **Z-up** (z là cao độ). `.off2glb.glb` chuyển sang
   **Y-up** `(x, y, z) → (x, z, -y)` để mở đúng chiều trong mọi glTF viewer.
-- Nếu world Gazebo cần Z-up, chạy `tools/off2glb.py --keep-z-up`, hoặc giữ
-  file Y-up và đặt model pose roll +90°: `1.5707963 0 0`.
-- `city.standardized.triangulation.off` ở hệ **Gazebo đã chuẩn hoá, Z-up**, cùng hệ với
-  `horizontal_plan.json`.
+- Nếu cần Z-up, chạy `tools/off2glb.py --keep-z-up`.
+- `city.standardized.triangulation.off` ở hệ **đã chuẩn hoá, Z-up**, cùng hệ
+  với START/GOAL của nhiệm vụ.
 
 ## Lưu trong Git
 
 - `scenes/city.standardized.glb`: **không commit** (khoảng 6 MB, sinh lại
   được từ `data/raw/scenes/city.glb`).
 - `scenes/meshes/*.off2glb.glb`: commit, mỗi file vài KB.
-- `meshes/city.standardized.triangulation.off`: commit, đây là đầu vào thuật toán và có
-  hash trong kết quả thí nghiệm.
+- `meshes/city.standardized.triangulation.off`: commit, đây là đầu vào thuật toán.

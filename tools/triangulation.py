@@ -1,18 +1,18 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: NumPy, Shapely; Python stdlib (argparse, heapq, json, math,
-# sys, pathlib); local modules (build_navigation_surface, glb2off).
-"""Triangulate a navigation surface from the standardized city scene.
+# sys, pathlib); local modules (glb2off, off_mesh).
+"""Triangulate a navigation surface over the standardized city scene.
 
 Input:  data/processed/scenes/city.standardized.glb
-        generated/funnel_physics/delivery/horizontal_plan.json
 Output: data/processed/meshes/city.standardized.triangulation.off
 
 The surface is the same conservative clearance envelope used by the delivery
 experiment: whole cells over the city, raised by the vertical clearance and
-spread into ramps. Coordinates are in the normalized Gazebo frame (Z-up), the
-same frame as the delivery plan. This is a safety envelope above the city, not
-the bare terrain or rooftops.
+spread into ramps. It only spans the corridor around START and GOAL, so those
+two points are arguments; the defaults are the delivery mission endpoints.
+Coordinates are in the normalized Z-up frame. This is a safety
+envelope above the city, not the bare terrain or rooftops.
 
 The city triangles are read from the standardized scene, so the step needs no
 intermediate STL. The scene is re-read with the same reader the visualization
@@ -37,12 +37,15 @@ from shapely.strtree import STRtree
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 sys.path.insert(0, str(ROOT / 'tools'))
-from build_navigation_surface import inspect_mesh, write_off
+from off_mesh import inspect_mesh, write_off
 from glb2off import read_glb_scene
 
 DEFAULT_SCENE = ROOT / 'data/processed/scenes/city.standardized.glb'
-DEFAULT_PLAN = ROOT / 'generated/funnel_physics/delivery/horizontal_plan.json'
 DEFAULT_OUTPUT = ROOT / 'data/processed/meshes/city.standardized.triangulation.off'
+# Delivery mission endpoints. The envelope only exists between them, so pass
+# --start/--goal to build a surface for a different mission.
+DEFAULT_START = (-38.7521239854311, 22.103391740920674, 7.205632472302205)
+DEFAULT_GOAL = (74.73658745332892, -55.35715733632823, 7.205632472302205)
 
 CLEARANCE = 1.5
 HALF_WIDTH = 1.6
@@ -127,7 +130,12 @@ def build_surface(triangles, start, goal, step, coverage='city'):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--scene', type=Path, default=DEFAULT_SCENE)
-    parser.add_argument('--plan', type=Path, default=DEFAULT_PLAN)
+    parser.add_argument('--start', nargs=3, type=float, default=DEFAULT_START,
+                        metavar=('X', 'Y', 'Z'),
+                        help='Envelope start point (default: delivery mission start)')
+    parser.add_argument('--goal', nargs=3, type=float, default=DEFAULT_GOAL,
+                        metavar=('X', 'Y', 'Z'),
+                        help='Envelope goal point (default: delivery mission goal)')
     parser.add_argument('--cell', type=float, default=5.)
     parser.add_argument('--coverage', choices=('city', 'mission'), default='city')
     parser.add_argument('--output', type=Path, default=DEFAULT_OUTPUT)
@@ -136,15 +144,12 @@ def main():
     args = parser.parse_args()
     if not args.scene.is_file():
         parser.error(f'Missing standardized scene: {args.scene}. Run tools/standardize.py first.')
-    if not args.plan.is_file():
-        parser.error(f'Missing delivery plan: {args.plan}')
     if args.output.exists() and not args.force:
         parser.error(f'{args.output} already exists; pass --force to overwrite')
 
     vertices, faces = read_glb_scene(args.scene, 200.)
-    plan = json.loads(args.plan.read_text(encoding='utf-8'))
-    start = np.array(plan['fixed_start'])
-    goal = np.r_[plan['waypoints'][-1][:2], plan['selection']['ground_z'] + 1.1]
+    start = np.array(args.start)
+    goal = np.array(args.goal)
     points, surface_faces, source, target, stats = build_surface(
         vertices[faces], start, goal, args.cell, args.coverage)
 

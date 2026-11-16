@@ -1,7 +1,0 @@
-# Versions used for the checked Ubuntu 24.04 / Python 3.12 demo.
-# Exact pins reproduce the checked figures and numeric results.
-numpy==2.5.4
-matplotlib==3.11.2
-shapely==2.2.0
-# Transitive dependency of Matplotlib, pinned explicitly for reproducibility.
-pillow==13.0.0

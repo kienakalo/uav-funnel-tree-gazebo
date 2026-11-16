@@ -10,20 +10,19 @@ kiểm tra và biến đổi để code dùng. Hướng dẫn chạy nằm trong
 | Thư mục | Vai trò | Quy tắc |
 | --- | --- | --- |
 | `raw/` | Nguồn gốc, giữ nguyên từng byte | Không sửa tay; mọi thay đổi bắt đầu từ đây |
-| `processed/` | Đầu vào đã validate/biến đổi cho thuật toán và Gazebo | Không sửa tay; sinh lại bằng công cụ |
+| `processed/` | Đầu vào đã validate/biến đổi cho thuật toán | Không sửa tay; sinh lại bằng công cụ |
 
 ```text
 raw/scenes/city.glb ──standardize──→ processed/scenes/city.standardized.glb
 raw/meshes/*.off ────copy_meshes───→ processed/meshes/*.off
                    └─off2glb────────→ processed/scenes/meshes/*.off2glb.glb
 
-city.standardized.glb + delivery plan
+city.standardized.glb
         └─triangulation──→ processed/meshes/city.standardized.triangulation.off
 ```
 
-`check.py`, `plan.py` và `tests/` đọc fixture từ `processed/meshes/`.
-`prepare.py`, `prepare_urban.py` và các công cụ dựng bản đồ đọc
-`raw/scenes/city.glb`.
+Sau bước `data`, mọi công cụ trong `tools/` chỉ đọc `processed/`:
+`set_start_goal.py` và `data_viz.py` đọc fixture trong `processed/meshes/`.
 
 ## Quy ước tên tệp
 
@@ -31,7 +30,7 @@ city.standardized.glb + delivery plan
 | --- | --- | --- |
 | `.standardized.glb` | Scene đã chuẩn hoá: bake transform, đổi tên node, bỏ material/texture, ghi provenance vào `extras` | `city.standardized.glb` |
 | `.off2glb.glb` | Fixture Z-up chuyển sang GLB Y-up cho viewer; `--keep-z-up` nếu world cần Z-up | `terrain.off2glb.glb` |
-| `.standardized.triangulation.off` | Bề mặt tam giác phân từ scene đã chuẩn hoá; hệ Gazebo, Z-up | `city.standardized.triangulation.off` |
+| `.standardized.triangulation.off` | Bề mặt tam giác phân từ scene đã chuẩn hoá; Z-up | `city.standardized.triangulation.off` |
 | `.paths.json` | Đường đi tham chiếu cho kiểm thử | `L.paths.json` |
 | `.off`, `.glb` (không hậu tố) | Nguồn chưa qua xử lý | `L.off`, `city.glb` |
 
@@ -44,7 +43,7 @@ như `_final` hay `_new`. Tham số tam giác phân nằm trong `processed/READM
 Không dùng sidecar JSON cho từng tệp. Thông tin cần cho giấy phép, trục và dữ
 liệu tham chiếu nằm trong bảng dưới đây và trong
 [ATTRIBUTION.md](../ATTRIBUTION.md). Hash và số đỉnh/mặt có thể tính lại từ
-tệp; phần kiểm tra toàn vẹn kết quả nằm trong `tools/verify_project_results.py`.
+tệp; kết quả stage `data` in số đỉnh/mặt/cạnh ra console mỗi lần chạy.
 
 | Tệp | Nguồn | Giấy phép | Axis | Expected |
 | --- | --- | --- | --- | --- |
@@ -77,8 +76,8 @@ phố, khe hở dọc 1,5, dự phòng ngang 1,6 và độ dốc tối đa 0,5. 
 - `V` dòng tiếp theo: `x y z`.
 - `F` dòng tiếp theo: `3 a b c` — một tam giác, chỉ số đỉnh bắt đầu từ 0.
 
-`src/mesh.py` chỉ nhận mặt tam giác. Giá trị `E` không được dùng để dựng
-topology; số cạnh thực được suy ra từ danh sách mặt.
+Các reader trong `tools/` chỉ nhận mặt tam giác. Giá trị `E` không được dùng
+để dựng topology; số cạnh thực được suy ra từ danh sách mặt.
 
 ## Định dạng `.paths.json`
 
@@ -113,18 +112,17 @@ ghi đỉnh nguồn đã dùng khi sinh dữ liệu tham chiếu.
 | `terrain` | 49 đỉnh, 72 mặt | paper-derived | không có |
 
 Bốn mesh `paper-derived` được dựng từ ý tưởng của bài báo gốc về Funnel Tree,
-nên `check.py` chỉ kiểm tra hình học: đường nằm trên lưới và độ dài nằm giữa
-cận dưới Euclid và cận trên, không so sánh với dữ liệu tham chiếu.
+nên chúng không có dữ liệu tham chiếu; đường đi sinh trên chúng chỉ được kiểm
+tra hình học (nằm trên lưới, độ dài giữa cận dưới Euclid và cận trên).
 
 ## Quy tắc sửa dữ liệu
 
 - Không sửa tay `raw/` hoặc `processed/`. Sửa nguồn rồi chạy lại công cụ.
 - Các file `.off` được đối xử **byte-exact**: `.gitattributes` đặt
   `*.off -text` để Git không đổi kiểu xuống dòng.
-- `check.py` so sánh chiều dài với dung sai dựa trên việc làm tròn 4 chữ số
-  thập phân trong `expected/`. Sửa toạ độ phải cập nhật cả mesh lẫn expected.
+- `expected/` được làm tròn 4 chữ số thập phân; sửa toạ độ phải cập nhật cả
+  mesh lẫn expected.
 - Muốn thêm mesh: thêm `raw/meshes/<tên>.off`, thêm dòng vào bảng
-  *Thông tin từng tệp*, chạy `python3 tools/copy_meshes.py --write`, rồi cập
-  nhật `check.py`.
+  *Thông tin từng tệp*, rồi chạy `python3 tools/copy_meshes.py --write`.
 - Muốn thêm bề mặt khác: chạy `tools/triangulation.py --cell ... --output ...
   --force`; tham số được in ra console và nên ghi vào `processed/README.md`.
