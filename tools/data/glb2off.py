@@ -34,7 +34,8 @@ TYPES = {5121: 'u1', 5123: '<u2', 5125: '<u4', 5126: '<f4'}
 WIDTHS = {'SCALAR': 1, 'VEC2': 2, 'VEC3': 3, 'VEC4': 4}
 
 
-def read_glb_scene(filename, width):
+def read_document(filename):
+    """Parse a GLB 2 file into its JSON document and binary chunk."""
     blob = Path(filename).read_bytes()
     magic, version, total = struct.unpack_from('<4sII', blob)
     if magic != b'glTF' or version != 2 or total != len(blob):
@@ -53,61 +54,91 @@ def read_glb_scene(filename, width):
         binary = chunks[BIN_CHUNK]
     except KeyError:
         raise SystemExit(f'glb2off: {filename} has no binary chunk') from None
+    return document, binary
 
-    def accessor(index):
-        entry = document['accessors'][index]
-        if 'sparse' in entry:
-            raise SystemExit('glb2off: sparse accessors are not supported')
-        view = document['bufferViews'][entry['bufferView']]
-        dtype = np.dtype(TYPES[entry['componentType']])
-        components = WIDTHS[entry['type']]
-        return np.ndarray(
-            (entry['count'], components), dtype=dtype, buffer=binary,
-            offset=view.get('byteOffset', 0) + entry.get('byteOffset', 0),
-            strides=(view.get('byteStride', components * dtype.itemsize),
-                     dtype.itemsize)).copy()
 
-    def transform(node):
-        if 'matrix' in node:
-            return np.array(node['matrix']).reshape(4, 4, order='F')
-        x, y, z, w = node.get('rotation', [0, 0, 0, 1])
-        rotation = np.array([
-            [1 - 2 * y * y - 2 * z * z, 2 * x * y - 2 * z * w, 2 * x * z + 2 * y * w],
-            [2 * x * y + 2 * z * w, 1 - 2 * x * x - 2 * z * z, 2 * y * z - 2 * x * w],
-            [2 * x * z - 2 * y * w, 2 * y * z + 2 * x * w, 1 - 2 * x * x - 2 * y * y]])
-        matrix = np.eye(4)
-        matrix[:3, :3] = rotation @ np.diag(node.get('scale', [1, 1, 1]))
-        matrix[:3, 3] = node.get('translation', [0, 0, 0])
-        return matrix
+def _accessor(document, binary, index):
+    entry = document['accessors'][index]
+    if 'sparse' in entry:
+        raise SystemExit('glb2off: sparse accessors are not supported')
+    view = document['bufferViews'][entry['bufferView']]
+    dtype = np.dtype(TYPES[entry['componentType']])
+    components = WIDTHS[entry['type']]
+    return np.ndarray(
+        (entry['count'], components), dtype=dtype, buffer=binary,
+        offset=view.get('byteOffset', 0) + entry.get('byteOffset', 0),
+        strides=(view.get('byteStride', components * dtype.itemsize),
+                 dtype.itemsize)).copy()
 
-    parts = []
-    triangles = []
-    offset = 0
+
+def _node_matrix(node):
+    """Local transform of one node, as a 4x4 matrix."""
+    if 'matrix' in node:
+        return np.array(node['matrix']).reshape(4, 4, order='F')
+    x, y, z, w = node.get('rotation', [0, 0, 0, 1])
+    rotation = np.array([
+        [1 - 2 * y * y - 2 * z * z, 2 * x * y - 2 * z * w, 2 * x * z + 2 * y * w],
+        [2 * x * y + 2 * z * w, 1 - 2 * x * x - 2 * z * z, 2 * y * z - 2 * x * w],
+        [2 * x * z - 2 * y * w, 2 * y * z + 2 * x * w, 1 - 2 * x * x - 2 * y * y]])
+    matrix = np.eye(4)
+    matrix[:3, :3] = rotation @ np.diag(node.get('scale', [1, 1, 1]))
+    matrix[:3, 3] = node.get('translation', [0, 0, 0])
+    return matrix
+
+
+def iter_scene_meshes(filename):
+    """Yield (name, vertices, faces) per mesh node, in world coordinates.
+
+    Vertices carry the scene's own axes and units: the nested node transforms
+    are baked, nothing is rotated or rescaled. Use read_glb_scene for the
+    project frame (Z-up, 200 m wide) or transformed_objects for triangle soup.
+    """
+    document, binary = read_document(filename)
 
     def walk(index, parent):
-        nonlocal offset
         node = document['nodes'][index]
-        matrix = parent @ transform(node)
+        matrix = parent @ _node_matrix(node)
         if 'mesh' in node:
+            parts, triangles, offset = [], [], 0
             for primitive in document['meshes'][node['mesh']]['primitives']:
-                if primitive.get('mode', 4) != 4:
-                    raise SystemExit('glb2off: only triangle primitives are supported')
-                positions = accessor(primitive['attributes']['POSITION']).astype(float)
+                if (primitive.get('mode', 4) != 4 or
+                        primitive.get('extensions', {}).get('KHR_draco_mesh_compression')):
+                    raise SystemExit('glb2off: only uncompressed triangle primitives '
+                                     'are supported')
+                positions = _accessor(document, binary,
+                                      primitive['attributes']['POSITION']).astype(float)
                 positions = (np.c_[positions, np.ones(len(positions))] @ matrix.T)[:, :3]
-                # glTF scene Y-up -> Z-up after all nested transforms.
-                positions = positions[:, [0, 2, 1]] * np.array([1, -1, 1])
                 if 'indices' in primitive:
-                    indices = accessor(primitive['indices']).ravel()
+                    indices = _accessor(document, binary, primitive['indices']).ravel()
                 else:
                     indices = np.arange(len(positions))
-                triangles.append(indices.reshape(-1, 3) + offset)
                 parts.append(positions)
+                triangles.append(indices.reshape(-1, 3) + offset)
                 offset += len(positions)
+            yield (node.get('name', str(index)), np.vstack(parts),
+                   np.vstack(triangles).astype(np.int64))
         for child in node.get('children', []):
-            walk(child, matrix)
+            yield from walk(child, matrix)
 
     for root in document['scenes'][document.get('scene', 0)]['nodes']:
-        walk(root, np.eye(4))
+        yield from walk(root, np.eye(4))
+
+
+def transformed_objects(filename):
+    """Yield (name, world-space triangle soup) per mesh node, own axes."""
+    for name, vertices, faces in iter_scene_meshes(filename):
+        yield name, vertices[faces]
+
+
+def read_glb_scene(filename, width):
+    """All scene triangles in the project frame: Z-up, width metres wide."""
+    parts, triangles, offset = [], [], 0
+    for _, vertices, faces in iter_scene_meshes(filename):
+        # glTF scene Y-up -> Z-up after all nested transforms.
+        vertices = vertices[:, [0, 2, 1]] * np.array([1, -1, 1])
+        triangles.append(faces + offset)
+        parts.append(vertices)
+        offset += len(vertices)
     if not parts:
         raise SystemExit(f'glb2off: {filename} contains no triangle geometry')
     vertices = np.vstack(parts)
@@ -116,8 +147,7 @@ def read_glb_scene(filename, width):
     low, high = vertices.min(axis=0), vertices.max(axis=0)
     scale = width / max(high[0] - low[0], high[1] - low[1])
     origin = np.array([(low[0] + high[0]) / 2, (low[1] + high[1]) / 2, low[2]])
-    vertices = (vertices - origin) * scale
-    return vertices, faces
+    return (vertices - origin) * scale, faces
 
 
 def unique_edge_count(faces):

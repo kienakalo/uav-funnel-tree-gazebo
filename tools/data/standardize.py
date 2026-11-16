@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: NumPy; Python stdlib (argparse, hashlib, json, struct, pathlib);
-# local modules (glb, glb_nodes).
+# local modules (glb, glb2off).
 """Standardize a raw city GLB into a scene with a documented layout.
 
 Input:  data/raw/scenes/city.glb (third-party, Y-up, Sketchfab node names)
@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'src'))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from glb import indexed_from_triangles, read_glb, write_glb
-from glb_nodes import transformed_objects
+from glb2off import transformed_objects
 
 DEFAULT_INPUT = ROOT / 'data/raw/scenes/city.glb'
 DEFAULT_OUTPUT = ROOT / 'data/processed/scenes/city.standardized.glb'
