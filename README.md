@@ -45,7 +45,11 @@ Cửa sổ 3D (`--show`, `--pick`) cần thêm thư viện hệ thống, pip kh�
 sudo apt install python3-tk      # hoặc: .venv/bin/pip install PyQt6
 xargs -a apt.txt sudo apt install -y
 
-# NixOS: PyQt6 wheel cần thư viện theo đường FHS, steam-run cấp môi trường đó
+# NixOS: Tk nằm trong site-packages của interpreter Nix, venv không thấy
+ln -sf "$(python3 -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])')"/_tkinter*.so \
+  .venv/lib/python*/site-packages/
+
+# hoặc dùng PyQt6 trong môi trường FHS
 steam-run .venv/bin/python tools/plan/route_viz.py \
   --routes generated/routes/city.standardized.triangulation.json --show
 ```
