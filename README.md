@@ -118,9 +118,9 @@ dốc. Nó chỉ tồn tại trong hành lang giữa START và GOAL:
 ## Kiểm tra và chọn điểm
 
 ```bash
-# xem một mesh, hoặc so sánh scene với bề mặt
+# xem một mesh
 .venv/bin/python tools/data/data_viz.py L
-.venv/bin/python tools/data/data_viz.py city.standardized.triangulation --scene
+.venv/bin/python tools/data/data_viz.py city.standardized.triangulation
 ```
 
 `set_start_goal.py` đọc mesh, in kích thước và lưới, rồi lấy lựa chọn theo thứ

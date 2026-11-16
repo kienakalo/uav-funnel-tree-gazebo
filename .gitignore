@@ -13,18 +13,4 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# The city asset is tracked once, at data/raw/scenes/city.glb. Copies downloaded
-# into the raw/meshes location stay local.
-/data/raw/meshes/city.glb
-
-# Derived scene rebuilt by tools/standardize.py (about 6 MB).
-/data/processed/scenes/city.standardized.glb
-
-# Stage output. Previews and caches are rebuilt by the data stage; the plan
-# stage keeps its routes and the reference comparison as evidence.
-/generated/**
-!/generated/README.md
-!/generated/routes/
-!/generated/routes/**
-!/generated/compare/
-!/generated/compare/**
+AGENTS.md

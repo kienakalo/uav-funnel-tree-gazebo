@@ -34,8 +34,7 @@ Thuật toán dựng bề mặt (lưới ô, khe hở, lan truyền dốc) đư�
 
 Scene chuẩn hoá là **GLB** vì cần giữ object, transform và mở được bằng
 Blender/MeshLab. `.off` chỉ dành cho mesh dẫn xuất: một lưới duy nhất, đỉnh
-dùng chung, toạ độ double. Thành phố trong hệ Z-up đã chuẩn hoá được
-`tools/data/data_viz.py --scene` và `tools/data/triangulation.py` dựng trực tiếp từ
+dùng chung, toạ độ double. `tools/data/triangulation.py` dựng trực tiếp từ
 `scenes/city.standardized.glb` qua `tools/data/glb2off.py: read_glb_scene` (bake
 transform, đổi Z-up, chuẩn hoá width 200), nên không cần thêm một bản OFF
 ~20 MB không có nơi dùng và cũng không cần STL trung gian.
@@ -89,9 +88,6 @@ GLB mở được bằng Blender, MeshLab hoặc trình xem glTF; `.off` cần
 # bề mặt thành phố
 .venv/bin/python tools/data/data_viz.py city.standardized.triangulation
 
-# so sánh trước/sau tam giác phân: scene chuẩn hoá | bề mặt
-.venv/bin/python tools/data/data_viz.py city.standardized.triangulation --scene
-
 # đường dẫn đầy đủ, kể cả file ngoài data/processed/meshes
 .venv/bin/python tools/data/data_viz.py data/processed/meshes/L.off
 
@@ -99,17 +95,13 @@ GLB mở được bằng Blender, MeshLab hoặc trình xem glTF; `.off` cần
 .venv/bin/python tools/data/data_viz.py --all
 ```
 
-PNG ghi vào `generated/data_viz/<tên>.png`. Với `--scene`, ảnh là hai bảng
-cạnh nhau `<tên>-compare.png`: bên trái là scene chuẩn hoá (trước), bên phải
-là bề mặt đã tam giác phân (sau).
+PNG ghi vào `generated/data_viz/<tên>.png`.
 
 | Cờ | Tác dụng |
 | --- | --- |
 | `--show` | Mở cửa sổ 3D tương tác thay vì ghi PNG |
 | `--source N` | Đánh dấu đỉnh nguồn N bằng màu cam |
 | `--no-paths` | Không vẽ đè đường tham chiếu từ `data/expected/` |
-| `--scene [GLB]` | So sánh với scene chuẩn hoá, mặc định `data/processed/scenes/city.standardized.glb` |
-| `--scene-triangles N` | Giới hạn số tam giác của scene; `0` vẽ tất cả (mặc định) |
 | `--input DIR` | Đổi thư mục tìm mesh, mặc định `data/processed/meshes` |
 | `--output DIR` | Đổi thư mục ghi ảnh, mặc định `generated/data_viz` |
 

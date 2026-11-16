@@ -7,7 +7,6 @@ Stage `data` và `plan` ghi vào đây. Phần lớn nằm trong `.gitignore`; c
 | Đường dẫn | Nội dung | Bước sinh |
 | --- | --- | --- |
 | `data_viz/<tên>.png` | Ảnh từng mesh, có đường tham chiếu màu đỏ nếu có | `data` 5 |
-| `data_viz/<tên>-compare.png` | So sánh scene chuẩn hoá với bề mặt (`--scene`) | `data` 5 (thủ công) |
 | `routes/<mission>.json` | Tuyến Funnel: waypoint, độ dài, hash, tham số, thời gian | `plan` 1 |
 | `routes/<mission>.png` | Ảnh bề mặt + các tuyến | `plan` 2 |
 | `compare/<mesh>.json` | So từng đỉnh với `data/expected` | `plan` 3 |

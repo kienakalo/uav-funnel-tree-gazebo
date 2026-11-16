@@ -11,7 +11,7 @@
 ## Vai trò kép
 
 1. **Thư viện đọc scene**: hàm `read_glb_scene` trả toàn bộ tam giác ở hệ của dự
-   án (Z-up, rộng 200 m), dùng cho `triangulation` và `data_viz --scene`.
+   án (Z-up, rộng 200 m), dùng cho `triangulation`.
 2. **Tool chuyển đổi**: ghi ra `.off` để xem hoặc kiểm tra bằng công cụ khác.
 
 ## Các tầng xử lý

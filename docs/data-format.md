@@ -45,7 +45,7 @@ Hai lối đọc, khác nhau ở mục đích:
 | Hàm | Dùng ở | Trục và đơn vị |
 | --- | --- | --- |
 | `tools/data/glb2off.py: iter_scene_meshes` | `standardize.py` (qua `transformed_objects`) | Bake transform, **giữ nguyên** trục và đơn vị gốc |
-| `tools/data/glb2off.py: read_glb_scene` | `triangulation.py`, `data_viz.py --scene`, tool `glb2off.py` | Bake transform, đổi **Y-up → Z-up**, chuẩn hoá bề rộng 200 m |
+| `tools/data/glb2off.py: read_glb_scene` | `triangulation.py`, tool `glb2off.py` | Bake transform, đổi **Y-up → Z-up**, chuẩn hoá bề rộng 200 m |
 
 Cả hai cùng dùng `iter_scene_meshes`, nên chỉ có một chỗ duyệt cây node.
 

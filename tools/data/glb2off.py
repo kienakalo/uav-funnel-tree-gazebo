@@ -31,7 +31,7 @@ sys.path.insert(0, str(ROOT / 'lib'))
 from mesh_off import write_off
 
 DEFAULT_INPUT = ROOT / 'data/processed/scenes/city.standardized.glb'
-DEFAULT_OUTPUT = ROOT / 'generated/meshes'
+DEFAULT_OUTPUT = ROOT / 'data/processed/meshes'
 JSON_CHUNK = 0x4e4f534a
 BIN_CHUNK = 0x004e4942
 TYPES = {5121: 'u1', 5123: '<u2', 5125: '<u4', 5126: '<f4'}
