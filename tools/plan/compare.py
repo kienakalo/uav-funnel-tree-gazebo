@@ -24,6 +24,7 @@ Examples:
   .venv/bin/python tools/plan/compare.py --tolerance 1e-5
 """
 import argparse
+import hashlib
 import json
 import math
 import sys
@@ -76,7 +77,7 @@ def compare(mesh_stem, expected_path, mesh_dir, seconds, tolerance):
             failures.append(vertex)
     return {
         'mesh': mesh_stem,
-        'mesh_sha256': __import__('hashlib').sha256(mesh_path.read_bytes()).hexdigest(),
+        'mesh_sha256': hashlib.sha256(mesh_path.read_bytes()).hexdigest(),
         'reference': str(relative(expected_path)),
         'source': source,
         'tolerance': tolerance,

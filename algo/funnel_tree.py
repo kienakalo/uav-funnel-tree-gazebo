@@ -274,12 +274,6 @@ def reconstruct(mesh, source, funnel, deadline=None):
     return [tuple(map(float,p)) for p in points]
 
 
-def solve_file(path, source, timeout=20., max_nodes=200000, clipping=True):
-    """Convenience wrapper: read an OFF mesh and solve on it."""
-    from mesh_off import read_mesh
-    return solve(read_mesh(path), source, timeout, max_nodes, clipping)
-
-
 def solve(mesh, source, timeout=20., max_nodes=200000, clipping=True):
     """Paths from the source to every vertex, as a list indexed by vertex."""
     paths, stats = solve_targets(mesh, source, range(len(mesh.points)), timeout,

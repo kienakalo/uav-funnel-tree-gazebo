@@ -149,7 +149,8 @@ def main():
                         help='Folder scanned when --mission is not given')
     parser.add_argument('--output', type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument('--seconds', type=float, default=300.,
-                        help='Time limit for one solve (default: 300)')
+                        help='Time limit for one search; a multi-goal mission gets one per goal '
+                             '(default: 300)')
     parser.add_argument('--max-nodes', type=int, default=200000,
                         help='Node limit for one propagation (default: 200000)')
     parser.add_argument('--no-clipping', action='store_true',
