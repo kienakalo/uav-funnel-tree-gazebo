@@ -105,7 +105,24 @@ một lần, các lần sau chạy lại chỉ đọc, không hỏi lại.
 
 `--pick` cần backend đồ hoạ: cài `sudo apt install python3-tk` hoặc
 `pip install PyQt6` trong `.venv`. Không có backend thì tool tự chuyển sang chọn
-bằng bàn phím, không dừng giữa chừng. Chi tiết cờ và schema JSON ở
+bằng bàn phím, không dừng giữa chừng.
+
+Mặc định tool làm việc trên bề mặt thành phố. Muốn chọn cho mesh khác, hoặc cho
+tất cả:
+
+```bash
+# xem mesh nào đã có lựa chọn
+.venv/bin/python tools/data/set_start_goal.py --list-meshes
+
+# một mesh cụ thể
+.venv/bin/python tools/data/set_start_goal.py \
+  --mesh data/processed/meshes/cliff.off --pick
+
+# mọi mesh còn thiếu (bỏ qua mesh đã có, --force để làm lại)
+.venv/bin/python tools/data/set_start_goal.py --all-meshes
+```
+
+Chi tiết cờ và schema JSON ở
 [`data/processed/README.md`](data/processed/README.md).
 
 ## Định dạng

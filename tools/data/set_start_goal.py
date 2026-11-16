@@ -21,6 +21,15 @@ Examples:
   # chọn bằng chuột
   .venv/bin/python tools/data/set_start_goal.py --pick
 
+  # một mesh khác
+  .venv/bin/python tools/data/set_start_goal.py --mesh data/processed/meshes/cliff.off
+
+  # xem mesh nào đã có lựa chọn
+  .venv/bin/python tools/data/set_start_goal.py --list-meshes
+
+  # chọn cho mọi mesh còn thiếu (bỏ qua mesh đã có mission)
+  .venv/bin/python tools/data/set_start_goal.py --all-meshes
+
   # mesh nhỏ: mọi đỉnh còn lại là goal
   .venv/bin/python tools/data/set_start_goal.py \\
       --mesh data/processed/meshes/cliff.off --start-vertex 1 --all-goals
@@ -423,42 +432,27 @@ def choose_console(path, points, faces, mode, max_snap):
 # --------------------------------------------------------------------------
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--mesh', type=Path, default=DEFAULT_MESH,
-                        help='Navigation surface (.off)')
-    parser.add_argument('--mission', type=Path,
-                        help='Mission file (default: data/processed/missions/<mesh>.json)')
-    parser.add_argument('--output', type=Path, default=DEFAULT_OUTPUT,
-                        help='Folder for the default mission file')
-    parser.add_argument('--start', nargs=3, type=float, metavar=('X', 'Y', 'Z'),
-                        help='START point; snapped to the nearest vertex')
-    parser.add_argument('--start-vertex', type=int, metavar='N',
-                        help='START vertex index')
-    parser.add_argument('--goal', nargs=3, type=float, action='append',
-                        metavar=('X', 'Y', 'Z'), help='GOAL point; repeat for several')
-    parser.add_argument('--goal-vertex', type=int, action='append', metavar='N',
-                        help='GOAL vertex index; repeat for several')
-    parser.add_argument('--all-goals', action='store_true',
-                        help=f'Every other vertex is a GOAL (max {MAX_ALL_GOALS} vertices)')
-    parser.add_argument('--pick', action='store_true',
-                        help='Choose by clicking vertices in a 3D window')
-    parser.add_argument('--snap', choices=('xy', '3d'), default='xy',
-                        help='Snap coordinates in the XY plane (default) or in 3D')
-    parser.add_argument('--max-snap', type=float,
-                        help='Reject points farther than this from a vertex '
-                             '(default: half a grid diagonal)')
-    parser.add_argument('--force', action='store_true',
-                        help='Replace an existing mission file')
-    args = parser.parse_args()
+def mesh_list(folder):
+    """Every triangle OFF mesh the stage produced, in name order."""
+    return sorted(Path(folder).glob('*.off'))
 
-    if args.start is not None and args.start_vertex is not None:
-        fail('use either --start or --start-vertex, not both')
-    if args.all_goals and (args.goal or args.goal_vertex):
-        fail('--all-goals cannot be combined with --goal or --goal-vertex')
 
-    mesh_path = args.mesh.resolve()
+def show_meshes(args):
+    """Print the available meshes and whether they already have a mission."""
+    folder = DEFAULT_MESH.parent
+    meshes = mesh_list(folder)
+    if not meshes:
+        fail(f'no .off mesh in {folder}; run "python3 main.py data" first')
+    print(f'{len(meshes)} mesh trong {relative(folder)}:')
+    for mesh in meshes:
+        header = mesh.read_text(encoding='utf-8').splitlines()[1].split()
+        path = mission_path(mesh, args.output, None)
+        state = 'đã có mission' if path.is_file() else 'chưa có mission'
+        print(f'  {mesh.stem:38s} {header[0]:>6} đỉnh {header[1]:>6} mặt  {state}')
+
+
+def process_mesh(mesh_path, args):
+    """Read one mesh, take the choice from JSON/CLI/terminal, save the mission."""
     if not mesh_path.is_file():
         fail(f'missing mesh {mesh_path}; run "python3 main.py data" first')
     points, faces, boundary = read_mesh(mesh_path)
@@ -562,6 +556,70 @@ def main():
     write_json(path, record)
     summary(record, path)
     print(f'Save at: {path}')
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('--mesh', type=Path,
+                        help='Navigation surface (.off); default: '
+                             f'{DEFAULT_MESH.relative_to(ROOT)}')
+    parser.add_argument('--all-meshes', action='store_true',
+                        help='Handle every .off in data/processed/meshes')
+    parser.add_argument('--list-meshes', action='store_true',
+                        help='List the meshes and their mission state, then exit')
+    parser.add_argument('--mission', type=Path,
+                        help='Mission file (default: data/processed/missions/<mesh>.json)')
+    parser.add_argument('--output', type=Path, default=DEFAULT_OUTPUT,
+                        help='Folder for the default mission file')
+    parser.add_argument('--start', nargs=3, type=float, metavar=('X', 'Y', 'Z'),
+                        help='START point; snapped to the nearest vertex')
+    parser.add_argument('--start-vertex', type=int, metavar='N',
+                        help='START vertex index')
+    parser.add_argument('--goal', nargs=3, type=float, action='append',
+                        metavar=('X', 'Y', 'Z'), help='GOAL point; repeat for several')
+    parser.add_argument('--goal-vertex', type=int, action='append', metavar='N',
+                        help='GOAL vertex index; repeat for several')
+    parser.add_argument('--all-goals', action='store_true',
+                        help=f'Every other vertex is a GOAL (max {MAX_ALL_GOALS} vertices)')
+    parser.add_argument('--pick', action='store_true',
+                        help='Choose by clicking vertices in a 3D window')
+    parser.add_argument('--snap', choices=('xy', '3d'), default='xy',
+                        help='Snap coordinates in the XY plane (default) or in 3D')
+    parser.add_argument('--max-snap', type=float,
+                        help='Reject points farther than this from a vertex '
+                             '(default: half a grid diagonal)')
+    parser.add_argument('--force', action='store_true',
+                        help='Replace an existing mission file')
+    args = parser.parse_args()
+
+    if args.start is not None and args.start_vertex is not None:
+        fail('use either --start or --start-vertex, not both')
+    if args.all_goals and (args.goal or args.goal_vertex):
+        fail('--all-goals cannot be combined with --goal or --goal-vertex')
+    if args.all_meshes and (args.mesh or args.mission):
+        fail('--all-meshes cannot be combined with --mesh or --mission')
+    if args.all_meshes and (args.start is not None or args.start_vertex is not None
+                            or args.goal or args.goal_vertex or args.all_goals):
+        fail('--all-meshes chooses interactively; drop --start/--goal/--all-goals')
+
+    if args.list_meshes:
+        show_meshes(args)
+        return
+
+    if args.all_meshes:
+        meshes = mesh_list(DEFAULT_MESH.parent)
+        if not meshes:
+            fail(f'no .off mesh in {DEFAULT_MESH.parent}; run "python3 main.py data" first')
+        for index, mesh in enumerate(meshes, 1):
+            print(f'\n[{index}/{len(meshes)}] {relative(mesh)}', flush=True)
+            if mission_path(mesh, args.output, None).is_file() and not args.force:
+                print('  đã có mission; bỏ qua (--force để chọn lại).', flush=True)
+                continue
+            process_mesh(mesh, args)
+        return
+
+    process_mesh((args.mesh or DEFAULT_MESH).resolve(), args)
 
 
 if __name__ == '__main__':

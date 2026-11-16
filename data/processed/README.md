@@ -138,6 +138,16 @@ hai thì dừng với thông báo rõ ràng.
 # lần đầu: chọn tay trên bề mặt thành phố
 .venv/bin/python tools/data/set_start_goal.py
 
+# xem mesh nào đã có lựa chọn
+.venv/bin/python tools/data/set_start_goal.py --list-meshes
+
+# một mesh khác
+.venv/bin/python tools/data/set_start_goal.py \
+  --mesh data/processed/meshes/cliff.off --pick
+
+# chọn cho mọi mesh còn thiếu
+.venv/bin/python tools/data/set_start_goal.py --all-meshes
+
 # chọn bằng chuột trong cửa sổ 3D
 .venv/bin/python tools/data/set_start_goal.py --pick
 
