@@ -5,7 +5,7 @@
 # Gazebo embeds the system Python and needs the apt-installed gz bindings, so
 # the venv is removed from the environment before gz starts.
 set -euo pipefail
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."
 unset VIRTUAL_ENV PYTHONHOME
 export PATH="/usr/bin:/bin:$PATH"
 export PYTHONPATH="$PWD/tools/simulate/plugin:/usr/lib/python3/dist-packages${PYTHONPATH:+:$PYTHONPATH}"

@@ -83,7 +83,7 @@ def stage_commands(name, args):
         goal = args.goal or 'g1'
         # run_simulate.sh builds the world itself, so the stage only calls it
         # once and then validates the telemetry it leaves behind.
-        run = ['bash', 'scripts/run_simulate.sh',
+        run = ['bash', 'tools/simulate/run_simulate.sh',
                '--mission', mission, '--goal', goal]
         if args.headless:
             run.append('--headless')

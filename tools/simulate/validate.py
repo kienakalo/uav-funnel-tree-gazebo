@@ -124,7 +124,7 @@ def main():
     telemetry = folder / 'physics_telemetry.csv'
     metadata_path = folder / 'telemetry_metadata.json'
     if not telemetry.is_file():
-        fail(f'missing {relative(telemetry)}; run scripts/run_simulate.sh first')
+        fail(f'missing {relative(telemetry)}; run tools/simulate/run_simulate.sh first')
     rows = read_rows(telemetry)
     result = analyse(rows, args.max_error)
     metadata = {}

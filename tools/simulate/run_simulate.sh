@@ -6,9 +6,9 @@
 # Build one world, fly it in Gazebo and leave the telemetry on disk.
 #
 # Usage:
-#   bash scripts/run_simulate.sh [--mission STEM] [--goal ID] [--headless]
-#                                [--software] [--show-surface] [--timeout S]
-#   bash scripts/run_simulate.sh --check
+#   bash tools/simulate/run_simulate.sh [--mission STEM] [--goal ID] [--headless]
+#                                       [--software] [--show-surface] [--timeout S]
+#   bash tools/simulate/run_simulate.sh --check
 #
 # --check verifies the environment (gz, gz.sim10 bindings, plugin import), the
 # world files and the SDF without opening Gazebo. The default mission is
@@ -19,16 +19,16 @@ usage() {
 Build one world, fly it in Gazebo and leave the telemetry on disk.
 
 Usage:
-  bash scripts/run_simulate.sh [--mission STEM] [--goal ID] [--headless]
-                               [--software] [--show-surface] [--timeout S]
-  bash scripts/run_simulate.sh --check
+  bash tools/simulate/run_simulate.sh [--mission STEM] [--goal ID] [--headless]
+                                      [--software] [--show-surface] [--timeout S]
+  bash tools/simulate/run_simulate.sh --check
 
 --check verifies gz, the gz.sim10 bindings, the plugin import, the world files
 and the SDF without opening Gazebo.
 EOF
 }
 set -euo pipefail
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."
 
 mission=city.standardized.triangulation
 goal=g1
@@ -115,7 +115,7 @@ else
   sim_args=(-r -v 3)
 fi
 
-bash scripts/gazebo_system_python.sh sim "${sim_args[@]}" "$sdf" >"$log" 2>&1 &
+bash tools/simulate/gazebo_system_python.sh sim "${sim_args[@]}" "$sdf" >"$log" 2>&1 &
 gazebo_pid=$!
 trap 'kill "$gazebo_pid" 2>/dev/null || true' EXIT
 

@@ -1,4 +1,4 @@
-# `scripts/run_simulate.sh`
+# `tools/simulate/run_simulate.sh`
 
 | | |
 | --- | --- |
@@ -53,7 +53,7 @@ Nó kiểm: `gz` có trong PATH; `/usr/bin/python3` import được `gz.sim10`/`
 | `PYTHONPATH` | `tools/simulate/plugin:/usr/lib/python3/dist-packages` |
 | `LIBGL_ALWAYS_SOFTWARE` | `1` khi `--software` |
 
-`scripts/gazebo_system_python.sh` xoá `VIRTUAL_ENV`/`PYTHONHOME` trước khi `exec gz`, để Gazebo dùng Python hệ thống có binding.
+`tools/simulate/gazebo_system_python.sh` xoá `VIRTUAL_ENV`/`PYTHONHOME` trước khi `exec gz`, để Gazebo dùng Python hệ thống có binding.
 
 ## Backup
 

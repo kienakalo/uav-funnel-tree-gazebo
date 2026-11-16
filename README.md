@@ -205,10 +205,9 @@ tools/plan/
 tools/simulate/
   build_world.py         # dựng world Gazebo + mesh từ một route
   validate.py            # chấm telemetry: sai số bám, tốc độ, hoàn thành
-  plugin/                # trajectory + bộ điều khiển chạy trong Gazebo
-scripts/
   run_simulate.sh        # dựng world, bay, chờ kết thúc
   gazebo_system_python.sh  # chạy gz bằng Python hệ thống
+  plugin/                # trajectory + bộ điều khiển chạy trong Gazebo
 algo/
   funnel_tree.py         # lan truyền, dựng lại tuyến, tìm source
 lib/
