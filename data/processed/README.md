@@ -26,6 +26,16 @@ dưới và in ra khi chạy tool.
 Tên tệp phản ánh chuỗi bước: `city.standardized.triangulation.off` = city →
 standardize → triangulation.
 
+## Vì sao không có `city.standardized.off`
+
+Scene chuẩn hoá là **GLB** vì cần giữ object, transform và mở được bằng
+Blender/MeshLab. `.off` chỉ dành cho mesh dẫn xuất: một lưới duy nhất, đỉnh
+dùng chung, toạ độ double. Thành phố ở hệ Gazebo đã chuẩn hoá được
+`tools/data_viz.py --scene` dựng trực tiếp từ `scenes/city.standardized.glb`
+(`src/city.py: load_city`, chuẩn hoá về width 200), nên không cần thêm một bản
+OFF ~20 MB không có nơi dùng. `tools/triangulation.py` cũng đọc
+`generated/funnel_preview/city.stl` trong cùng hệ đó.
+
 ## Chạy
 
 ```bash
@@ -63,6 +73,9 @@ GLB mở được bằng Blender, MeshLab hoặc trình xem glTF; `.off` cần
 # bề mặt thành phố
 .venv/bin/python tools/data_viz.py city.standardized.triangulation
 
+# so sánh trước/sau tam giác phân: scene chuẩn hoá | bề mặt
+.venv/bin/python tools/data_viz.py city.standardized.triangulation --scene
+
 # đường dẫn đầy đủ, kể cả file ngoài data/processed/meshes
 .venv/bin/python tools/data_viz.py data/processed/meshes/L.off
 
@@ -70,13 +83,17 @@ GLB mở được bằng Blender, MeshLab hoặc trình xem glTF; `.off` cần
 .venv/bin/python tools/data_viz.py --all
 ```
 
-PNG ghi vào `generated/data_viz/<tên>.png`.
+PNG ghi vào `generated/data_viz/<tên>.png`. Với `--scene`, ảnh là hai bảng
+cạnh nhau `<tên>-compare.png`: bên trái là scene chuẩn hoá (trước), bên phải
+là bề mặt đã tam giác phân (sau).
 
 | Cờ | Tác dụng |
 | --- | --- |
 | `--show` | Mở cửa sổ 3D tương tác thay vì ghi PNG |
 | `--source N` | Đánh dấu đỉnh nguồn N bằng màu cam |
 | `--no-paths` | Không vẽ đè đường tham chiếu từ `data/expected/` |
+| `--scene [GLB]` | So sánh với scene chuẩn hoá, mặc định `data/processed/scenes/city.standardized.glb` |
+| `--scene-triangles N` | Giới hạn số tam giác của scene; `0` vẽ tất cả (mặc định) |
 | `--input DIR` | Đổi thư mục tìm mesh, mặc định `data/processed/meshes` |
 | `--output DIR` | Đổi thư mục ghi ảnh, mặc định `generated/data_viz` |
 
@@ -86,6 +103,80 @@ dùng chế độ ghi PNG.
 
 Mesh có `data/expected/<tên>.paths.json` sẽ được vẽ đè các đường tham chiếu
 màu đỏ. `python3 main.py data` render tất cả ở bước cuối của stage `data`.
+
+## Chọn START/GOAL thủ công
+
+`tools/set_start_goal.py` nhận điểm do bạn chọn, snap về đỉnh gần nhất rồi chạy
+Funnel Tree. Mặc định chạy trên bề mặt đã xử lý; `--mesh` để dùng mesh khác.
+
+### Nhiệm vụ trên bề mặt thành phố
+
+```bash
+# một goal
+.venv/bin/python tools/set_start_goal.py \
+  --start -38.752 22.103 7.206 \
+  --goal 74.737 -55.357 7.206 \
+  --name giao-hang
+
+# ba goal trong một lần chạy, dùng chung một source graph
+.venv/bin/python tools/set_start_goal.py \
+  --start -38.752 22.103 7.206 \
+  --goal 74.737 -55.357 7.206 \
+  --goal 10 20 7.2 \
+  --goal -60 -30 7.2 \
+  --name ba-dich
+```
+
+### Fixture như `cliff.off`
+
+```bash
+# đỉnh bắt đầu do bạn chọn, mọi đỉnh còn lại là goal
+.venv/bin/python tools/set_start_goal.py \
+  --mesh data/processed/meshes/cliff.off \
+  --start-vertex 1 --all-goals --name cliff-v1
+```
+
+`--all-goals` dựng cây đường đi từ một đỉnh nguồn tới **mọi đỉnh còn lại**, nên
+chỉ dùng cho mesh nhỏ (tối đa 300 đỉnh). Với bề mặt thành phố, dùng `--goal`.
+
+### File mission để tái lập
+
+```json
+{
+  "name": "giao-hang",
+  "start": [-38.752, 22.103, 7.206],
+  "goals": [[74.737, -55.357, 7.206], [10, 20, 7.2]]
+}
+```
+
+```bash
+.venv/bin/python tools/set_start_goal.py --mission missions/giao-hang.json
+```
+
+Fixture có thể chỉ định bằng chỉ số đỉnh:
+
+```json
+{"name": "cliff-v1", "start_vertex": 1, "all_goals": true}
+```
+
+### Kết quả
+
+| Tệp trong `generated/missions/<tên>/` | Nội dung |
+| --- | --- |
+| `plan.json` | điểm đã snap, chỉ số đỉnh, waypoints, độ dài, source chain, hash |
+| `funnel_cache.json` | cache từng source, chỉ khi có goal cụ thể |
+| `<tên>.paths.json` | một đường cho mỗi đỉnh, chỉ với `--all-goals` |
+| `routes.png` | ảnh 3D các tuyến |
+
+### Snap và giới hạn
+
+- Toạ độ snap về đỉnh gần nhất trong XY; `--snap 3d` để snap theo 3D.
+- Sai số được in ra; mặc định chặn nếu quá nửa đường chéo ô (`--max-snap` để đổi).
+- `z` của đỉnh snap là cao độ envelope, không phải `z` bạn nhập. Waypoint đầu
+  tiên vẫn là điểm bạn nhập để thấy đoạn tiếp cận.
+- Kết quả không chứng nhận tối ưu (`optimality_certified: false`), giống thí nghiệm.
+- Thêm `--force` khi ghi đè `plan.json` đã có; `--seconds` đổi giới hạn thời gian
+  cho mỗi lần lan truyền.
 
 ## Tham số bề mặt hiện tại
 

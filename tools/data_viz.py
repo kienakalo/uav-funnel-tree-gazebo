@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: NumPy, Matplotlib; Python stdlib (argparse, sys, pathlib);
@@ -6,13 +7,15 @@
 
 GLB files can be opened by Blender, MeshLab or any glTF viewer; OFF files need
 a dedicated reader. This tool is that reader. It draws the triangulated
-surface, can overlay the expected paths from data/expected, and saves one PNG
-per mesh under generated/data_viz/.
+surface, can overlay the expected paths from data/expected, and can compare a
+mesh with the standardized city scene, before and after triangulation. It
+saves one PNG per mesh under generated/data_viz/.
 
 Examples:
   .venv/bin/python tools/data_viz.py --all
   .venv/bin/python tools/data_viz.py L terrain
   .venv/bin/python tools/data_viz.py L --show
+  .venv/bin/python tools/data_viz.py city.standardized.triangulation --scene
 """
 import argparse
 import sys
@@ -23,14 +26,25 @@ import matplotlib
 if '--show' not in sys.argv:
     matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
+from city import load_city
 from mesh import read_off
 from verification import read_paths
 
 DEFAULT_INPUT = ROOT / 'data/processed/meshes'
 DEFAULT_OUTPUT = ROOT / 'generated/data_viz'
+DEFAULT_SCENE = ROOT / 'data/processed/scenes/city.standardized.glb'
+
+
+def read_scene(path, limit):
+    if limit < 0:
+        raise SystemExit('--scene-triangles must be zero or positive')
+    vertices, faces, _ = load_city(path)
+    stride = max(1, len(faces) // limit) if limit else 1
+    return vertices[faces[::stride]], len(faces)
 
 
 def render(path, output, show_paths, source, show):
@@ -76,6 +90,48 @@ def render(path, output, show_paths, source, show):
     return output
 
 
+def render_compare(path, scene, scene_total, output, show):
+    mesh = read_off(path)
+    points = np.array([(point.x, point.y, point.z) for point in mesh.points])
+    faces = np.array(mesh.faces)
+
+    limits = np.vstack([scene.reshape(-1, 3), points])
+    low, high = limits.min(axis=0), limits.max(axis=0)
+    span = high - low
+
+    figure = plt.figure(figsize=(14, 7))
+    before = figure.add_subplot(121, projection='3d')
+    before.add_collection3d(Poly3DCollection(scene, facecolors='#7b8794',
+                                             edgecolors='#3f4750', linewidths=0.05))
+    shown = (f'{len(scene)} of {scene_total} triangles shown'
+             if len(scene) < scene_total else f'{scene_total} triangles')
+    before.set_title(f'before: standardized scene ({shown})')
+    after = figure.add_subplot(122, projection='3d')
+    after.plot_trisurf(points[:, 0], points[:, 1], points[:, 2],
+                       triangles=faces, cmap='viridis',
+                       edgecolor='#333333', linewidth=0.2, alpha=0.95)
+    after.set_title(f'after: triangulated surface ({len(faces)} triangles)')
+
+    for axes in (before, after):
+        axes.set_xlim(low[0], high[0])
+        axes.set_ylim(low[1], high[1])
+        axes.set_zlim(low[2], high[2])
+        axes.set_box_aspect(tuple(float(value) or 1. for value in span))
+        axes.view_init(elev=30, azim=-58)
+        axes.set_xlabel('X')
+        axes.set_ylabel('Y')
+        axes.set_zlabel('Z')
+
+    figure.suptitle(f'{path.stem} — standardized scene (left) and the surface after triangulation (right)')
+    if show:
+        plt.show()
+        return None
+    output.parent.mkdir(parents=True, exist_ok=True)
+    figure.savefig(output, dpi=150, bbox_inches='tight')
+    plt.close(figure)
+    return output
+
+
 def main():
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -88,6 +144,12 @@ def main():
                         help='Mark this vertex index as the path source')
     parser.add_argument('--no-paths', action='store_true',
                         help='Do not overlay data/expected paths')
+    parser.add_argument('--scene', nargs='?', const=str(DEFAULT_SCENE), default=None,
+                        metavar='GLB',
+                        help='Compare the mesh with the standardized city scene, before/after '
+                             f'triangulation (default: {DEFAULT_SCENE.relative_to(ROOT)})')
+    parser.add_argument('--scene-triangles', type=int, default=0, metavar='N',
+                        help='Maximum scene triangles to draw; 0 draws all (default: 0)')
     parser.add_argument('--show', action='store_true',
                         help='Open interactive windows instead of writing PNG files')
     args = parser.parse_args()
@@ -106,9 +168,20 @@ def main():
                 parser.error(f'Mesh not found: {name}')
             paths.append(candidate)
 
+    scene = None
+    if args.scene:
+        scene_path = Path(args.scene)
+        if not scene_path.is_file():
+            parser.error(f'Scene not found: {scene_path}. Run the data stage first.')
+        scene, scene_total = read_scene(scene_path, args.scene_triangles)
+
     for path in paths:
-        output = args.output / f'{path.stem}.png'
-        saved = render(path, output, not args.no_paths, args.source, args.show)
+        if scene is not None:
+            output = args.output / f'{path.stem}-compare.png'
+            saved = render_compare(path, scene, scene_total, output, args.show)
+        else:
+            output = args.output / f'{path.stem}.png'
+            saved = render(path, output, not args.no_paths, args.source, args.show)
         if saved is not None:
             print(f'Save at: {saved}')
     if not args.show:

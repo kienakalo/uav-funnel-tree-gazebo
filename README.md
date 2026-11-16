@@ -409,7 +409,12 @@ dấu vân tay trong `generated/` đã được tính lại.
 | Standardize | `tools/standardize.py` | `data/raw/scenes/city.glb` → `data/processed/scenes/city.standardized.glb` |
 | OFF → GLB (Y-up) | `tools/off2glb.py` | `data/raw/meshes/*.off` → `data/processed/scenes/meshes/*.off2glb.glb` |
 | Tam giác phân bề mặt | `tools/triangulation.py` | `city.standardized.glb` + delivery plan → `data/processed/meshes/city.standardized.triangulation.off` |
-| Visualization | `tools/data_viz.py` | `data/processed/meshes/*.off` → `generated/data_viz/*.png` |
+| Visualization | `tools/data_viz.py` | `data/processed/meshes/*.off` → `generated/data_viz/*.png`; `--scene` so sánh với scene chuẩn hoá |
+| Chọn START/GOAL thủ công | `tools/set_start_goal.py` | `data/processed/meshes/*.off` + điểm tự chọn → `generated/missions/<tên>/plan.json` |
+
+Không có `city.standardized.off`: scene chuẩn hoá là GLB vì cần object và
+transform; `.off` chỉ dành cho mesh dẫn xuất. Ảnh trước/sau tam giác phân dựng
+bằng `tools/data_viz.py city.standardized.triangulation --scene`.
 
 Gazebo **không** tự xoay glTF từ Y-up sang Z-up. `.off2glb.glb` được xuất
 **Y-up** để mở đúng chiều trong viewer; dùng `tools/off2glb.py --keep-z-up`
