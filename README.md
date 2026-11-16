@@ -154,8 +154,7 @@ tools/data/
   triangulation.py       # dựng + tam giác phân bề mặt
   data_viz.py            # render PNG / cửa sổ 3D
   set_start_goal.py      # chọn START/GOAL, lưu JSON
-  glb2off.py             # đọc GLB (duyệt cây node, bake transform) + xuất OFF
-  off_mesh.py            # kiểm tra topology + ghi OFF
+  glb2off.py             # đọc GLB (duyệt cây node, bake transform) + ghi OFF
 src/
   funnel_tree.py         # lan truyền và dựng lại tuyến
   glb.py                 # container GLB
