@@ -35,9 +35,7 @@ STAGES = {
         [PYTHON, 'tools/data/off2glb.py'],
         [PYTHON, 'tools/data/triangulation.py', '--force'],
         [PYTHON, 'tools/data/data_viz.py', '--all'],
-        [PYTHON, 'tools/data/set_start_goal.py',
-         '--start', '-38.752', '22.103', '7.206',
-         '--goal', '74.737', '-55.357', '7.206'],
+        [PYTHON, 'tools/data/set_start_goal.py'],
     ],
 }
 

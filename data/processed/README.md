@@ -45,14 +45,17 @@ python3 tools/data/standardize.py
 python3 tools/data/off2glb.py
 .venv/bin/python tools/data/triangulation.py --force
 .venv/bin/python tools/data/data_viz.py --all
-.venv/bin/python tools/data/set_start_goal.py \
-  --start -38.752 22.103 7.206 --goal 74.737 -55.357 7.206
+.venv/bin/python tools/data/set_start_goal.py
 ```
 
 Bước `data_viz` render mỗi mesh `.off` thành một ảnh PNG trong
 `generated/data_viz/`, kèm các đường tham chiếu trong `data/expected/` nếu có.
-Dùng `--show` để mở cửa sổ 3D tương tác thay vì ghi PNG. Bước cuối ghi lựa
-chọn START/GOAL vào `data/processed/missions/<mesh>.json`.
+Dùng `--show` để mở cửa sổ 3D tương tác thay vì ghi PNG.
+
+Bước cuối **không tự chọn hộ**: nó đọc `data/processed/missions/<mesh>.json` đã
+lưu (hai file mẫu có sẵn trong Git). Nếu file đó chưa có và terminal có bàn
+phím, tool sẽ hỏi chọn START/GOAL rồi lưu. Muốn chọn lại dù đã có file:
+`--force`, thêm `--pick` nếu muốn click trong cửa sổ 3D.
 
 Sau bước này, mọi công cụ chỉ đọc `data/processed/`, không đọc thẳng
 `data/raw/`.

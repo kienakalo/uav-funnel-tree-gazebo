@@ -47,10 +47,12 @@ Sáu bước, dừng ngay khi một bước lỗi:
 | 3 | `tools/data/off2glb.py` | `raw/meshes/*.off` → `scenes/meshes/*.off2glb.glb` |
 | 4 | `tools/data/triangulation.py --force` | `city.standardized.glb` → `meshes/city.standardized.triangulation.off` |
 | 5 | `tools/data/data_viz.py --all` | `processed/meshes/*.off` → `generated/data_viz/*.png` |
-| 6 | `tools/data/set_start_goal.py …` | bề mặt → `data/processed/missions/<mesh>.json` |
+| 6 | `tools/data/set_start_goal.py` | bề mặt → `data/processed/missions/<mesh>.json` |
 
 Bước 4 cần `--force` vì tệp đích đã tồn tại; nếu không, tool dừng để tránh ghi
-đè ngoài ý muốn. Tham số bề mặt được in ra console và ghi ở
+đè ngoài ý muốn. Bước 6 dùng lại lựa chọn START/GOAL đã lưu; hai file mẫu
+(`city.standardized.triangulation.json`, `cliff.json`) có sẵn trong Git nên
+stage chạy không hỏi gì. Tham số bề mặt được in ra console và ghi ở
 [`data/processed/README.md`](data/processed/README.md).
 
 ## Bề mặt dẫn đường
