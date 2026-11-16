@@ -129,8 +129,8 @@ bước lưới, rồi lấy lựa chọn theo thứ tự:
 3. **Hỏi tương tác** — gõ chỉ số hoặc `x y z`; `--pick` mở cửa sổ 3D để click
    (`s` gán START, `g` thêm GOAL, `u` bỏ GOAL cuối, Enter để lưu). `--pick` cần
    backend Tk/Qt/GTK (`sudo apt install python3-tk` hoặc `pip install PyQt6`,
-   kèm các gói trong `apt.txt`); thiếu backend thì tool báo rồi chuyển sang chọn
-   bằng bàn phím.
+   kèm thư viện hệ thống, xem mục Cài đặt trong README); thiếu backend thì tool
+   báo rồi chuyển sang chọn bằng bàn phím.
 
 `--force` bỏ qua file đã lưu để chọn lại. Khi chạy không có bàn phím
 (`python3 main.py data`), tool cần file JSON hoặc tham số dòng lệnh; thiếu cả

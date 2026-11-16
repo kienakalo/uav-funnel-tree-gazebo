@@ -38,11 +38,16 @@ python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 ```
 
-Cửa sổ 3D (`--show`, `--pick`) cần thêm gói hệ thống, không cài bằng pip được:
+Cửa sổ 3D (`--show`, `--pick`) cần thêm thư viện hệ thống, pip không cài được:
 
 ```bash
+# Debian/Ubuntu
 sudo apt install python3-tk      # hoặc: .venv/bin/pip install PyQt6
 xargs -a apt.txt sudo apt install -y
+
+# NixOS: PyQt6 wheel cần thư viện theo đường FHS, steam-run cấp môi trường đó
+steam-run .venv/bin/python tools/plan/route_viz.py \
+  --routes generated/routes/city.standardized.triangulation.json --show
 ```
 
 `apt.txt` chỉ dùng cho các cửa sổ đó; chạy stage bằng PNG thì không cần.
