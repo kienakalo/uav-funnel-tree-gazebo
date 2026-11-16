@@ -56,7 +56,7 @@ của mesh 0 là `(2025.17, 691.17, 64.39)`, sau khi nhân ma trận scene thàn
 - Vì vậy toạ độ bị làm tròn **trước** khi chuẩn hoá 200 m, khác với đường STL cũ
   (làm tròn **sau** khi chuẩn hoá).
 - Hai đường lệch nhau cỡ `1,5e-5` m trước chuẩn hoá, `≤1,8e-6` m trên bề mặt.
-  Chi tiết và hai SHA ở [`../../data/processed/README.md`](../../data/processed/README.md).
+  Chi tiết và hai SHA ở [`../../data/processed/README.md`](../../../data/processed/README.md).
 
 ## Đầu ra
 

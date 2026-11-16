@@ -19,25 +19,31 @@ data/processed/missions/<mesh>.json ──────────────�
 
 data/raw/meshes/*.off ──copy_meshes──► data/processed/meshes/*.off
                       └─off2glb──────► data/processed/scenes/meshes/*.off2glb.glb
+
+generated/routes/*.json ──build_world──► generated/simulate/<mission>-<goal>/
+                                          (city.sim.glb, collision.stl,
+                                           funnel_physics.sdf, route.json)
 ```
 
-Hai stage độc lập một chiều: `plan` chỉ đọc kết quả của `data`.
+Ba stage một chiều: `plan` đọc kết quả `data`; `simulate` đọc route của `plan`.
+Stage `simulate` cần Gazebo nên chạy riêng, không nằm trong `main.py all`.
 
 ## Mục lục
 
 | Stage | Tool | File |
 | --- | --- | --- |
 | — | Chạy pipeline | [`main.md`](main.md) |
-| data | Copy fixture | [`copy_meshes.md`](copy_meshes.md) |
-| data | Chuẩn hoá scene | [`standardize.md`](standardize.md) |
-| data | OFF → GLB | [`off2glb.md`](off2glb.md) |
-| data | GLB → OFF | [`glb2off.md`](glb2off.md) |
-| data | Dựng bề mặt | [`triangulation.md`](triangulation.md) |
-| data | Ảnh kiểm tra | [`data_viz.md`](data_viz.md) |
-| data | Chọn START/GOAL | [`set_start_goal.md`](set_start_goal.md) |
-| plan | Lập tuyến | [`run_funnel.md`](run_funnel.md) |
-| plan | Ảnh tuyến | [`route_viz.md`](route_viz.md) |
-| plan | Đối chiếu reference | [`compare.md`](compare.md) |
+| data | Copy fixture | [`copy_meshes.md`](data/copy_meshes.md) |
+| data | Chuẩn hoá scene | [`standardize.md`](data/standardize.md) |
+| data | OFF → GLB | [`off2glb.md`](data/off2glb.md) |
+| data | GLB → OFF | [`glb2off.md`](data/glb2off.md) |
+| data | Dựng bề mặt | [`triangulation.md`](data/triangulation.md) |
+| data | Ảnh kiểm tra | [`data_viz.md`](data/data_viz.md) |
+| data | Chọn START/GOAL | [`set_start_goal.md`](data/set_start_goal.md) |
+| plan | Lập tuyến | [`run_funnel.md`](plan/run_funnel.md) |
+| plan | Ảnh tuyến | [`route_viz.md`](plan/route_viz.md) |
+| plan | Đối chiếu reference | [`compare.md`](plan/compare.md) |
+| simulate | Dựng world + mesh | [`build_world.md`](simulate/build_world.md) |
 | — | Thuật toán | [`funnel_tree.md`](funnel_tree.md) |
 | — | Thư viện dùng chung | [`lib.md`](lib.md) |
 | — | Tái lập | [`reproducibility.md`](reproducibility.md) |
@@ -54,5 +60,6 @@ Hai stage độc lập một chiều: `plan` chỉ đọc kết quả của `dat
 | Sai số so sánh | Độ dài: tương đối `1e-6` (nội bộ), `1e-4` (reference, do làm tròn 4 chữ số) |
 | Hash | SHA256 của mesh, mission, module thuật toán được ghi trong kết quả |
 | Ảnh | 150 dpi, `bbox_inches='tight'`, backend `Agg` trừ khi có `--show` |
+| World Gazebo | Z-up, tên `funnel_sim_<mission>_<goal>`; visual GLB, collision STL |
 
 Định dạng file: [`../data-format.md`](../data-format.md).

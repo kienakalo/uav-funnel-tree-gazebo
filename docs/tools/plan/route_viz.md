@@ -42,7 +42,7 @@ generated/routes/city.standardized.triangulation.png   1184×1101, ~380 KB
 ## `--show`
 
 Mở cửa sổ 3D thay vì ghi PNG. Cần backend Tk/Qt/GTK; thiếu thì tool dừng với
-thông báo nêu cách cài (xem [`lib.md`](lib.md)). Trên NixOS có thể chạy qua
+thông báo nêu cách cài (xem [`lib.md`](../lib.md)). Trên NixOS có thể chạy qua
 `steam-run` hoặc symlink `_tkinter` vào venv.
 
 ## Ví dụ

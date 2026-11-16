@@ -14,7 +14,7 @@
    - `mesh_vertices`/`mesh_faces` khớp;
    - có ít nhất một GOAL.
 2. **Dựng `Mesh`** từ OFF (kề, góc, khoảng cách).
-3. **Chạy `solve_targets`** (xem [`funnel_tree.md`](funnel_tree.md)):
+3. **Chạy `solve_targets`** (xem [`funnel_tree.md`](../funnel_tree.md)):
    - `explicit` nhiều goal: **mỗi goal một lượt**;
    - một goal hoặc `all-goals`: một lượt chung.
 4. **Ghi JSON** với hash, tham số, số đo.

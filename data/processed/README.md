@@ -1,7 +1,7 @@
 # Dữ liệu đã xử lý
 
 Thư mục này chứa đầu vào đã xử lý cho thuật toán, không sửa tay.
-Nguồn nằm ở [`data/raw/`](../raw/).
+Nguồn nằm ở [`data/raw/`](../raw).
 
 | Tệp | Bước | Công cụ |
 | --- | --- | --- |
@@ -29,7 +29,7 @@ Tên tệp phản ánh chuỗi bước: `city.standardized.triangulation.off` = 
 standardize → triangulation.
 
 Thuật toán dựng bề mặt (lưới ô, khe hở, lan truyền dốc) được mô tả từng bước
-ở [`docs/tools/triangulation.md`](../docs/tools/triangulation.md).
+ở [`docs/tools/triangulation.md`](../../docs/tools/data/triangulation.md).
 
 ## Vì sao không có `city.standardized.off`
 

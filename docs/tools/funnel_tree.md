@@ -112,7 +112,7 @@ Nếu đường thẳng ra ngoài dải mặt (`r` ngoài `[0,1]`) → `ValueErr
 
 - Tự kiểm: độ dài dựng lại khớp khoảng cách nội tại trong `1e-6` tương đối.
 - Ngoài: 5 fixture khớp reference `data/expected` (sai lệch ≤1,7e-5, xem
-  [`compare.md`](compare.md)).
+  [`compare.md`](plan/compare.md)).
 - **Chưa** chứng nhận tối ưu và **chưa** kiểm tra độc lập tuyến nằm trên mặt cho
   mesh không có reference.
 

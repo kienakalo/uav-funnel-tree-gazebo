@@ -45,7 +45,7 @@ Quét `--input` (mặc định `data/processed/meshes`), mỗi `.off` một ản
 ## `--show`
 
 Mở cửa sổ Matplotlib thay vì ghi file. Cần backend đồ hoạ; nếu không có, tool
-dừng với thông báo (xem [`lib.md`](lib.md)) thay vì lặng lẽ dùng `Agg`.
+dừng với thông báo (xem [`lib.md`](../lib.md)) thay vì lặng lẽ dùng `Agg`.
 
 ## Ghi chú
 

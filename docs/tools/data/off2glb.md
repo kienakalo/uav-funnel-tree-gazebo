@@ -50,4 +50,4 @@ Save at: data/processed/scenes/meshes/terrain.off2glb.glb
 
 - Chỉ đổi hệ trục, không sửa hình học, không weld, không chuẩn hoá tỉ lệ.
 - Float32 khi ghi, nên toạ độ double của fixture bị làm tròn (xem
-  [`../../data/README.md`](../../data/README.md) mục định dạng).
+  [`../../data/README.md`](../../../data/README.md) mục định dạng).

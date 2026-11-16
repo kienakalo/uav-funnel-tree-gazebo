@@ -198,6 +198,8 @@ tools/plan/
   run_funnel.py          # chạy Funnel cho các mission
   route_viz.py           # routes JSON → PNG
   compare.py             # so độ dài với data/expected
+tools/simulate/
+  build_world.py         # dựng world Gazebo + mesh từ một route
 algo/
   funnel_tree.py         # lan truyền, dựng lại tuyến, tìm source
 lib/
