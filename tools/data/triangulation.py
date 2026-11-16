@@ -34,9 +34,9 @@ from shapely import polygons
 from shapely.geometry import box
 from shapely.strtree import STRtree
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'src'))
-sys.path.insert(0, str(ROOT / 'tools'))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from off_mesh import inspect_mesh, write_off
 from glb2off import read_glb_scene
 
@@ -143,7 +143,7 @@ def main():
                         help='Overwrite an existing surface')
     args = parser.parse_args()
     if not args.scene.is_file():
-        parser.error(f'Missing standardized scene: {args.scene}. Run tools/standardize.py first.')
+        parser.error(f'Missing standardized scene: {args.scene}. Run tools/data/standardize.py first.')
     if args.output.exists() and not args.force:
         parser.error(f'{args.output} already exists; pass --force to overwrite')
 

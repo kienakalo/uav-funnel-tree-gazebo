@@ -14,8 +14,8 @@ dropped. Vertices stay as stored per primitive; nothing is welded, so seams
 between glTF primitives remain.
 
 Examples:
-  .venv/bin/python tools/glb2off.py
-  .venv/bin/python tools/glb2off.py data/raw/scenes/city.glb --output /tmp/city.off
+  .venv/bin/python tools/data/glb2off.py
+  .venv/bin/python tools/data/glb2off.py data/raw/scenes/city.glb --output /tmp/city.off
 """
 import argparse
 import json
@@ -25,7 +25,7 @@ import sys
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INPUT = ROOT / 'data/processed/scenes/city.standardized.glb'
 DEFAULT_OUTPUT = ROOT / 'generated/meshes'
 JSON_CHUNK = 0x4e4f534a

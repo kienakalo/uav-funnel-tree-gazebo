@@ -5,10 +5,11 @@ Nguồn nằm ở [`data/raw/`](../raw/).
 
 | Tệp | Bước | Công cụ |
 | --- | --- | --- |
-| `meshes/*.off` | Pass-through (validate + copy) | `tools/copy_meshes.py` |
-| `scenes/city.standardized.glb` | Standardize | `tools/standardize.py` |
-| `scenes/meshes/*.off2glb.glb` | OFF → GLB (Y-up) | `tools/off2glb.py` |
-| `meshes/city.standardized.triangulation.off` | Tam giác phân bề mặt | `tools/triangulation.py` |
+| `meshes/*.off` | Pass-through (validate + copy) | `tools/data/copy_meshes.py` |
+| `scenes/city.standardized.glb` | Standardize | `tools/data/standardize.py` |
+| `scenes/meshes/*.off2glb.glb` | OFF → GLB (Y-up) | `tools/data/off2glb.py` |
+| `meshes/city.standardized.triangulation.off` | Tam giác phân bề mặt | `tools/data/triangulation.py` |
+| `missions/<mesh>.json` | START/GOAL đã chọn | `tools/data/set_start_goal.py` |
 
 Tên file theo quy trình. Không có file metadata đi kèm; tham số được ghi ở
 dưới và in ra khi chạy tool.
@@ -31,28 +32,27 @@ standardize → triangulation.
 Scene chuẩn hoá là **GLB** vì cần giữ object, transform và mở được bằng
 Blender/MeshLab. `.off` chỉ dành cho mesh dẫn xuất: một lưới duy nhất, đỉnh
 dùng chung, toạ độ double. Thành phố trong hệ Z-up đã chuẩn hoá được
-`tools/data_viz.py --scene` và `tools/triangulation.py` dựng trực tiếp từ
-`scenes/city.standardized.glb` qua `tools/glb2off.py: read_glb_scene` (bake
+`tools/data/data_viz.py --scene` và `tools/data/triangulation.py` dựng trực tiếp từ
+`scenes/city.standardized.glb` qua `tools/data/glb2off.py: read_glb_scene` (bake
 transform, đổi Z-up, chuẩn hoá width 200), nên không cần thêm một bản OFF
 ~20 MB không có nơi dùng và cũng không cần STL trung gian.
 
 ## Chạy
 
 ```bash
-python3 tools/copy_meshes.py --write
-python3 tools/standardize.py
-python3 tools/off2glb.py
-.venv/bin/python tools/triangulation.py --force
-.venv/bin/python tools/data_viz.py --all
-.venv/bin/python tools/set_start_goal.py \
-  --start -38.752 22.103 7.206 --goal 74.737 -55.357 7.206 \
-  --name data-demo --force
+python3 tools/data/copy_meshes.py --write
+python3 tools/data/standardize.py
+python3 tools/data/off2glb.py
+.venv/bin/python tools/data/triangulation.py --force
+.venv/bin/python tools/data/data_viz.py --all
+.venv/bin/python tools/data/set_start_goal.py \
+  --start -38.752 22.103 7.206 --goal 74.737 -55.357 7.206
 ```
 
 Bước `data_viz` render mỗi mesh `.off` thành một ảnh PNG trong
 `generated/data_viz/`, kèm các đường tham chiếu trong `data/expected/` nếu có.
-Dùng `--show` để mở cửa sổ 3D tương tác thay vì ghi PNG. Bước cuối dựng một
-nhiệm vụ mẫu trong `generated/missions/data-demo/`.
+Dùng `--show` để mở cửa sổ 3D tương tác thay vì ghi PNG. Bước cuối ghi lựa
+chọn START/GOAL vào `data/processed/missions/<mesh>.json`.
 
 Sau bước này, mọi công cụ chỉ đọc `data/processed/`, không đọc thẳng
 `data/raw/`.
@@ -65,26 +65,26 @@ trung gian.
 ## Xem mesh `.off`
 
 GLB mở được bằng Blender, MeshLab hoặc trình xem glTF; `.off` cần
-`tools/data_viz.py`.
+`tools/data/data_viz.py`.
 
 ```bash
 # một mesh (tên không cần .off)
-.venv/bin/python tools/data_viz.py L
+.venv/bin/python tools/data/data_viz.py L
 
 # nhiều mesh
-.venv/bin/python tools/data_viz.py L terrain cube
+.venv/bin/python tools/data/data_viz.py L terrain cube
 
 # bề mặt thành phố
-.venv/bin/python tools/data_viz.py city.standardized.triangulation
+.venv/bin/python tools/data/data_viz.py city.standardized.triangulation
 
 # so sánh trước/sau tam giác phân: scene chuẩn hoá | bề mặt
-.venv/bin/python tools/data_viz.py city.standardized.triangulation --scene
+.venv/bin/python tools/data/data_viz.py city.standardized.triangulation --scene
 
 # đường dẫn đầy đủ, kể cả file ngoài data/processed/meshes
-.venv/bin/python tools/data_viz.py data/processed/meshes/L.off
+.venv/bin/python tools/data/data_viz.py data/processed/meshes/L.off
 
 # tất cả
-.venv/bin/python tools/data_viz.py --all
+.venv/bin/python tools/data/data_viz.py --all
 ```
 
 PNG ghi vào `generated/data_viz/<tên>.png`. Với `--scene`, ảnh là hai bảng
@@ -108,79 +108,82 @@ dùng chế độ ghi PNG.
 Mesh có `data/expected/<tên>.paths.json` sẽ được vẽ đè các đường tham chiếu
 màu đỏ. `python3 main.py data` render tất cả ở bước 5 của stage `data`.
 
-## Chọn START/GOAL thủ công
+## Chọn START/GOAL
 
-`tools/set_start_goal.py` nhận điểm do bạn chọn, snap về đỉnh gần nhất rồi chạy
-Funnel Tree. Mặc định chạy trên bề mặt đã xử lý; `--mesh` để dùng mesh khác.
+`tools/data/set_start_goal.py` quét mesh `.off`, in kích thước, số cạnh biên và
+bước lưới, rồi lấy lựa chọn theo thứ tự:
 
-### Nhiệm vụ trên bề mặt thành phố
+1. **JSON đã lưu** — `data/processed/missions/<mesh>.json`; có file thì dùng
+   luôn, không hỏi lại.
+2. **Tham số dòng lệnh** — `--start-vertex`, `--goal-vertex`, `--start`,
+   `--goal`, `--all-goals`.
+3. **Hỏi tương tác** — gõ chỉ số hoặc `x y z`; `--pick` mở cửa sổ 3D để click
+   (`s` gán START, `g` thêm GOAL, `u` bỏ GOAL cuối, Enter để lưu).
 
-```bash
-# một goal
-.venv/bin/python tools/set_start_goal.py \
-  --start -38.752 22.103 7.206 \
-  --goal 74.737 -55.357 7.206 \
-  --name giao-hang
+`--force` bỏ qua file đã lưu để chọn lại. Khi chạy không có bàn phím
+(`python3 main.py data`), tool cần file JSON hoặc tham số dòng lệnh; thiếu cả
+hai thì dừng với thông báo rõ ràng.
 
-# ba goal trong một lần chạy, dùng chung một source graph
-.venv/bin/python tools/set_start_goal.py \
-  --start -38.752 22.103 7.206 \
-  --goal 74.737 -55.357 7.206 \
-  --goal 10 20 7.2 \
-  --goal -60 -30 7.2 \
-  --name ba-dich
-```
-
-### Fixture như `cliff.off`
+### Ví dụ
 
 ```bash
-# đỉnh bắt đầu do bạn chọn, mọi đỉnh còn lại là goal
-.venv/bin/python tools/set_start_goal.py \
-  --mesh data/processed/meshes/cliff.off \
-  --start-vertex 1 --all-goals --name cliff-v1
+# lần đầu: chọn tay trên bề mặt thành phố
+.venv/bin/python tools/data/set_start_goal.py
+
+# chọn bằng chuột trong cửa sổ 3D
+.venv/bin/python tools/data/set_start_goal.py --pick
+
+# không tương tác
+.venv/bin/python tools/data/set_start_goal.py \
+  --start -38.752 22.103 7.206 --goal 74.737 -55.357 7.206
+
+# mesh nhỏ: mọi đỉnh còn lại là goal
+.venv/bin/python tools/data/set_start_goal.py \
+  --mesh data/processed/meshes/cliff.off --start-vertex 1 --all-goals
+
+# đọc lại lựa chọn đã lưu
+.venv/bin/python tools/data/set_start_goal.py
 ```
 
-`--all-goals` dựng cây đường đi từ một đỉnh nguồn tới **mọi đỉnh còn lại**, nên
-chỉ dùng cho mesh nhỏ (tối đa 300 đỉnh). Với bề mặt thành phố, dùng `--goal`.
+### File JSON
 
-### File mission để tái lập
+| Trường | Nội dung |
+| --- | --- |
+| `mesh`, `mesh_sha256` | Mesh đã chọn điểm; SHA để phát hiện mesh thay đổi |
+| `mesh_vertices`, `mesh_faces`, `boundary_edges` | Kích thước mesh lúc chọn |
+| `vertex_spacing`, `snap_mode`, `max_snap` | Bước lưới và quy tắc snap |
+| `mode` | `explicit` hoặc `all-goals` |
+| `selected_by` | `cli`, `console` hoặc `pick` |
+| `start` | `vertex`, `xyz`, `input`, `snap` |
+| `goals` | `id`, `vertex`, `xyz`, `input`, `snap`; rỗng khi `all-goals` |
 
 ```json
 {
-  "name": "giao-hang",
-  "start": [-38.752, 22.103, 7.206],
-  "goals": [[74.737, -55.357, 7.206], [10, 20, 7.2]]
+  "mesh": "data/processed/meshes/city.standardized.triangulation.off",
+  "mesh_sha256": "f6e01c6d…",
+  "mesh_vertices": 2295,
+  "mesh_faces": 4400,
+  "vertex_spacing": 5.0,
+  "snap_mode": "xy",
+  "mode": "explicit",
+  "selected_by": "cli",
+  "start": {"vertex": 792, "xyz": [-38.752124, 22.103392, 8.643046], "snap": 0.000411},
+  "goals": [{"id": "g1", "vertex": 1810, "xyz": [74.736587, -55.357157, 8.947593]}]
 }
 ```
-
-```bash
-.venv/bin/python tools/set_start_goal.py --mission missions/giao-hang.json
-```
-
-Fixture có thể chỉ định bằng chỉ số đỉnh:
-
-```json
-{"name": "cliff-v1", "start_vertex": 1, "all_goals": true}
-```
-
-### Kết quả
-
-| Tệp trong `generated/missions/<tên>/` | Nội dung |
-| --- | --- |
-| `plan.json` | điểm đã snap, chỉ số đỉnh, waypoints, độ dài, source chain, hash |
-| `funnel_cache.json` | cache từng source, chỉ khi có goal cụ thể |
-| `<tên>.paths.json` | một đường cho mỗi đỉnh, chỉ với `--all-goals` |
-| `routes.png` | ảnh 3D các tuyến |
 
 ### Snap và giới hạn
 
 - Toạ độ snap về đỉnh gần nhất trong XY; `--snap 3d` để snap theo 3D.
-- Sai số được in ra; mặc định chặn nếu quá nửa đường chéo ô (`--max-snap` để đổi).
-- `z` của đỉnh snap là cao độ envelope, không phải `z` bạn nhập. Waypoint đầu
-  tiên vẫn là điểm bạn nhập để thấy đoạn tiếp cận.
-- Kết quả không chứng nhận tối ưu (`optimality_certified: false`), giống thí nghiệm.
-- Thêm `--force` khi ghi đè `plan.json` đã có; `--seconds` đổi giới hạn thời gian
-  cho mỗi lần lan truyền.
+- Sai số được in ra và lưu ở `snap`; mặc định chặn nếu quá nửa đường chéo ô
+  (`--max-snap` để đổi).
+- `z` trong `xyz` là cao độ envelope, không phải `z` bạn nhập; `input` giữ điểm
+  gốc để thấy đoạn tiếp cận.
+- START không được trùng GOAL; hai GOAL không được trùng nhau.
+- `--all-goals` chỉ dùng cho mesh tối đa 300 đỉnh.
+- Tên file theo mesh: `missions/cliff.json`,
+  `missions/city.standardized.triangulation.json`; `--mission` đổi đường dẫn,
+  `--output` đổi thư mục.
 
 ## Tham số bề mặt hiện tại
 
@@ -201,10 +204,10 @@ tái lập thì dùng đúng lệnh và tham số ở trên.
 
 ### Thay đổi nguồn dựng bề mặt (2026-11-16)
 
-`tools/triangulation.py` chuyển từ STL trung gian
+`tools/data/triangulation.py` chuyển từ STL trung gian
 (`generated/funnel_preview/city.stl`, dựng từ `data/raw/scenes/city.glb`) sang
 đọc thẳng scene đã chuẩn hoá. Hai nguồn không cho cùng byte vì
-`tools/standardize.py` làm tròn float32 *trước* khi chuẩn hoá, còn STL làm tròn
+`tools/data/standardize.py` làm tròn float32 *trước* khi chuẩn hoá, còn STL làm tròn
 *sau*. Đo được trên bề mặt 2.295 đỉnh:
 
 | | Trước | Sau |
@@ -226,7 +229,7 @@ việc cùng đợt dọn repo; lấy lại ở tag `pre-data-only-cleanup` nế
   đổi trục khi đọc scene.
 - Fixture `.off` dùng **Z-up** (z là cao độ). `.off2glb.glb` chuyển sang
   **Y-up** `(x, y, z) → (x, z, -y)` để mở đúng chiều trong mọi glTF viewer.
-- Nếu cần Z-up, chạy `tools/off2glb.py --keep-z-up`.
+- Nếu cần Z-up, chạy `tools/data/off2glb.py --keep-z-up`.
 - `city.standardized.triangulation.off` ở hệ **đã chuẩn hoá, Z-up**, cùng hệ
   với START/GOAL của nhiệm vụ.
 

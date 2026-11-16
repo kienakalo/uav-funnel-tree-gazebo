@@ -1,0 +1,21 @@
+{
+  "mesh": "data/processed/meshes/cliff.off",
+  "mesh_sha256": "d4c9c65ad0fd6c64b4e5ae3e70a034d4761d093d02f431159fabf345fb914f75",
+  "mesh_vertices": 7,
+  "mesh_faces": 10,
+  "boundary_edges": 15,
+  "vertex_spacing": 0.959325,
+  "snap_mode": "xy",
+  "max_snap": 0.678345,
+  "mode": "all-goals",
+  "selected_by": "cli",
+  "start": {
+    "vertex": 1,
+    "xyz": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "goals": []
+}

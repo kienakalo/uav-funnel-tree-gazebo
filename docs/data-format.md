@@ -28,9 +28,9 @@ Quy ước trong repo:
 - `E` không dùng để dựng topology; số cạnh thực được suy ra từ danh sách mặt.
   Vài fixture có `E` không chính xác, nên không được tin giá trị này.
 - Tệp `.off` được đối xử **byte-exact**: `.gitattributes` đặt `*.off -text`.
-- `tools/off_mesh.py: write_off` ghi toạ độ bằng `%.17g` để đọc lại đúng giá trị
+- `tools/data/off_mesh.py: write_off` ghi toạ độ bằng `%.17g` để đọc lại đúng giá trị
   double đã tính, không bị làm tròn khi lưu.
-- `tools/set_start_goal.py` kiểm tra thêm topology khi đọc: không đỉnh trùng toạ
+- `tools/data/set_start_goal.py` kiểm tra thêm topology khi đọc: không đỉnh trùng toạ
   độ, không mặt suy biến, mỗi cạnh kề tối đa hai mặt, mỗi đỉnh thuộc đúng một
   nhóm mặt liên thông.
 
@@ -44,8 +44,8 @@ Hai lối đọc, khác nhau ở mục đích:
 
 | Hàm | Dùng ở | Trục và đơn vị |
 | --- | --- | --- |
-| `tools/glb2off.py: read_glb_scene` | `triangulation.py`, `data_viz.py --scene`, tool `glb2off.py` | Bake transform, đổi **Y-up → Z-up**, chuẩn hoá bề rộng 200 m |
-| `tools/glb_nodes.py: transformed_objects` | `standardize.py` | Bake transform, **giữ nguyên** trục và đơn vị gốc |
+| `tools/data/glb2off.py: read_glb_scene` | `triangulation.py`, `data_viz.py --scene`, tool `glb2off.py` | Bake transform, đổi **Y-up → Z-up**, chuẩn hoá bề rộng 200 m |
+| `tools/data/glb_nodes.py: transformed_objects` | `standardize.py` | Bake transform, **giữ nguyên** trục và đơn vị gốc |
 
 `read_glb_scene` giữ nguyên từng primitive (không weld đỉnh), nên vết nối giữa
 các primitive vẫn còn — đúng với scene gốc. Nó cũng là lý do bề mặt dẫn đường
@@ -69,6 +69,35 @@ dựng trực tiếp từ scene mà không cần bước trung gian.
 `paths` là danh sách đường, mỗi đường có ít nhất 2 điểm `[x y z]`. `source` là
 đỉnh nguồn đã dùng khi sinh dữ liệu. Toạ độ được làm tròn 4 chữ số thập phân;
 sửa mesh thì phải cập nhật cả tệp này.
+
+## Mission JSON
+
+`data/processed/missions/<mesh>.json` lưu lựa chọn START/GOAL cho một mesh:
+
+```json
+{
+  "mesh": "data/processed/meshes/city.standardized.triangulation.off",
+  "mesh_sha256": "f6e01c6d…",
+  "mesh_vertices": 2295,
+  "mesh_faces": 4400,
+  "boundary_edges": 6694,
+  "vertex_spacing": 5.0,
+  "snap_mode": "xy",
+  "max_snap": 3.535534,
+  "mode": "explicit",
+  "selected_by": "cli",
+  "start": {"vertex": 792, "xyz": [-38.752124, 22.103392, 8.643046],
+            "input": [-38.752, 22.103, 7.206], "snap": 0.000411},
+  "goals": [{"id": "g1", "vertex": 1810,
+             "xyz": [74.736587, -55.357157, 8.947593]}]
+}
+```
+
+- `mode: "all-goals"` nghĩa là mọi đỉnh trừ `start` là goal; khi đó `goals` rỗng
+  và mesh phải có tối đa 300 đỉnh.
+- `mesh_sha256` và số đỉnh/mặt dùng để từ chối file đã lưu khi mesh thay đổi.
+- `input` chỉ có khi người dùng nhập toạ độ; `xyz` luôn là toạ độ đỉnh đã snap.
+- Không có timestamp: chạy lại với cùng lựa chọn cho ra đúng byte cũ.
 
 ## Hậu tố tên tệp
 

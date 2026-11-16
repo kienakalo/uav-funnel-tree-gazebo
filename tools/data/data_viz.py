@@ -12,10 +12,10 @@ mesh with the standardized city scene, before and after triangulation. It
 saves one PNG per mesh under generated/data_viz/.
 
 Examples:
-  .venv/bin/python tools/data_viz.py --all
-  .venv/bin/python tools/data_viz.py L terrain
-  .venv/bin/python tools/data_viz.py L --show
-  .venv/bin/python tools/data_viz.py city.standardized.triangulation --scene
+  .venv/bin/python tools/data/data_viz.py --all
+  .venv/bin/python tools/data/data_viz.py L terrain
+  .venv/bin/python tools/data/data_viz.py L --show
+  .venv/bin/python tools/data/data_viz.py city.standardized.triangulation --scene
 """
 import argparse
 import sys
@@ -28,9 +28,9 @@ if '--show' not in sys.argv:
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'src'))
-sys.path.insert(0, str(ROOT / 'tools'))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from glb2off import read_glb_scene
 from verification import read_paths
 

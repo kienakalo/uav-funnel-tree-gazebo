@@ -7,7 +7,7 @@
 Stages:
   data      raw -> processed: copy fixtures, standardize the scene, convert
             fixtures to GLB, triangulate the navigation surface, render previews,
-            then plan a demo mission from a START to a GOAL
+            then record a START/GOAL mission
   flow      print the stage and the commands it runs
 
 Examples:
@@ -16,9 +16,8 @@ Examples:
   python3 main.py data
   python3 main.py data --dry-run
 
-The data stage needs NumPy, Matplotlib (previews and the route image) and
-Shapely (triangulation). It rewrites data/processed/ and generated/data_viz/,
-and writes one demo mission under generated/missions/data-demo/.
+The data stage needs NumPy, Matplotlib (previews) and Shapely (triangulation). It rewrites data/processed/ and generated/data_viz/,
+and writes the START/GOAL mission to data/processed/missions/.
 """
 import argparse
 import subprocess
@@ -31,20 +30,19 @@ PYTHON = str(VENV) if VENV.is_file() else sys.executable
 
 STAGES = {
     'data': [
-        [PYTHON, 'tools/copy_meshes.py', '--write'],
-        [PYTHON, 'tools/standardize.py'],
-        [PYTHON, 'tools/off2glb.py'],
-        [PYTHON, 'tools/triangulation.py', '--force'],
-        [PYTHON, 'tools/data_viz.py', '--all'],
-        [PYTHON, 'tools/set_start_goal.py',
+        [PYTHON, 'tools/data/copy_meshes.py', '--write'],
+        [PYTHON, 'tools/data/standardize.py'],
+        [PYTHON, 'tools/data/off2glb.py'],
+        [PYTHON, 'tools/data/triangulation.py', '--force'],
+        [PYTHON, 'tools/data/data_viz.py', '--all'],
+        [PYTHON, 'tools/data/set_start_goal.py',
          '--start', '-38.752', '22.103', '7.206',
-         '--goal', '74.737', '-55.357', '7.206',
-         '--name', 'data-demo', '--force'],
+         '--goal', '74.737', '-55.357', '7.206'],
     ],
 }
 
 DESCRIPTIONS = {
-    'data': 'raw -> processed (fixtures, scene, GLB, surface, previews, demo mission)',
+    'data': 'raw -> processed (fixtures, scene, GLB, surface, previews, mission)',
 }
 
 

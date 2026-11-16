@@ -17,7 +17,7 @@ benchmark hay thí nghiệm.
 | `data/processed/scenes/meshes/*.off2glb.glb` | Mesh mẫu ở dạng GLB Y-up để mở bằng viewer |
 | `data/processed/meshes/city.standardized.triangulation.off` | Bề mặt dẫn đường 2.295 đỉnh / 4.400 tam giác |
 | `generated/data_viz/*.png` | Ảnh kiểm tra từng mesh, kèm đường tham chiếu |
-| `generated/missions/data-demo/plan.json`, `routes.png` | Nhiệm vụ mẫu và tuyến Funnel |
+| `data/processed/missions/<mesh>.json` | START/GOAL đã chọn cho từng mesh |
 
 ## Cài đặt
 
@@ -42,12 +42,12 @@ Sáu bước, dừng ngay khi một bước lỗi:
 
 | # | Lệnh | Vào → Ra |
 | --- | --- | --- |
-| 1 | `tools/copy_meshes.py --write` | `data/raw/meshes/*.off` → `data/processed/meshes/*.off` |
-| 2 | `tools/standardize.py` | `data/raw/scenes/city.glb` → `scenes/city.standardized.glb` |
-| 3 | `tools/off2glb.py` | `raw/meshes/*.off` → `scenes/meshes/*.off2glb.glb` |
-| 4 | `tools/triangulation.py --force` | `city.standardized.glb` → `meshes/city.standardized.triangulation.off` |
-| 5 | `tools/data_viz.py --all` | `processed/meshes/*.off` → `generated/data_viz/*.png` |
-| 6 | `tools/set_start_goal.py …` | bề mặt → `generated/missions/data-demo/` |
+| 1 | `tools/data/copy_meshes.py --write` | `data/raw/meshes/*.off` → `data/processed/meshes/*.off` |
+| 2 | `tools/data/standardize.py` | `data/raw/scenes/city.glb` → `scenes/city.standardized.glb` |
+| 3 | `tools/data/off2glb.py` | `raw/meshes/*.off` → `scenes/meshes/*.off2glb.glb` |
+| 4 | `tools/data/triangulation.py --force` | `city.standardized.glb` → `meshes/city.standardized.triangulation.off` |
+| 5 | `tools/data/data_viz.py --all` | `processed/meshes/*.off` → `generated/data_viz/*.png` |
+| 6 | `tools/data/set_start_goal.py …` | bề mặt → `data/processed/missions/<mesh>.json` |
 
 Bước 4 cần `--force` vì tệp đích đã tồn tại; nếu không, tool dừng để tránh ghi
 đè ngoài ý muốn. Tham số bề mặt được in ra console và ghi ở
@@ -61,10 +61,10 @@ dốc. Nó chỉ tồn tại trong hành lang giữa START và GOAL:
 
 ```bash
 # mặc định: hai đầu nhiệm vụ giao hàng
-.venv/bin/python tools/triangulation.py --force
+.venv/bin/python tools/data/triangulation.py --force
 
 # nhiệm vụ khác
-.venv/bin/python tools/triangulation.py --force \
+.venv/bin/python tools/data/triangulation.py --force \
   --start -38.752 22.103 7.206 --goal 74.737 -55.357 7.206 \
   --cell 5 --coverage city --output /tmp/surface.off
 ```
@@ -73,17 +73,35 @@ dốc. Nó chỉ tồn tại trong hành lang giữa START và GOAL:
 
 ```bash
 # xem một mesh, hoặc so sánh scene với bề mặt
-.venv/bin/python tools/data_viz.py L
-.venv/bin/python tools/data_viz.py city.standardized.triangulation --scene
-
-# chạy Funnel trên bề mặt cho một cặp START/GOAL
-.venv/bin/python tools/set_start_goal.py \
-  --start -38.752 22.103 7.206 --goal 74.737 -55.357 7.206 --name giao-hang
+.venv/bin/python tools/data/data_viz.py L
+.venv/bin/python tools/data/data_viz.py city.standardized.triangulation --scene
 ```
 
-Toạ độ được snap về đỉnh gần nhất và sai số được in ra. Kết quả **không** được
-chứng nhận tối ưu (`optimality_certified: false`). Chi tiết cờ và định dạng
-đầu ra ở [`data/processed/README.md`](data/processed/README.md).
+`set_start_goal.py` đọc mesh, in kích thước và lưới, rồi lấy lựa chọn theo thứ
+tự: **file JSON đã lưu → tham số dòng lệnh → hỏi tương tác**. Lựa chọn được lưu
+một lần, các lần sau chạy lại chỉ đọc, không hỏi lại.
+
+```bash
+# lần đầu: chọn tay, lưu vào data/processed/missions/<mesh>.json
+.venv/bin/python tools/data/set_start_goal.py
+
+# chọn bằng chuột trong cửa sổ 3D
+.venv/bin/python tools/data/set_start_goal.py --pick
+
+# không tương tác: chọn theo chỉ số hoặc toạ độ
+.venv/bin/python tools/data/set_start_goal.py \
+  --start -38.752 22.103 7.206 --goal 74.737 -55.357 7.206
+
+# mesh nhỏ: mọi đỉnh còn lại là goal
+.venv/bin/python tools/data/set_start_goal.py \
+  --mesh data/processed/meshes/cliff.off --start-vertex 1 --all-goals
+
+# chọn lại
+.venv/bin/python tools/data/set_start_goal.py --force
+```
+
+Chi tiết cờ và schema JSON ở
+[`data/processed/README.md`](data/processed/README.md).
 
 ## Định dạng
 
@@ -102,13 +120,13 @@ data/
   raw/                   # nguồn, không sửa tay
   processed/             # đầu vào đã xử lý, sinh lại bằng tools/
   expected/              # đường tham chiếu cho ảnh kiểm tra
-tools/
+tools/data/
   copy_meshes.py         # validate + copy mesh mẫu
   standardize.py         # chuẩn hoá scene GLB
   off2glb.py             # OFF → GLB
   triangulation.py       # dựng + tam giác phân bề mặt
   data_viz.py            # render PNG / cửa sổ 3D
-  set_start_goal.py      # chạy Funnel cho START/GOAL
+  set_start_goal.py      # chọn START/GOAL, lưu JSON
   glb2off.py             # GLB → OFF (thư viện đọc scene + tool)
   glb_nodes.py           # duyệt node GLB, bake transform
   off_mesh.py            # kiểm tra topology + ghi OFF
@@ -125,7 +143,8 @@ vào `sys.path`, xem [`src/README.md`](src/README.md).
 
 ## Lưu trong Git
 
-- Commit: dữ liệu `raw/`, đầu ra `processed/`, mã nguồn và tài liệu.
+- Commit: dữ liệu `raw/`, đầu ra `processed/` (kể cả `missions/*.json`), mã
+  nguồn và tài liệu.
 - Không commit: `.venv/`, `generated/**` (trừ `generated/README.md`) và
   `data/processed/scenes/city.standardized.glb` vì sinh lại được ở bước 2.
 

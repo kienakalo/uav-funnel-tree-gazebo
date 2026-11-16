@@ -6,7 +6,7 @@
 `transformed_objects` walks the scene graph, bakes the nested transforms and
 returns one (name, triangles) pair per mesh node. It keeps the scene's own
 axes and units; the Y-up -> Z-up switch and the 200 m normalization belong to
-tools/glb2off.py. Only uncompressed triangle primitives are supported, which is
+tools/data/glb2off.py. Only uncompressed triangle primitives are supported, which is
 what data/raw/scenes/city.glb contains.
 """
 import json

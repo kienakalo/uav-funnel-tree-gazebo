@@ -11,6 +11,14 @@ cùng một dòng.
 | `verification.py` | `read_paths`, `path_length`, `edge_distances`, `segment_on_mesh`: kiểm tra đường đi | — (chỉ stdlib) |
 | `glb.py` | `read_glb`, `write_glb`, `indexed_from_triangles`: container GLB 2 | — (chỉ stdlib + NumPy) |
 
+## Trạng thái sử dụng
+
+Sau khi `tools/data/set_start_goal.py` chuyển thành bộ chọn điểm (chỉ đọc mesh,
+lưu JSON, không chạy Funnel), **chưa tool nào trong repo import hai module
+`funnel_tree.py` và `verification.py`**. Chúng được giữ lại vì là phần lõi của
+thuật toán và là đầu vào cho tool lập tuyến sẽ thêm sau; `glb.py` đang được
+`standardize.py` và `off2glb.py` dùng.
+
 ## Giao diện `Mesh`
 
 `funnel_tree.py` không import lớp mesh nào. Nó chỉ gọi các thuộc tính và phương
@@ -27,15 +35,14 @@ distance(a, b)
 angle(a, b, c)
 ```
 
-Hiện `tools/set_start_goal.py` cung cấp lớp `Point`/`Mesh` đó, kèm reader OFF
-và kiểm tra topology (đỉnh trùng, mặt suy biến, cạnh kề hơn hai mặt). Đổi tên
-hoặc bỏ một thuộc tính của `Mesh` sẽ làm hỏng `funnel_tree.py` dù không có lỗi
-import.
+Không còn lớp `Mesh` dùng chung trong repo. Tool lập tuyến (chưa có) phải tự
+dựng đối tượng thoả giao diện trên, ví dụ từ reader OFF trong
+`tools/data/set_start_goal.py`, nơi đã có sẵn phần kiểm tra topology: đỉnh trùng
+toạ độ, mặt suy biến, cạnh kề hơn hai mặt.
 
 ## Chữ ký phụ thuộc mã nguồn
 
-`tools/set_start_goal.py` băm `src/funnel_tree.py`, `src/verification.py` và
-chính nó để tạo chữ ký cache (`generated/missions/<tên>/plan.json` →
-`input_sha256`). Sửa một trong ba tệp sẽ đổi chữ ký, cache cũ bị bỏ và lần chạy
-sau lan truyền lại từ đầu. Đây là hành vi mong muốn: tuyến phải tương ứng với
-đúng mã đã sinh ra nó.
+Chưa tool nào ghi chữ ký mã nguồn vào kết quả. Khi thêm tool lập tuyến, hãy ghi
+SHA256 của `funnel_tree.py`, `verification.py` và chính tool đó vào JSON kết quả:
+sửa mã phải làm chữ ký đổi, để tuyến đã lưu không bị hiểu nhầm là do mã hiện tại
+sinh ra.

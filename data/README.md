@@ -64,7 +64,7 @@ tệp; kết quả stage `data` in số đỉnh/mặt/cạnh ra console mỗi l�
 phố, khe hở dọc 1,5, dự phòng ngang 1,6 và độ dốc tối đa 0,5. Bảng tham số
 đầy đủ nằm trong
 [processed/README.md](processed/README.md). Không có file metadata đi kèm;
-`tools/triangulation.py` in tham số ra console và yêu cầu `--force` nếu tệp
+`tools/data/triangulation.py` in tham số ra console và yêu cầu `--force` nếu tệp
 đích đã tồn tại.
 
 ## Định dạng `.off`
@@ -123,6 +123,6 @@ tra hình học (nằm trên lưới, độ dài giữa cận dưới Euclid và
 - `expected/` được làm tròn 4 chữ số thập phân; sửa toạ độ phải cập nhật cả
   mesh lẫn expected.
 - Muốn thêm mesh: thêm `raw/meshes/<tên>.off`, thêm dòng vào bảng
-  *Thông tin từng tệp*, rồi chạy `python3 tools/copy_meshes.py --write`.
-- Muốn thêm bề mặt khác: chạy `tools/triangulation.py --cell ... --output ...
+  *Thông tin từng tệp*, rồi chạy `python3 tools/data/copy_meshes.py --write`.
+- Muốn thêm bề mặt khác: chạy `tools/data/triangulation.py --cell ... --output ...
   --force`; tham số được in ra console và nên ghi vào `processed/README.md`.
