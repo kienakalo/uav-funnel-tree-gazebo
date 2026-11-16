@@ -72,7 +72,8 @@ sửa mesh thì phải cập nhật cả tệp này.
 
 ## Mission JSON
 
-`data/processed/missions/<mesh>.json` lưu lựa chọn START/GOAL cho một mesh:
+`data/processed/missions/<mesh>.json` lưu lựa chọn START/GOAL cho một mesh.
+Tool tạo file này khi bạn chọn; không có file mẫu nào được ship sẵn:
 
 ```json
 {

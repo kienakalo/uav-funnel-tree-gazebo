@@ -53,9 +53,12 @@ Bước `data_viz` render mỗi mesh `.off` thành một ảnh PNG trong
 Dùng `--show` để mở cửa sổ 3D tương tác thay vì ghi PNG.
 
 Bước cuối **không tự chọn hộ**: nó đọc `data/processed/missions/<mesh>.json` đã
-lưu (hai file mẫu có sẵn trong Git). Nếu file đó chưa có và terminal có bàn
-phím, tool sẽ hỏi chọn START/GOAL rồi lưu. Muốn chọn lại dù đã có file:
-`--force`, thêm `--pick` nếu muốn click trong cửa sổ 3D.
+lưu. Lần đầu, khi file chưa có, tool hỏi chọn START/GOAL trên terminal rồi ghi
+file — kể cả khi stdout bị pipe, vì prompt đi qua `/dev/tty`. Muốn chọn lại dù
+đã có file: `--force`, thêm `--pick` nếu muốn click trong cửa sổ 3D.
+
+Không có file mission nào được ship sẵn trong Git. Chạy stage một lần rồi commit
+`data/processed/missions/<mesh>.json` nếu muốn lựa chọn đó tái lập ở máy khác.
 
 Sau bước này, mọi công cụ chỉ đọc `data/processed/`, không đọc thẳng
 `data/raw/`.

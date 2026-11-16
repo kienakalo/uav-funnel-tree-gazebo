@@ -50,9 +50,10 @@ Sáu bước, dừng ngay khi một bước lỗi:
 | 6 | `tools/data/set_start_goal.py` | bề mặt → `data/processed/missions/<mesh>.json` |
 
 Bước 4 cần `--force` vì tệp đích đã tồn tại; nếu không, tool dừng để tránh ghi
-đè ngoài ý muốn. Bước 6 dùng lại lựa chọn START/GOAL đã lưu; hai file mẫu
-(`city.standardized.triangulation.json`, `cliff.json`) có sẵn trong Git nên
-stage chạy không hỏi gì. Tham số bề mặt được in ra console và ghi ở
+đè ngoài ý muốn. Bước 6 dùng lại lựa chọn START/GOAL đã lưu; lần đầu chưa có
+`data/processed/missions/<mesh>.json` thì tool hỏi chọn ngay trong terminal rồi
+ghi file. Không có file nào được ship sẵn: commit lựa chọn của bạn nếu muốn tái
+lập. Tham số bề mặt được in ra console và ghi ở
 [`data/processed/README.md`](data/processed/README.md).
 
 ## Bề mặt dẫn đường

@@ -163,50 +163,76 @@ def resolve(text, points, mode, max_snap, label):
     return index, describe(points, index, target, distance)
 
 
-def print_vertices(points, faces, limit=TABLE_LIMIT):
+def terminal_streams():
+    """Return (read_line, write) for the terminal, even when stdin is piped."""
+    if sys.stdin.isatty():
+        def read_line(prompt=''):
+            return input(prompt)
+        return read_line, print
+    try:
+        reader = open('/dev/tty', 'r', encoding='utf-8')
+        writer = open('/dev/tty', 'w', encoding='utf-8')
+    except OSError:
+        return None
+
+    def read_line(prompt=''):
+        writer.write(prompt)
+        writer.flush()
+        line = reader.readline()
+        if not line:
+            raise EOFError
+        return line.rstrip('\n')
+
+    def write(*args, **kwargs):
+        kwargs.pop('flush', None)
+        print(*args, file=writer, **kwargs)
+        writer.flush()
+    return read_line, write
+
+
+def print_vertices(points, faces, limit=TABLE_LIMIT, write=print):
     degree = np.zeros(len(points), dtype=int)
     np.add.at(degree, faces.ravel(), 1)
     if len(points) > limit:
-        print(f'  {len(points)} đỉnh — bảng chỉ in {limit} đỉnh đầu. Dùng --pick, '
-              'hoặc xem tools/data/data_viz.py rồi nhập chỉ số/toạ độ.', flush=True)
+        write(f'  {len(points)} đỉnh — bảng chỉ in {limit} đỉnh đầu. Dùng --pick, '
+              'hoặc xem tools/data/data_viz.py rồi nhập chỉ số/toạ độ.')
         count = limit
     else:
         count = len(points)
-    print(f'  {"#":>5}  {"x":>10} {"y":>10} {"z":>10}  {"faces":>5}', flush=True)
+    write(f'  {"#":>5}  {"x":>10} {"y":>10} {"z":>10}  {"faces":>5}')
     for index in range(count):
         x, y, z = points[index]
-        print(f'  {index:5d}  {x:10.3f} {y:10.3f} {z:10.3f}  {degree[index]:5d}',
-              flush=True)
+        write(f'  {index:5d}  {x:10.3f} {y:10.3f} {z:10.3f}  {degree[index]:5d}')
 
 
-def ask_console(points, faces, mode, max_snap):
+def ask_console(read_line, write, points, faces, mode, max_snap):
     """Prompt for one START and n GOALs; 'all' takes every other vertex."""
     start = None
     while start is None:
-        answer = input('START — chỉ số đỉnh hoặc "x y z": ').strip()
+        answer = read_line('START — chỉ số đỉnh hoặc "x y z": ').strip()
         if not answer:
             continue
         index, record = resolve(answer, points, mode, max_snap, 'START')
         start = record
     goals = []
     while True:
-        answer = input('GOAL — chỉ số/«x y z», "all" cho mọi đỉnh còn lại, '
-                       'dòng trống để xong: ').strip()
+        answer = read_line('GOAL — chỉ số/«x y z», "all" cho mọi đỉnh còn lại, '
+                           'dòng trống để xong: ').strip()
         if not answer:
             break
         if answer.lower() == 'all':
             if len(points) > MAX_ALL_GOALS:
-                print(f'  "all" chỉ dùng cho mesh tối đa {MAX_ALL_GOALS} đỉnh.', flush=True)
+                write(f'  "all" chỉ dùng cho mesh tối đa {MAX_ALL_GOALS} đỉnh.')
                 continue
             goals = [describe(points, index) for index in range(len(points))
                      if index != start['vertex']]
             break
         index, record = resolve(answer, points, mode, max_snap, 'GOAL')
         if index == start['vertex']:
-            print('  GOAL trùng START, bỏ qua.', flush=True)
+            write('  GOAL trùng START, bỏ qua.')
             continue
         if any(goal['vertex'] == index for goal in goals):
-            print('  GOAL đã chọn, bỏ qua.', flush=True)
+            write('  GOAL đã chọn, bỏ qua.')
             continue
         goals.append(record)
     if not goals:
@@ -449,11 +475,18 @@ def main():
         start, goals, all_goals = ask_pick(points, faces)
         selected_by = 'pick'
     else:
-        if not sys.stdin.isatty():
-            fail('no saved mission and no keyboard: pass --start/--goal, '
-                 '--start-vertex/--goal-vertex or --all-goals')
-        print_vertices(points, faces)
-        start, goals, all_goals = ask_console(points, faces, args.snap, max_snap)
+        streams = terminal_streams()
+        if streams is None:
+            fail('no saved mission and no terminal to ask on: pass --start X Y Z / '
+                 '--goal X Y Z, --start-vertex/--goal-vertex or --all-goals')
+        read_line, write = streams
+        write(f'Chưa có {relative(path)} — chọn START/GOAL:')
+        print_vertices(points, faces, write=write)
+        try:
+            start, goals, all_goals = ask_console(read_line, write, points, faces,
+                                                  args.snap, max_snap)
+        except EOFError:
+            fail('input ended before START and GOAL were chosen')
         selected_by = 'console'
 
     if all_goals and len(points) > MAX_ALL_GOALS:
