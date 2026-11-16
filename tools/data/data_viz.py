@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
-# Main libraries: NumPy, Matplotlib; Python stdlib (argparse, sys, pathlib);
-# local modules (glb2off, verification).
+# Main libraries: NumPy, Matplotlib; Python stdlib (argparse, json, math, sys,
+# pathlib); local modules (glb2off).
 """Render OFF meshes to PNG, or open them in an interactive 3D window.
 
 GLB files can be opened by Blender, MeshLab or any glTF viewer; OFF files need
@@ -18,6 +18,8 @@ Examples:
   .venv/bin/python tools/data/data_viz.py city.standardized.triangulation --scene
 """
 import argparse
+import json
+import math
 import sys
 from pathlib import Path
 
@@ -29,10 +31,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / 'src'))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from glb2off import read_glb_scene
-from verification import read_paths
 
 DEFAULT_INPUT = ROOT / 'data/processed/meshes'
 DEFAULT_OUTPUT = ROOT / 'generated/data_viz'
@@ -55,6 +55,22 @@ def read_off(path):
     if faces.ndim != 2 or faces.shape[1] != 3:
         raise SystemExit(f'{path}: only triangle faces are supported')
     return points, faces
+
+
+def read_paths(path):
+    """Read a .paths.json overlay; accepts the wrapper or a bare list."""
+    payload = json.loads(Path(path).read_text(encoding='utf-8'))
+    records = payload['paths'] if isinstance(payload, dict) else payload
+    routes = []
+    for number, record in enumerate(records, 1):
+        if not isinstance(record, list) or len(record) < 2:
+            raise SystemExit(f'{path}: invalid path at entry {number}')
+        route = [tuple(float(value) for value in point) for point in record]
+        if any(len(point) != 3 or not all(math.isfinite(value) for value in point)
+               for point in route):
+            raise SystemExit(f'{path}: invalid coordinates at entry {number}')
+        routes.append(route)
+    return routes
 
 
 def read_scene(path, limit):

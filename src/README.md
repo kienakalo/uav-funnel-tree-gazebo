@@ -1,23 +1,19 @@
 # Mã nguồn dùng chung
 
-Ba module. Đây **không phải package**: không có `__init__.py`, các module được
-import trực tiếp theo tên (`from funnel_tree import propagate`) sau khi chương
-trình thêm `src/` vào `sys.path`. Mọi tool đều làm việc này; tool mới cần thêm
-cùng một dòng.
+Hai module. Đây **không phải package**: không có `__init__.py`, các module được
+import trực tiếp theo tên (`from glb import write_glb`) sau khi chương trình
+thêm `src/` vào `sys.path`. Tool mới dùng `src/` cần thêm cùng một dòng.
 
 | Module | Vai trò | Import nội bộ |
 | --- | --- | --- |
 | `funnel_tree.py` | `seeds`, `propagate`, `reconstruct`, `solve`, `clip_children`: lan truyền Funnel và dựng lại tuyến | — (chỉ NumPy) |
-| `verification.py` | `read_paths`, `path_length`, `edge_distances`, `segment_on_mesh`: kiểm tra đường đi | — (chỉ stdlib) |
 | `glb.py` | `read_glb`, `write_glb`, `indexed_from_triangles`: container GLB 2 | — (chỉ stdlib + NumPy) |
 
 ## Trạng thái sử dụng
 
-Sau khi `tools/data/set_start_goal.py` chuyển thành bộ chọn điểm (chỉ đọc mesh,
-lưu JSON, không chạy Funnel), **chưa tool nào trong repo import hai module
-`funnel_tree.py` và `verification.py`**. Chúng được giữ lại vì là phần lõi của
-thuật toán và là đầu vào cho tool lập tuyến sẽ thêm sau; `glb.py` đang được
-`standardize.py` và `off2glb.py` dùng.
+`glb.py` được `tools/data/standardize.py` và `tools/data/off2glb.py` dùng.
+`funnel_tree.py` **chưa tool nào import**: `set_start_goal.py` chỉ chọn điểm,
+không chạy Funnel, nên phần lõi này đang chờ tool lập tuyến.
 
 ## Giao diện `Mesh`
 
@@ -43,6 +39,5 @@ toạ độ, mặt suy biến, cạnh kề hơn hai mặt.
 ## Chữ ký phụ thuộc mã nguồn
 
 Chưa tool nào ghi chữ ký mã nguồn vào kết quả. Khi thêm tool lập tuyến, hãy ghi
-SHA256 của `funnel_tree.py`, `verification.py` và chính tool đó vào JSON kết quả:
-sửa mã phải làm chữ ký đổi, để tuyến đã lưu không bị hiểu nhầm là do mã hiện tại
-sinh ra.
+SHA256 của `funnel_tree.py` và chính tool đó vào JSON kết quả: sửa mã phải làm
+chữ ký đổi, để tuyến đã lưu không bị hiểu nhầm là do mã hiện tại sinh ra.

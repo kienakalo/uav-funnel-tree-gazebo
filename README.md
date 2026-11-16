@@ -159,7 +159,6 @@ tools/data/
   off_mesh.py            # kiểm tra topology + ghi OFF
 src/
   funnel_tree.py         # lan truyền và dựng lại tuyến
-  verification.py        # kiểm tra đoạn thẳng nằm trên mesh
   glb.py                 # container GLB
 generated/               # đầu ra, không commit
 docs/data-format.md      # quy ước định dạng
