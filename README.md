@@ -38,6 +38,15 @@ python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 ```
 
+Cửa sổ 3D (`--show`, `--pick`) cần thêm gói hệ thống, không cài bằng pip được:
+
+```bash
+sudo apt install python3-tk      # hoặc: .venv/bin/pip install PyQt6
+xargs -a apt.txt sudo apt install -y
+```
+
+`apt.txt` chỉ dùng cho các cửa sổ đó; chạy stage bằng PNG thì không cần.
+
 `main.py` tự dùng `.venv/bin/python` nếu có, ngược lại dùng `python3`.
 
 ## Chạy
@@ -129,9 +138,9 @@ một lần, các lần sau chạy lại chỉ đọc, không hỏi lại.
 ```
 
 `--pick` (và `--show` của `data_viz`, `route_viz`) cần backend đồ hoạ: cài
-`sudo apt install python3-tk` hoặc `pip install PyQt6` trong `.venv`, kèm thư
-viện hệ thống `sudo apt install libzstd1 libxkbcommon0 libgl1`. Thiếu backend
-thì `--show` báo lỗi rõ và dừng; `--pick` tự chuyển sang chọn bằng bàn phím.
+`sudo apt install python3-tk` hoặc `pip install PyQt6` trong `.venv`, kèm các
+gói trong `apt.txt`. Thiếu backend thì `--show` báo lỗi rõ và dừng; `--pick` tự
+chuyển sang chọn bằng bàn phím.
 
 Mặc định tool làm việc trên bề mặt thành phố. Muốn chọn cho mesh khác, hoặc cho
 tất cả:

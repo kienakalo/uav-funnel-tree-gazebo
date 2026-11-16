@@ -35,6 +35,6 @@ def use_interactive():
 
 
 def unavailable_message():
-    return ('không mở được cửa sổ đồ hoạ: cần PyQt6 hoặc python3-tk, kèm thư viện '
-            'hệ thống (sudo apt install libzstd1 libxkbcommon0 libgl1). '
+    return ('không mở được cửa sổ đồ hoạ: cần PyQt6 hoặc python3-tk, kèm gói hệ '
+            'thống trong apt.txt (xargs -a apt.txt sudo apt install -y). '
             'Bỏ cờ yêu cầu cửa sổ để ghi PNG.')
