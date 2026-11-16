@@ -1,0 +1,79 @@
+{
+  "mesh": "J17",
+  "mesh_sha256": "9805fe0c3bce1f67e24419d4598695aad3795c1559b53a50d49b811376636e0e",
+  "reference": "data/expected/J17.paths.json",
+  "source": 1,
+  "tolerance": 0.0001,
+  "vertices": 10,
+  "max_relative_error": 4.795e-06,
+  "mean_relative_error": 1.7056e-06,
+  "failures": [],
+  "stats": {
+    "sources_considered": 1,
+    "propagations": 1,
+    "clipping": true,
+    "implementation_status": "experimental; validate per mesh"
+  },
+  "paths": [
+    {
+      "vertex": 0,
+      "reference_length": 2.0,
+      "funnel_length": 2.0,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 1,
+      "reference_length": 0.0,
+      "funnel_length": 0.0,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 2,
+      "reference_length": 1.99999041,
+      "funnel_length": 2.0,
+      "relative_error": 4.795e-06
+    },
+    {
+      "vertex": 3,
+      "reference_length": 3.464096078,
+      "funnel_length": 3.464101615,
+      "relative_error": 1.598e-06
+    },
+    {
+      "vertex": 4,
+      "reference_length": 3.464092401,
+      "funnel_length": 3.464101615,
+      "relative_error": 2.66e-06
+    },
+    {
+      "vertex": 5,
+      "reference_length": 2.00000322,
+      "funnel_length": 2.0,
+      "relative_error": 1.61e-06
+    },
+    {
+      "vertex": 6,
+      "reference_length": 3.46409426,
+      "funnel_length": 3.464101615,
+      "relative_error": 2.123e-06
+    },
+    {
+      "vertex": 7,
+      "reference_length": 2.0,
+      "funnel_length": 2.0,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 8,
+      "reference_length": 2.00000322,
+      "funnel_length": 2.0,
+      "relative_error": 1.61e-06
+    },
+    {
+      "vertex": 9,
+      "reference_length": 3.464092401,
+      "funnel_length": 3.464101615,
+      "relative_error": 2.66e-06
+    }
+  ]
+}

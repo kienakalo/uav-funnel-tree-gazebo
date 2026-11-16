@@ -1,0 +1,91 @@
+{
+  "mesh": "L",
+  "mesh_sha256": "f6220d7d50da97b47281dda48296b16b257e5b0e5686151f344c697859adee21",
+  "reference": "data/expected/L.paths.json",
+  "source": 1,
+  "tolerance": 0.0001,
+  "vertices": 12,
+  "max_relative_error": 9e-10,
+  "mean_relative_error": 7.5e-11,
+  "failures": [],
+  "stats": {
+    "sources_considered": 3,
+    "propagations": 3,
+    "clipping": true,
+    "implementation_status": "experimental; validate per mesh"
+  },
+  "paths": [
+    {
+      "vertex": 0,
+      "reference_length": 2.828427125,
+      "funnel_length": 2.828427125,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 1,
+      "reference_length": 0.0,
+      "funnel_length": 0.0,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 2,
+      "reference_length": 1.0,
+      "funnel_length": 1.0,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 3,
+      "reference_length": 1.414213562,
+      "funnel_length": 1.414213562,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 4,
+      "reference_length": 1.0,
+      "funnel_length": 1.0,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 5,
+      "reference_length": 1.414213562,
+      "funnel_length": 1.414213562,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 6,
+      "reference_length": 2.0,
+      "funnel_length": 2.0,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 7,
+      "reference_length": 2.236067977,
+      "funnel_length": 2.236067977,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 8,
+      "reference_length": 1.0,
+      "funnel_length": 1.0,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 9,
+      "reference_length": 2.414213562,
+      "funnel_length": 2.414213562,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 10,
+      "reference_length": 2.23606798,
+      "funnel_length": 2.236067977,
+      "relative_error": 9e-10
+    },
+    {
+      "vertex": 11,
+      "reference_length": 2.828427125,
+      "funnel_length": 2.828427125,
+      "relative_error": 0.0
+    }
+  ]
+}

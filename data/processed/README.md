@@ -60,6 +60,9 @@ file — kể cả khi stdout bị pipe, vì prompt đi qua `/dev/tty`. Muốn c
 Không có file mission nào được ship sẵn trong Git. Chạy stage một lần rồi commit
 `data/processed/missions/<mesh>.json` nếu muốn lựa chọn đó tái lập ở máy khác.
 
+Stage `plan` đọc chính các file này (`python3 main.py plan`) và ghi tuyến vào
+`generated/routes/`.
+
 Sau bước này, mọi công cụ chỉ đọc `data/processed/`, không đọc thẳng
 `data/raw/`.
 

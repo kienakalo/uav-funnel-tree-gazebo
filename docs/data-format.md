@@ -102,6 +102,67 @@ Tool tạo file này khi bạn chọn; không có file mẫu nào được ship 
 - `input` chỉ có khi người dùng nhập toạ độ; `xyz` luôn là toạ độ đỉnh đã snap.
 - Không có timestamp: chạy lại với cùng lựa chọn cho ra đúng byte cũ.
 
+## Route JSON
+
+`generated/routes/<mission>.json` là kết quả của stage `plan`:
+
+```json
+{
+  "mission": "data/processed/missions/cliff.json",
+  "mission_sha256": "…",
+  "mesh": "data/processed/meshes/cliff.off",
+  "mesh_sha256": "…",
+  "source": 0,
+  "solver": {
+    "name": "funnel_tree",
+    "module": "algo/funnel_tree.py",
+    "module_sha256": "…",
+    "timeout_seconds": 300.0,
+    "max_nodes": 200000,
+    "clipping": true
+  },
+  "mode": "all-goals",
+  "routes": [
+    {"id": "v1", "vertex": 1, "length": 2.828427125,
+     "waypoints": [[2.0, 2.0, 0.0], [0.0, 0.0, 0.0]]}
+  ],
+  "stats": {"sources_considered": 3, "propagations": 2},
+  "planning_seconds": 0.004,
+  "environment": {"python": "3.14.8", "numpy": "2.5.4"}
+}
+```
+
+- `length` là tổng khoảng cách Euclid giữa các waypoint liên tiếp, trên mặt.
+- `mode: all-goals` giữ mọi đỉnh trừ `source`; `explicit` chỉ giữ các goal
+  trong mission.
+- Ba hash khoá kết quả vào đúng mission, đúng mesh và đúng mã thuật toán.
+- `planning_seconds` là số đo, nên chạy lại sẽ làm tệp thay đổi.
+
+## Compare JSON
+
+`generated/compare/<mesh>.json` so độ dài từng đỉnh với
+`data/expected/<mesh>.paths.json`:
+
+```json
+{
+  "mesh": "cliff",
+  "source": 1,
+  "reference": "data/expected/cliff.paths.json",
+  "tolerance": 0.0001,
+  "vertices": 7,
+  "max_relative_error": 1.72e-05,
+  "mean_relative_error": 2.63e-06,
+  "failures": [],
+  "paths": [
+    {"vertex": 5, "reference_length": 2.285536,
+     "funnel_length": 2.285575125, "relative_error": 1.7e-05}
+  ]
+}
+```
+
+`summary.json` gộp các mesh: `passed`, `failed`, `skipped`. Toạ độ tham chiếu
+làm tròn 4 chữ số nên sai lệch cỡ `1e-5`; `--tolerance` mặc định `1e-4`.
+
 ## Hậu tố tên tệp
 
 | Hậu tố | Ý nghĩa |

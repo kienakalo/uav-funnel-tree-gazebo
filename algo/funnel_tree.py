@@ -7,6 +7,7 @@ Reconstruction unfolds only the selected face strip, independently of propagatio
 Resource limits are explicit. No fallback to edge-Dijkstra is used as a solution.
 """
 from dataclasses import dataclass, field
+import heapq
 import math
 import time
 import numpy as np
@@ -273,60 +274,121 @@ def reconstruct(mesh, source, funnel, deadline=None):
     return [tuple(map(float,p)) for p in points]
 
 
+def solve_file(path, source, timeout=20., max_nodes=200000, clipping=True):
+    """Convenience wrapper: read an OFF mesh and solve on it."""
+    from mesh_off import read_mesh
+    return solve(read_mesh(path), source, timeout, max_nodes, clipping)
+
+
 def solve(mesh, source, timeout=20., max_nodes=200000, clipping=True):
-    if not 0<=source<len(mesh.points):
+    """Paths from the source to every vertex, as a list indexed by vertex."""
+    paths, stats = solve_targets(mesh, source, range(len(mesh.points)), timeout,
+                                 max_nodes, clipping)
+    return [paths[vertex] for vertex in range(len(mesh.points))], stats
+
+
+def trace_path(mesh, source, vertex, previous, cache, deadline):
+    """Concatenate the settled source chain down to one vertex."""
+    if vertex in cache:
+        return cache[vertex]
+    if vertex == source:
+        point = mesh.points[vertex]
+        path = [(point.x, point.y, point.z)] * 2
+    else:
+        origin, funnel = previous[vertex]
+        segment = reconstruct(mesh, origin, funnel, deadline=deadline)
+        path = trace_path(mesh, source, origin, previous, cache, deadline)[:-1] + segment
+    cache[vertex] = path
+    return path
+
+
+def solve_targets(mesh, source, targets, timeout=20., max_nodes=200000,
+                  clipping=True):
+    """Shortest paths from the source to the requested vertices only.
+
+    On a nonconvex surface a shortest path may turn at a negative-curvature
+    vertex, so the search runs a Dijkstra over those vertices: each settled
+    vertex is propagated once and can improve a target or unlock another
+    vertex. Only settled vertices are propagated, not all 600+ candidates, and
+    the Euclidean distance to the nearest target is used as an admissible
+    priority. Returns {vertex: path}.
+    """
+    targets = sorted({int(target) for target in targets})
+    if not targets:
+        raise ValueError('No target vertices.')
+    if any(target < 0 or target >= len(mesh.points) for target in targets):
+        raise ValueError('Target out of range.')
+    if not 0 <= source < len(mesh.points):
         raise ValueError('Source out of range.')
-    deadline = time.monotonic()+timeout
+    deadline = time.monotonic() + timeout
+
+    boundary = {vertex for edge, adjacent in mesh.edge_faces.items()
+                if len(adjacent) == 1 for vertex in edge}
     sources = [source]
-    boundary_vertices={v for edge,adjacent in mesh.edge_faces.items() if len(adjacent)==1 for v in edge}
-    # Nonconvex surface: concatenate paths via negative-curvature vertices.
-    for v in range(len(mesh.points)):
-        if v==source:
+    for vertex in range(len(mesh.points)):
+        if vertex == source:
             continue
         total = 0.
-        for f in mesh.vertex_faces[v]:
-            a,b = [i for i in mesh.faces[f] if i!=v]
-            total += mesh.angle(a,v,b)
-        threshold=PI if v in boundary_vertices else 2*PI
-        if total>threshold+1e-5:
-            sources.append(v)
-    runs = [propagate(mesh,s,deadline,max_nodes,clipping) for s in sources]
-    dist,best,_ = runs[0]
-    dist = dist.copy()
-    routes = [(0,v) for v in range(len(dist))]
-    prefix = [None]*len(dist)
-    for _ in range(len(sources)):
-        changed = False
-        for k,s in enumerate(sources[1:],1):
-            for v,d in enumerate(runs[k][0]):
-                candidate = dist[s]+d
-                if candidate < dist[v]-1e-10:
-                    dist[v],routes[v],prefix[v] = candidate,(k,v),s
-                    changed = True
-        if not changed:
-            break
-    cache = {}
-    def trace(v, active):
-        if v in active:
-            raise ValueError('Cycle in path reconstruction.')
-        if v in cache:
-            return cache[v]
-        if v==source:
-            p=mesh.points[v]; return [(p.x,p.y,p.z)]*2
-        k,_ = routes[v]
-        f = runs[k][1][v]
-        if f is None:
-            raise ValueError(f'No funnel reached vertex {v}.')
+        for face in mesh.vertex_faces[vertex]:
+            a, b = [other for other in mesh.faces[face] if other != vertex]
+            total += mesh.angle(a, vertex, b)
+        if total > (PI if vertex in boundary else 2 * PI) + 1e-5:
+            sources.append(vertex)
+    source_set = set(sources)
+
+    coords = np.array([[point.x, point.y, point.z] for point in mesh.points])
+    goal_coords = coords[targets]
+
+    def heuristic(vertex):
+        return float(np.min(np.linalg.norm(goal_coords - coords[vertex], axis=1)))
+
+    costs = {source: 0.}
+    previous = {}                       # vertex -> (source, funnel)
+    queue = [(heuristic(source), 0., source)]
+    settled = set()
+    best = {target: math.inf for target in targets}
+    runs = 0
+    while queue:
+        estimate, cost, vertex = heapq.heappop(queue)
+        if vertex in settled or cost > costs.get(vertex, math.inf) + 1e-12:
+            continue
         if time.monotonic() > deadline:
-            raise TimeoutError('Funnel reconstruction time limit exceeded.')
-        path = reconstruct(mesh,sources[k],f,deadline=deadline)
-        if prefix[v] is not None:
-            path = trace(prefix[v],active|{v})[:-1]+path
-        cache[v] = path
-        return path
-    paths = [trace(v,set()) for v in range(len(dist))]
-    for v,path in enumerate(paths):
-        length = sum(math.dist(a,b) for a,b in zip(path,path[1:]))
-        if abs(length-dist[v])>1e-6*max(1.,dist[v]):
-            raise ValueError(f'Intrinsic / reconstructed length mismatch at {v}.')
-    return paths,{'runs':[r[2] for r in runs],'clipping':clipping,'implementation_status':'experimental; validate per mesh'}
+            raise TimeoutError('Funnel source search time limit exceeded.')
+        settled.add(vertex)
+        if (all(value < math.inf for value in best.values()) and
+                estimate >= max(best.values()) - 1e-12):
+            break
+        distances, funnels, _ = propagate(
+            mesh, vertex, deadline, max_nodes, clipping,
+            target_vertices=set(targets) | source_set)
+        runs += 1
+        for target in targets:
+            value = cost + distances[target]
+            if distances[target] < math.inf and value < best[target] - 1e-12:
+                best[target] = value
+                previous[target] = (vertex, funnels[target])
+        for other in sources:
+            if other == vertex or other in settled:
+                continue
+            if distances[other] == math.inf:
+                continue
+            value = cost + distances[other]
+            if value < costs.get(other, math.inf) - 1e-12:
+                costs[other] = value
+                previous[other] = (vertex, funnels[other])
+                heapq.heappush(queue, (value + heuristic(other), value, other))
+
+    cache = {}
+    paths = {}
+    for target in targets:
+        if best[target] == math.inf:
+            raise ValueError(f'No funnel reached vertex {target}.')
+        path = trace_path(mesh, source, target, previous, cache, deadline)
+        length = sum(math.dist(a, b) for a, b in zip(path, path[1:]))
+        if abs(length - best[target]) > 1e-6 * max(1., best[target]):
+            raise ValueError(f'Intrinsic / reconstructed length mismatch at {target}.')
+        paths[target] = path
+    stats = {'sources_considered': len(sources), 'propagations': runs,
+             'clipping': clipping,
+             'implementation_status': 'experimental; validate per mesh'}
+    return paths, stats

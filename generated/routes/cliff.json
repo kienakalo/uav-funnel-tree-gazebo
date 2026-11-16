@@ -1,0 +1,176 @@
+{
+  "mission": "data/processed/missions/cliff.json",
+  "mission_sha256": "5d4635fd3d532e1513a407441cfcdd22c3642c600545f777259e3995f4f0c808",
+  "mesh": "data/processed/meshes/cliff.off",
+  "mesh_sha256": "d4c9c65ad0fd6c64b4e5ae3e70a034d4761d093d02f431159fabf345fb914f75",
+  "source": 0,
+  "solver": {
+    "name": "funnel_tree",
+    "module": "algo/funnel_tree.py",
+    "module_sha256": "fc55632a2bcf91e59633a61a3a26394eb40906990931d47756a8d62a3ee185d6",
+    "timeout_seconds": 300.0,
+    "max_nodes": 200000,
+    "clipping": true
+  },
+  "mode": "all-goals",
+  "routes": [
+    {
+      "id": "v1",
+      "vertex": 1,
+      "length": 2.828427125,
+      "waypoints": [
+        [
+          2.0,
+          2.0,
+          0.0
+        ],
+        [
+          2.0,
+          2.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "id": "v2",
+      "vertex": 2,
+      "length": 4.123105626,
+      "waypoints": [
+        [
+          2.0,
+          2.0,
+          0.0
+        ],
+        [
+          2.0,
+          2.0,
+          0.0
+        ],
+        [
+          3.0,
+          -2.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "id": "v3",
+      "vertex": 3,
+      "length": 4.403053676,
+      "waypoints": [
+        [
+          2.0,
+          2.0,
+          0.0
+        ],
+        [
+          2.0,
+          2.0,
+          0.0
+        ],
+        [
+          1.501697857,
+          0.490341069,
+          1.079805518
+        ],
+        [
+          2.0,
+          -1.0,
+          3.0
+        ]
+      ]
+    },
+    {
+      "id": "v4",
+      "vertex": 4,
+      "length": 3.598079984,
+      "waypoints": [
+        [
+          2.0,
+          2.0,
+          0.0
+        ],
+        [
+          2.0,
+          2.0,
+          0.0
+        ],
+        [
+          0.610285887,
+          0.969541754,
+          0.996493584
+        ],
+        [
+          1.0,
+          -0.5,
+          1.5
+        ]
+      ]
+    },
+    {
+      "id": "v5",
+      "vertex": 5,
+      "length": 1.926534128,
+      "waypoints": [
+        [
+          2.0,
+          2.0,
+          0.0
+        ],
+        [
+          2.0,
+          2.0,
+          0.0
+        ],
+        [
+          0.91865,
+          1.45943,
+          1.5
+        ]
+      ]
+    },
+    {
+      "id": "v6",
+      "vertex": 6,
+      "length": 3.766679163,
+      "waypoints": [
+        [
+          2.0,
+          2.0,
+          0.0
+        ],
+        [
+          2.0,
+          2.0,
+          0.0
+        ],
+        [
+          0.91865,
+          1.45943,
+          1.5
+        ],
+        [
+          0.0,
+          2.0,
+          3.0
+        ]
+      ]
+    }
+  ],
+  "stats": {
+    "sources_considered": 3,
+    "propagations": 3,
+    "clipping": true,
+    "implementation_status": "experimental; validate per mesh"
+  },
+  "planning_seconds": 0.004,
+  "environment": {
+    "python": "3.14.8",
+    "numpy": "2.5.4"
+  }
+}

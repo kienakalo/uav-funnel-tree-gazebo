@@ -1,12 +1,13 @@
 # UAV Funnel Tree — dữ liệu dẫn đường
 
-Repo này dựng **dữ liệu đầu vào cho Funnel Tree**: từ scene thành phố thô
-(`data/raw/scenes/city.glb`) và chín mesh mẫu, stage `data` tạo ra scene đã
+Repo này dựng **dữ liệu đầu vào và tuyến cho Funnel Tree**: từ scene thành phố
+thô (`data/raw/scenes/city.glb`) và chín mesh mẫu, stage `data` tạo ra scene đã
 chuẩn hoá, các bản GLB để xem, bề mặt tam giác phân dùng làm miền dẫn đường,
-ảnh kiểm tra hình học và một nhiệm vụ mẫu START → GOAL.
+ảnh kiểm tra hình học và nhiệm vụ START → GOAL; stage `plan` chạy thuật toán,
+vẽ tuyến và đối chiếu độ dài với đường tham chiếu.
 
-Thuật toán Funnel Tree chỉ đọc mesh `.off`; repo này không chứa phần mô phỏng,
-benchmark hay thí nghiệm.
+Thuật toán Funnel Tree chỉ đọc mesh `.off`; repo này không chứa phần mô phỏng
+Gazebo hay benchmark.
 
 ## Kết quả của stage `data`
 
@@ -18,6 +19,15 @@ benchmark hay thí nghiệm.
 | `data/processed/meshes/city.standardized.triangulation.off` | Bề mặt dẫn đường 2.295 đỉnh / 4.400 tam giác |
 | `generated/data_viz/*.png` | Ảnh kiểm tra từng mesh, kèm đường tham chiếu |
 | `data/processed/missions/<mesh>.json` | START/GOAL đã chọn cho từng mesh |
+
+## Kết quả của stage `plan`
+
+| Tệp | Nội dung |
+| --- | --- |
+| `generated/routes/<mission>.json` | Waypoint từng tuyến, độ dài, hash mesh/mission/mã thuật toán, tham số và thời gian chạy |
+| `generated/routes/<mission>.png` | Ảnh bề mặt + các tuyến |
+| `generated/compare/<mesh>.json` | So từng đỉnh với `data/expected/<mesh>.paths.json` |
+| `generated/compare/summary.json` | Mesh nào đạt, không đạt, bị bỏ qua |
 
 ## Cài đặt
 
@@ -41,6 +51,8 @@ python3 main.py data --dry-run
 python3 main.py data
 python3 main.py data --no-all-meshes       # chỉ bề mặt thành phố
 python3 main.py data --force-missions      # chọn lại cả mesh đã có
+
+python3 main.py plan        # lập tuyến, vẽ ảnh, đối chiếu reference
 ```
 
 Sáu bước, dừng ngay khi một bước lỗi:
@@ -53,6 +65,14 @@ Sáu bước, dừng ngay khi một bước lỗi:
 | 4 | `tools/data/triangulation.py --force` | `city.standardized.glb` → `meshes/city.standardized.triangulation.off` |
 | 5 | `tools/data/data_viz.py --all` | `processed/meshes/*.off` → `generated/data_viz/*.png` |
 | 6 | `tools/data/set_start_goal.py` | bề mặt → `data/processed/missions/<mesh>.json` |
+
+Stage `plan` có ba bước:
+
+| # | Lệnh | Vào → Ra |
+| --- | --- | --- |
+| 1 | `tools/plan/run_funnel.py` | missions + `.off` → `generated/routes/*.json` |
+| 2 | `tools/plan/route_viz.py` | routes JSON → `generated/routes/*.png` |
+| 3 | `tools/plan/compare.py` | routes + `data/expected` → `generated/compare/*.json` |
 
 Bước 4 cần `--force` vì tệp đích đã tồn tại; nếu không, tool dừng để tránh ghi
 đè ngoài ý muốn. Bước 6 dùng lại lựa chọn START/GOAL đã lưu; lần đầu chưa có
@@ -142,7 +162,7 @@ Quy ước chi tiết ở [`docs/data-format.md`](docs/data-format.md) và
 ## Cấu trúc thư mục
 
 ```text
-main.py                  # chạy stage data
+main.py                  # chạy stage data / plan
 data/
   raw/                   # nguồn, không sửa tay
   processed/             # đầu vào đã xử lý, sinh lại bằng tools/
@@ -155,10 +175,15 @@ tools/data/
   data_viz.py            # render PNG / cửa sổ 3D
   set_start_goal.py      # chọn START/GOAL, lưu JSON
   glb2off.py             # đọc GLB (duyệt cây node, bake transform) + ghi OFF
+tools/plan/
+  run_funnel.py          # chạy Funnel cho các mission
+  route_viz.py           # routes JSON → PNG
+  compare.py             # so độ dài với data/expected
+algo/
+  funnel_tree.py         # lan truyền, dựng lại tuyến, tìm source
 lib/
-  funnel_tree.py         # lan truyền và dựng lại tuyến
   mesh_glb.py            # container GLB
-  mesh_off.py            # đọc/ghi/kiểm topology OFF
+  mesh_off.py            # đọc/ghi OFF + lớp Mesh (kề, góc, khoảng cách)
 generated/               # đầu ra, không commit
 docs/data-format.md      # quy ước định dạng
 ```
@@ -169,8 +194,9 @@ vào `sys.path`, xem [`lib/README.md`](lib/README.md).
 ## Lưu trong Git
 
 - Commit: dữ liệu `raw/`, đầu ra `processed/` (kể cả `missions/*.json`), mã
-  nguồn và tài liệu.
-- Không commit: `.venv/`, `generated/**` (trừ `generated/README.md`) và
+  nguồn, tài liệu và kết quả stage `plan` (`generated/routes/**`,
+  `generated/compare/**`).
+- Không commit: `.venv/`, `generated/data_viz/` và
   `data/processed/scenes/city.standardized.glb` vì sinh lại được ở bước 2.
 
 Chạy lại stage `data` phải cho ra đúng byte của

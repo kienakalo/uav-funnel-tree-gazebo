@@ -8,7 +8,9 @@ Stages:
   data      raw -> processed: copy fixtures, standardize the scene, convert
             fixtures to GLB, triangulate the navigation surface, render previews,
             then record a START/GOAL mission
-  flow      print the stage and the commands it runs
+  plan      run Funnel for the saved missions, render the routes and compare
+            their lengths with data/expected
+  flow      print the stages and the commands they run
 
 Examples:
   python3 main.py                        # same as: python3 main.py data
@@ -17,6 +19,7 @@ Examples:
   python3 main.py data --dry-run
   python3 main.py data --no-all-meshes   # chỉ bề mặt thành phố
   python3 main.py data --force-missions  # chọn lại cả mesh đã có
+  python3 main.py plan                   # lập tuyến + ảnh + đối chiếu
 
 The last step records a START/GOAL mission for every .off in
 data/processed/meshes. --no-all-meshes limits it to the navigation surface,
@@ -46,10 +49,16 @@ STAGES = {
         [PYTHON, 'tools/data/data_viz.py', '--all'],
         [PYTHON, 'tools/data/set_start_goal.py'],
     ],
+    'plan': [
+        [PYTHON, 'tools/plan/run_funnel.py'],
+        [PYTHON, 'tools/plan/route_viz.py'],
+        [PYTHON, 'tools/plan/compare.py'],
+    ],
 }
 
 DESCRIPTIONS = {
     'data': 'raw -> processed (fixtures, scene, GLB, surface, previews, mission)',
+    'plan': 'funnel routes, route images and the reference comparison',
 }
 
 
@@ -98,7 +107,7 @@ def main():
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('stages', nargs='*', metavar='stage',
-                        help='data or flow')
+                        help='data, plan or flow')
     parser.add_argument('--dry-run', action='store_true',
                         help='Print the commands without running them')
     parser.add_argument('--all-meshes', action=argparse.BooleanOptionalAction,
