@@ -395,8 +395,13 @@ def choose_console(path, points, faces, mode, max_snap):
 
 
 def mesh_list(folder):
-    """Every triangle OFF mesh the stage produced, in name order."""
-    return sorted(Path(folder).glob('*.off'))
+    """Navigation meshes in name order; skip the viewer export.
+
+    `*.glb2off.off` is the whole scene as one file: its shells repeat vertex
+    coordinates, so it is not a surface a mission can be chosen on.
+    """
+    return sorted(path for path in Path(folder).glob('*.off')
+                  if not path.name.endswith('.glb2off.off'))
 
 
 def show_meshes(args):

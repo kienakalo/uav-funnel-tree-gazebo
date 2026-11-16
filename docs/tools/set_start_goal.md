@@ -6,6 +6,7 @@
 | Vào | Một `.off` + lựa chọn của người dùng |
 | Ra | `data/processed/missions/<mesh>.json` |
 | Cờ | `--mesh`, `--mission`, `--output`, `--list-meshes`, `--all-meshes`, `--start`, `--start-vertex`, `--goal`, `--goal-vertex`, `--all-goals`, `--pick`, `--snap`, `--max-snap`, `--force` |
+| Ghi chú | `--all-meshes` bỏ qua `*.glb2off.off`: đó là bản xem toàn scene, các vỏ lặp toạ độ đỉnh nên không dựng được `Mesh` |
 
 ## Việc nó làm
 

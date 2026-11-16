@@ -6,7 +6,7 @@
 """Convert a city GLB into a triangle OFF mesh.
 
 Input:  data/processed/scenes/city.standardized.glb
-Output: generated/meshes/city.standardized.glb2off.off
+Output: data/processed/meshes/city.standardized.glb2off.off
 
 The reader bakes the nested node transforms, converts the glTF Y-up frame to
 Z-up and normalizes the width to 200 m, so the OFF shares the coordinate

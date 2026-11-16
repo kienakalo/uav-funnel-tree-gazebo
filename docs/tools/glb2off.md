@@ -4,7 +4,7 @@
 | --- | --- |
 | Stage | `data` bước 4 (dùng gián tiếp) — cũng là tool độc lập |
 | Vào | GLB 2 bất kỳ (mặc định `data/processed/scenes/city.standardized.glb`) |
-| Ra | `generated/meshes/<stem>.glb2off.off` |
+| Ra | `data/processed/meshes/<stem>.glb2off.off` |
 | Cờ | `--output`, `--width` (200), `--force` |
 | Được import bởi | `triangulation.py`, `data_viz.py`, `standardize.py` |
 
@@ -68,4 +68,4 @@ Output: 498767 edges, 18.3 MB
 
 - Chỉ primitive tam giác, không Draco, không sparse, không buffer ngoài.
 - Không đọc material/texture/camera/animation.
-- Kết quả nằm trong `generated/` nên không commit.
+- Kết quả nằm cạnh các mesh đã xử lý và **được commit** (18 MB với city).

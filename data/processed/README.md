@@ -9,6 +9,7 @@ Nguồn nằm ở [`data/raw/`](../raw/).
 | `scenes/city.standardized.glb` | Standardize | `tools/data/standardize.py` |
 | `scenes/meshes/*.off2glb.glb` | OFF → GLB (Y-up) | `tools/data/off2glb.py` |
 | `meshes/city.standardized.triangulation.off` | Tam giác phân bề mặt | `tools/data/triangulation.py` |
+| `meshes/city.standardized.glb2off.off` | Bản OFF của scene để xem, không phải đầu vào thuật toán | `tools/data/glb2off.py` |
 | `missions/<mesh>.json` | START/GOAL đã chọn | `tools/data/set_start_goal.py` |
 
 Tên file theo quy trình. Không có file metadata đi kèm; tham số được ghi ở
