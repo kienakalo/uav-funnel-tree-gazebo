@@ -148,6 +148,10 @@ hai thì dừng với thông báo rõ ràng.
 # chọn cho mọi mesh còn thiếu
 .venv/bin/python tools/data/set_start_goal.py --all-meshes
 
+# hoặc chạy cả stage với bước chọn cho mọi mesh
+python3 main.py data --all-meshes
+python3 main.py data --all-meshes --force-missions
+
 # chọn bằng chuột trong cửa sổ 3D
 .venv/bin/python tools/data/set_start_goal.py --pick
 

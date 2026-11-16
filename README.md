@@ -36,6 +36,10 @@ python3 -m venv .venv
 python3 main.py flow        # liệt kê các bước và lệnh
 python3 main.py data        # chạy toàn bộ stage
 python3 main.py data --dry-run
+
+# bước 6 chọn START/GOAL cho mọi mesh, kể cả mesh kiểm thử
+python3 main.py data --all-meshes
+python3 main.py data --all-meshes --force-missions   # chọn lại từ đầu
 ```
 
 Sáu bước, dừng ngay khi một bước lỗi:

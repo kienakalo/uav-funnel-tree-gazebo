@@ -11,13 +11,21 @@ Stages:
   flow      print the stage and the commands it runs
 
 Examples:
-  python3 main.py             # same as: python3 main.py data
+  python3 main.py                       # same as: python3 main.py data
   python3 main.py flow
   python3 main.py data
   python3 main.py data --dry-run
+  python3 main.py data --all-meshes     # chọn START/GOAL cho mọi mesh .off
+  python3 main.py data --all-meshes --force-missions
 
-The data stage needs NumPy, Matplotlib (previews) and Shapely (triangulation). It rewrites data/processed/ and generated/data_viz/,
-and writes the START/GOAL mission to data/processed/missions/.
+By default the last step records a START/GOAL mission for the navigation
+surface only. --all-meshes runs the same choice flow over every .off in
+data/processed/meshes, and --force-missions replaces missions that already
+exist. Both flags are interactive: run them in a terminal.
+
+The data stage needs NumPy, Matplotlib (previews) and Shapely (triangulation).
+It rewrites data/processed/ and generated/data_viz/, and writes the missions to
+data/processed/missions/.
 """
 import argparse
 import subprocess
@@ -51,22 +59,33 @@ def display(command):
     return ' '.join(shown)
 
 
-def show_flow():
+def stage_commands(name, args):
+    """Stage commands, with the mission flags appended to the last step."""
+    commands = [list(command) for command in STAGES[name]]
+    if name == 'data':
+        if args.all_meshes:
+            commands[-1].append('--all-meshes')
+        if args.force_missions:
+            commands[-1].append('--force')
+    return commands
+
+
+def show_flow(args):
     print('Stages:')
     for name, description in DESCRIPTIONS.items():
         print(f'  {name:9s} {description}')
-        for command in STAGES[name]:
+        for command in stage_commands(name, args):
             print('            ' + display(command))
     print('\nNo stage given: data is executed. Use "flow" to only print this list.')
 
 
-def run_stage(name, dry_run):
-    commands = STAGES[name]
+def run_stage(name, args):
+    commands = stage_commands(name, args)
     print(f'\n== {name}: {DESCRIPTIONS[name]} ==')
     for index, command in enumerate(commands, 1):
         printable = display(command)
         print(f'[{index}/{len(commands)}] {printable}', flush=True)
-        if dry_run:
+        if args.dry_run:
             continue
         completed = subprocess.run(command, cwd=ROOT)
         if completed.returncode:
@@ -81,16 +100,24 @@ def main():
                         help='data or flow')
     parser.add_argument('--dry-run', action='store_true',
                         help='Print the commands without running them')
+    parser.add_argument('--all-meshes', action='store_true',
+                        help='Bước mission: chọn START/GOAL cho mọi mesh .off, '
+                             'không chỉ bề mặt thành phố')
+    parser.add_argument('--force-missions', action='store_true',
+                        help='Bước mission: chọn lại cả khi đã có file mission')
     args = parser.parse_args()
+    if args.force_missions and not args.all_meshes:
+        parser.error('--force-missions only applies together with --all-meshes; '
+                     'dùng tools/data/set_start_goal.py --force cho một mesh')
     stages = args.stages or ['data']
     if 'flow' in stages:
-        show_flow()
+        show_flow(args)
         stages = [stage for stage in stages if stage != 'flow']
     unknown = [stage for stage in stages if stage not in STAGES]
     if unknown:
         parser.error(f'Unknown stage(s): {", ".join(unknown)}')
     for stage in stages:
-        run_stage(stage, args.dry_run)
+        run_stage(stage, args)
 
 
 if __name__ == '__main__':
