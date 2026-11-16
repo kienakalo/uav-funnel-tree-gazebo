@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: NumPy; Python stdlib (argparse, hashlib, json, pathlib);
-# local modules (glb, mesh).
+# local modules (glb).
 """Convert raw OFF fixtures into glTF binary (Y-up by default).
 
 Input:  data/raw/meshes/*.off (model units; axis documented in data/README.md)
@@ -22,21 +22,39 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 from glb import read_glb, write_glb
-from mesh import read_off
 
 DEFAULT_INPUT = ROOT / 'data/raw/meshes'
 DEFAULT_OUTPUT = ROOT / 'data/processed/scenes/meshes'
 
 
+def read_off(path):
+    """Read a triangle-only OFF file into a vertex list and face tuples."""
+    lines = [line.strip() for line in
+             Path(path).read_text(encoding='utf-8').splitlines() if line.strip()]
+    if not lines or lines[0] != 'OFF':
+        raise ValueError(f'{path}: not an OFF file')
+    vertex_count, face_count, _ = map(int, lines[1].split())
+    if vertex_count < 3 or face_count < 1 or len(lines) != 2 + vertex_count + face_count:
+        raise ValueError(f'{path}: header and line count disagree')
+    vertices = [tuple(float(value) for value in line.split())
+                for line in lines[2:2 + vertex_count]]
+    faces = []
+    for line in lines[2 + vertex_count:]:
+        count, *face = (int(value) for value in line.split())
+        if count != 3 or len(face) != 3:
+            raise ValueError(f'{path}: only triangle faces are supported')
+        faces.append(tuple(face))
+    return vertices, faces
+
+
 def convert(source, output, keep_z_up=False):
-    mesh = read_off(source)
+    points, faces = read_off(source)
     if keep_z_up:
-        vertices = [(point.x, point.y, point.z) for point in mesh.points]
+        vertices = points
         axis = 'Z-up (simulation)'
     else:
-        vertices = [(point.x, point.z, -point.y) for point in mesh.points]
+        vertices = [(x, z, -y) for x, y, z in points]
         axis = 'Y-up (glTF)'
-    faces = [tuple(face) for face in mesh.faces]
     output.parent.mkdir(parents=True, exist_ok=True)
     extras = {
         'source_file': source.relative_to(ROOT).as_posix(),

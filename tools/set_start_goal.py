@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
-# Main libraries: NumPy; Python stdlib (argparse, hashlib, heapq, json, math,
-# pathlib, re, sys, time); local modules (funnel_tree, mesh, run_funnel_route,
-# run_funnel_benchmark, prepare_funnel_gazebo, verification).
+# Main libraries: NumPy; Python stdlib (argparse, dataclasses, hashlib, heapq,
+# json, math, pathlib, re, sys, time); local modules (funnel_tree, verification).
 """Set START and GOAL points on the navigation surface and plan Funnel routes.
 
 Input:  data/processed/meshes/city.standardized.triangulation.off (or --mesh)
@@ -21,6 +20,7 @@ used by the fixture meshes such as cliff.off. Explicit goals share one source
 graph and one cache. The Funnel route is not certified optimal.
 """
 import argparse
+from dataclasses import dataclass, field
 import hashlib
 import heapq
 import json
@@ -34,19 +34,192 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
-sys.path.insert(0, str(ROOT / 'tools'))
 from funnel_tree import propagate, reconstruct
-from mesh import read_off
-from prepare_funnel_gazebo import simplify
-from run_funnel_benchmark import verify
-from run_funnel_route import candidate_route, secondary_sources, write_json
 from verification import segment_on_mesh
 
 DEFAULT_MESH = ROOT / 'data/processed/meshes/city.standardized.triangulation.off'
 DEFAULT_OUTPUT = ROOT / 'generated/missions'
-PROVENANCE = ('src/funnel_tree.py', 'src/mesh.py', 'src/verification.py',
-              'tools/run_funnel_route.py', 'tools/set_start_goal.py')
+PROVENANCE = ('src/funnel_tree.py', 'src/verification.py',
+              'tools/set_start_goal.py')
 COLOURS = ('#c0392b', '#8e44ad', '#e67e22', '#16a085', '#2c3e50', '#7f8c8d')
+
+
+@dataclass(frozen=True)
+class Point:
+    x: float
+    y: float
+    z: float
+
+    def distance(self, other):
+        return math.dist((self.x, self.y, self.z), (other.x, other.y, other.z))
+
+
+@dataclass
+class Mesh:
+    """Triangle surface with the adjacency Funnel propagation walks on."""
+
+    points: list
+    faces: list
+    vertex_faces: list = field(init=False)
+    edge_faces: dict = field(init=False)
+
+    def __post_init__(self):
+        self.vertex_faces = [[] for _ in self.points]
+        self.edge_faces = {}
+        seen_faces = set()
+        coords = [(point.x, point.y, point.z) for point in self.points]
+        if any(not all(math.isfinite(value) for value in item) for item in coords):
+            raise ValueError('non-finite vertex coordinate')
+        if len(set(coords)) != len(coords):
+            raise ValueError('duplicate vertex coordinate')
+        for face_id, face in enumerate(self.faces):
+            if len(set(face)) != 3 or any(v < 0 or v >= len(self.points) for v in face):
+                raise ValueError(f'face {face_id} has invalid vertex indices')
+            if tuple(sorted(face)) in seen_faces:
+                raise ValueError(f'face {face_id} is repeated')
+            seen_faces.add(tuple(sorted(face)))
+            a, b, c = [self.points[v] for v in face]
+            u = (b.x - a.x, b.y - a.y, b.z - a.z)
+            w = (c.x - a.x, c.y - a.y, c.z - a.z)
+            cross = (u[1] * w[2] - u[2] * w[1], u[2] * w[0] - u[0] * w[2],
+                     u[0] * w[1] - u[1] * w[0])
+            if sum(value * value for value in cross) == 0:
+                raise ValueError(f'face {face_id} is degenerate')
+            for vertex in face:
+                self.vertex_faces[vertex].append(face_id)
+            a, b, c = face
+            for first, second in ((a, b), (b, c), (c, a)):
+                edge = tuple(sorted((first, second)))
+                self.edge_faces.setdefault(edge, []).append(face_id)
+                if len(self.edge_faces[edge]) > 2:
+                    raise ValueError(f'edge {edge} borders more than two faces')
+        if any(not faces for faces in self.vertex_faces):
+            raise ValueError('a vertex belongs to no face')
+
+    def distance(self, a, b):
+        return self.points[a].distance(self.points[b])
+
+    def angle(self, a, b, c):
+        """Angle ABC at B, in radians, by the law of cosines."""
+        ab, bc, ac = self.distance(a, b), self.distance(b, c), self.distance(a, c)
+        if ab == 0 or bc == 0:
+            raise ValueError('angle is undefined for a zero-length edge')
+        cosine = (ab * ab + bc * bc - ac * ac) / (2 * ab * bc)
+        return math.acos(max(-1., min(1., cosine)))
+
+    def other_face(self, a, b, current_face):
+        """Face on the other side of edge AB; None on a boundary edge."""
+        adjacent = self.edge_faces[tuple(sorted((a, b)))]
+        if current_face not in adjacent:
+            raise ValueError('current face does not contain the queried edge')
+        return next((face for face in adjacent if face != current_face), None)
+
+    def third_vertex(self, face_id, a, b):
+        face = self.faces[face_id]
+        if a == b or a not in face or b not in face:
+            raise ValueError('two vertices must define an edge of the face')
+        return next(vertex for vertex in face if vertex != a and vertex != b)
+
+
+def read_off(path):
+    """Read a triangle-only OFF file: 'OFF', header V F E, then V and F lines."""
+    lines = [line.strip() for line in
+             Path(path).read_text(encoding='utf-8').splitlines() if line.strip()]
+    if not lines or lines[0] != 'OFF':
+        raise ValueError(f'{path}: not an OFF file')
+    vertex_count, face_count, _ = map(int, lines[1].split())
+    if vertex_count < 3 or face_count < 1 or len(lines) != 2 + vertex_count + face_count:
+        raise ValueError(f'{path}: header and line count disagree')
+    points = [Point(*(float(value) for value in line.split()))
+              for line in lines[2:2 + vertex_count]]
+    faces = []
+    for line in lines[2 + vertex_count:]:
+        count, *face = (int(value) for value in line.split())
+        if count != 3 or len(face) != 3:
+            raise ValueError(f'{path}: only triangle faces are supported')
+        faces.append(tuple(face))
+    return Mesh(points, faces)
+
+
+def write_json(path, data):
+    temporary = path.with_suffix('.tmp')
+    temporary.write_text(json.dumps(data, indent=2, allow_nan=False) + '\n',
+                         encoding='utf-8')
+    temporary.replace(path)
+
+
+def simplify(points):
+    """Remove only forward collinear face crossings, retaining route corners."""
+    result = []
+    for point in points:
+        if result and math.dist(result[-1], point) < 1e-12:
+            continue
+        while len(result) >= 2:
+            a, b, c = np.array(result[-2]), np.array(result[-1]), np.array(point)
+            delta = c - a
+            length = float(np.linalg.norm(delta))
+            if length <= 1e-12:
+                break
+            t = float(np.dot(b - a, delta) / (length * length))
+            deviation = float(np.linalg.norm(b - (a + t * delta)))
+            if not 0 <= t <= 1 or deviation > 1e-10:
+                break
+            result.pop()
+        result.append(point)
+    return result
+
+
+def secondary_sources(mesh, source):
+    boundary = {vertex for edge, adjacent in mesh.edge_faces.items()
+                if len(adjacent) == 1 for vertex in edge}
+    result = [source]
+    for vertex, faces in enumerate(mesh.vertex_faces):
+        if vertex == source:
+            continue
+        angle = 0.
+        for face_id in faces:
+            a, b = [index for index in mesh.faces[face_id] if index != vertex]
+            angle += mesh.angle(a, vertex, b)
+        if angle > (math.pi if vertex in boundary else 2 * math.pi) + 1e-5:
+            result.append(vertex)
+    return result
+
+
+def candidate_route(mesh, source, goal, previous):
+    chunks, chain, current = [], [goal], goal
+    seen = set()
+    while current != source:
+        if current in seen:
+            raise ValueError('cycle in secondary-source route')
+        seen.add(current)
+        parent, edge = previous[current]
+        path = edge['path']
+        if math.dist(path[0], vars_point(mesh.points[parent])) > 1e-7:
+            raise ValueError('segment start mismatch')
+        if math.dist(path[-1], vars_point(mesh.points[current])) > 1e-7:
+            raise ValueError('segment end mismatch')
+        chunks.append(path)
+        current = parent
+        chain.append(current)
+    points = []
+    for chunk in reversed(chunks):
+        points.extend(chunk if not points else chunk[1:])
+    return points, list(reversed(chain))
+
+
+def vars_point(point):
+    return (point.x, point.y, point.z)
+
+
+def verify(mesh, points, path):
+    triangles = np.array(points)[np.array(mesh.faces)]
+    lows, highs = triangles.min(axis=1), triangles.max(axis=1)
+    for a, b in zip(path, path[1:]):
+        low, high = np.minimum(a, b) - 1e-7, np.maximum(a, b) + 1e-7
+        ids = np.flatnonzero(np.all(highs >= low, axis=1) & np.all(lows <= high, axis=1))
+        if not segment_on_mesh(a, b, points, [mesh.faces[int(i)] for i in ids], 1e-7):
+            return False
+    return True
 
 
 def fail(message):

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: NumPy, Matplotlib; Python stdlib (argparse, sys, pathlib);
-# local modules (mesh, verification).
+# local modules (glb2off, verification).
 """Render OFF meshes to PNG, or open them in an interactive 3D window.
 
 GLB files can be opened by Blender, MeshLab or any glTF viewer; OFF files need
@@ -30,8 +30,8 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
-from city import load_city
-from mesh import read_off
+sys.path.insert(0, str(ROOT / 'tools'))
+from glb2off import read_glb_scene
 from verification import read_paths
 
 DEFAULT_INPUT = ROOT / 'data/processed/meshes'
@@ -39,18 +39,34 @@ DEFAULT_OUTPUT = ROOT / 'generated/data_viz'
 DEFAULT_SCENE = ROOT / 'data/processed/scenes/city.standardized.glb'
 
 
+def read_off(path):
+    """Read a triangle-only OFF file into vertex and face arrays."""
+    lines = [line.strip() for line in
+             Path(path).read_text(encoding='utf-8').splitlines() if line.strip()]
+    if not lines or lines[0] != 'OFF':
+        raise SystemExit(f'{path}: not an OFF file')
+    vertex_count, face_count, _ = map(int, lines[1].split())
+    if vertex_count < 3 or face_count < 1 or len(lines) != 2 + vertex_count + face_count:
+        raise SystemExit(f'{path}: header and line count disagree')
+    points = np.array([[float(value) for value in line.split()]
+                       for line in lines[2:2 + vertex_count]])
+    faces = np.array([[int(value) for value in line.split()[1:]]
+                      for line in lines[2 + vertex_count:]])
+    if faces.ndim != 2 or faces.shape[1] != 3:
+        raise SystemExit(f'{path}: only triangle faces are supported')
+    return points, faces
+
+
 def read_scene(path, limit):
     if limit < 0:
         raise SystemExit('--scene-triangles must be zero or positive')
-    vertices, faces, _ = load_city(path)
+    vertices, faces = read_glb_scene(path, 200.)
     stride = max(1, len(faces) // limit) if limit else 1
     return vertices[faces[::stride]], len(faces)
 
 
 def render(path, output, show_paths, source, show):
-    mesh = read_off(path)
-    points = np.array([(point.x, point.y, point.z) for point in mesh.points])
-    faces = np.array(mesh.faces)
+    points, faces = read_off(path)
 
     figure = plt.figure(figsize=(9, 8))
     axes = figure.add_subplot(111, projection='3d')
@@ -91,9 +107,7 @@ def render(path, output, show_paths, source, show):
 
 
 def render_compare(path, scene, scene_total, output, show):
-    mesh = read_off(path)
-    points = np.array([(point.x, point.y, point.z) for point in mesh.points])
-    faces = np.array(mesh.faces)
+    points, faces = read_off(path)
 
     limits = np.vstack([scene.reshape(-1, 3), points])
     low, high = limits.min(axis=0), limits.max(axis=0)

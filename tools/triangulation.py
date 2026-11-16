@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
-# Main libraries: NumPy, Shapely; Python stdlib (argparse, json, pathlib,
-# tempfile); local modules (build_navigation_surface, city,
-# plan_surface_delivery).
+# Main libraries: NumPy, Shapely; Python stdlib (argparse, heapq, json, math,
+# struct, sys, tempfile, pathlib); local modules (build_navigation_surface,
+# glb2off).
 """Triangulate a navigation surface from the standardized city scene.
 
 Input:  data/processed/scenes/city.standardized.glb
@@ -19,24 +19,132 @@ Parameters are printed to the console and documented in
 data/processed/README.md. No sidecar is written.
 """
 import argparse
+import heapq
 import json
+import math
+import struct
 import sys
 import tempfile
 from pathlib import Path
 
 import numpy as np
+from shapely import polygons
+from shapely.geometry import box
+from shapely.strtree import STRtree
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 sys.path.insert(0, str(ROOT / 'tools'))
-from build_navigation_surface import write_off
-from city import load_city, write_stl
-from plan_surface_delivery import CLEARANCE, HALF_WIDTH, MAX_AXIS_SLOPE, build_surface
+from build_navigation_surface import inspect_mesh, write_off
+from glb2off import read_glb_scene
 
 DEFAULT_SCENE = ROOT / 'data/processed/scenes/city.standardized.glb'
 DEFAULT_PLAN = ROOT / 'generated/funnel_physics/delivery/horizontal_plan.json'
 DEFAULT_OUTPUT = ROOT / 'data/processed/meshes/city.standardized.triangulation.off'
 DEFAULT_STL = ROOT / 'generated/funnel_preview/city.stl'
+
+CLEARANCE = 1.5
+HALF_WIDTH = 1.6
+MAX_AXIS_SLOPE = .5
+STL_RECORD = np.dtype([('normal', '<f4', (3,)), ('triangle', '<f4', (3, 3)),
+                       ('attr', '<u2')])
+
+
+def write_stl(filename, vertices, faces):
+    triangles = vertices[faces]
+    normals = np.cross(triangles[:, 1] - triangles[:, 0],
+                       triangles[:, 2] - triangles[:, 0])
+    length = np.linalg.norm(normals, axis=1)
+    normals /= np.maximum(length[:, None], 1e-30)
+    records = np.zeros(len(faces), dtype=STL_RECORD)
+    records['normal'] = normals
+    records['triangle'] = triangles
+    with Path(filename).open('wb') as handle:
+        handle.write(b'HCM normalized preview; attribution in ATTRIBUTION.md'.ljust(80, b' '))
+        handle.write(struct.pack('<I', len(faces)))
+        handle.write(records.tobytes())
+
+
+def build_surface(start, goal, step, coverage='city', stl_path=None):
+    """Every whole mesh cell clears all inflated city-triangle AABBs below it.
+
+    Local copy of tools/plan_surface_delivery.py: build_surface, which still
+    imports modules that are being reworked. Keep the two in sync while both
+    exist.
+    """
+    triangles = np.fromfile(stl_path or (ROOT / 'generated/funnel_preview/city.stl'),
+                            dtype=STL_RECORD, offset=84)['triangle']
+    low, high = triangles.min(axis=1), triangles.max(axis=1)
+    spatial = STRtree(polygons(triangles[:, :, :2]))
+    xy = np.array([start[:2], goal[:2]])
+    if coverage == 'city':
+        extent = np.vstack((low[:, :2], high[:, :2], xy))
+    else:
+        extent = xy
+    minimum = np.floor((extent.min(axis=0) - 16.) / step) * step
+    maximum = np.ceil((extent.max(axis=0) + 16.) / step) * step
+    xs = np.unique(np.r_[np.arange(minimum[0], maximum[0] + step / 2, step), xy[:, 0]])
+    ys = np.unique(np.r_[np.arange(minimum[1], maximum[1] + step / 2, step), xy[:, 1]])
+    required = np.empty((len(xs) - 1, len(ys) - 1))
+    for i in range(len(xs) - 1):
+        for j in range(len(ys) - 1):
+            query = box(xs[i] - HALF_WIDTH, ys[j] - HALF_WIDTH,
+                        xs[i + 1] + HALF_WIDTH, ys[j + 1] + HALF_WIDTH)
+            ids = spatial.query(query)
+            required[i, j] = (float(high[ids, 2].max()) if len(ids) else 0.) + CLEARANCE
+    heights = np.full((len(xs), len(ys)), CLEARANCE)
+    for di, dj in ((0, 0), (1, 0), (0, 1), (1, 1)):
+        section = heights[di:di + len(xs) - 1, dj:dj + len(ys) - 1]
+        np.maximum(section, required, out=section)
+
+    # Spread roof heights outward to make ramps. This only raises the envelope.
+    queue = [(-float(h), i, j) for (i, j), h in np.ndenumerate(heights)]
+    heapq.heapify(queue)
+    while queue:
+        negative_height, i, j = heapq.heappop(queue)
+        height = -negative_height
+        if height < heights[i, j] - 1e-10:
+            continue
+        for a, b in ((i - 1, j), (i + 1, j), (i, j - 1), (i, j + 1)):
+            if not (0 <= a < len(xs) and 0 <= b < len(ys)):
+                continue
+            distance = math.hypot(xs[a] - xs[i], ys[b] - ys[j])
+            candidate = height - MAX_AXIS_SLOPE * distance
+            if candidate > heights[a, b] + 1e-10:
+                heights[a, b] = candidate
+                heapq.heappush(queue, (-candidate, a, b))
+
+    points = np.array([(x, y, heights[i, j]) for i, x in enumerate(xs)
+                       for j, y in enumerate(ys)])
+    faces = []
+    for i in range(len(xs) - 1):
+        for j in range(len(ys) - 1):
+            a = i * len(ys) + j
+            b, c, d = a + len(ys), a + 1, a + len(ys) + 1
+            faces.extend([(a, b, c), (b, d, c)])
+            if min(heights[i, j], heights[i + 1, j], heights[i, j + 1],
+                   heights[i + 1, j + 1]) < required[i, j] - 1e-9:
+                raise ValueError('Surface clearance construction failed')
+    faces = np.array(faces, dtype=int)
+    stats = inspect_mesh(points, faces)
+    for key in ('nonmanifold_edges', 'bad_boundary_vertices',
+                'disconnected_vertex_fans', 'degenerate_triangles'):
+        if stats[key]:
+            raise ValueError(f'Invalid surface topology: {key}')
+    source = int(np.linalg.norm(points[:, :2] - xy[0], axis=1).argmin())
+    target = int(np.linalg.norm(points[:, :2] - xy[1], axis=1).argmin())
+    # Entry and delivery descent must also have clear vertical columns.
+    for location, surface_index in ((start, source), (goal, target)):
+        x, y, bottom = location
+        ids = spatial.query(box(x - HALF_WIDTH, y - HALF_WIDTH,
+                                x + HALF_WIDTH, y + HALF_WIDTH))
+        top = points[surface_index, 2]
+        overlap = ((high[ids, 2] >= min(bottom, top) - .2) &
+                   (low[ids, 2] <= max(bottom, top) + .2))
+        if overlap.any():
+            raise ValueError('The vertical surface entry or delivery descent '
+                             'intersects city geometry')
+    return points, faces, source, target, stats
 
 
 def main():
@@ -60,7 +168,7 @@ def main():
     if args.output.exists() and not args.force:
         parser.error(f'{args.output} already exists; pass --force to overwrite')
 
-    vertices, faces, _ = load_city(args.scene)
+    vertices, faces = read_glb_scene(args.scene, 200.)
     temporary = tempfile.TemporaryDirectory()
     if args.from_scene:
         stl_path = Path(temporary.name) / 'city.standardized.stl'
@@ -73,7 +181,7 @@ def main():
     plan = json.loads(args.plan.read_text(encoding='utf-8'))
     start = np.array(plan['fixed_start'])
     goal = np.r_[plan['waypoints'][-1][:2], plan['selection']['ground_z'] + 1.1]
-    mesh, points, surface_faces, source, target, stats = build_surface(
+    points, surface_faces, source, target, stats = build_surface(
         start, goal, args.cell, args.coverage, stl_path=stl_path)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
