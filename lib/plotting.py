@@ -35,6 +35,6 @@ def use_interactive():
 
 
 def unavailable_message():
-    return ('không mở được cửa sổ đồ hoạ: cần PyQt6 hoặc tkinter. Debian/Ubuntu '
-            'xem apt.txt; NixOS symlink _tkinter vào venv hoặc chạy bằng '
-            'steam-run (xem README). Bỏ cờ yêu cầu cửa sổ để ghi PNG.')
+    return ('không mở được cửa sổ đồ hoạ: cần PyQt6 hoặc tkinter kèm thư viện '
+            'hệ thống (Debian/Ubuntu: libzstd1 libxkbcommon0 libgl1; NixOS: '
+            'symlink _tkinter hoặc steam-run). Bỏ cờ yêu cầu cửa sổ để ghi PNG.')

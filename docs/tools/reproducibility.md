@@ -61,7 +61,7 @@ commit.
 - Python 3.14.8, NumPy 2.5.4, Matplotlib 3.11.2, Shapely 2.2.0, Pillow 13.0.0
   (pin trong `requirements.txt`).
 - Phiên bản Python và NumPy của lần chạy được ghi trong từng route JSON.
-- Gói hệ thống cho cửa sổ 3D: `apt.txt` (Debian/Ubuntu); NixOS dùng `steam-run`
+- Gói hệ thống cho cửa sổ 3D: `libzstd1 libxkbcommon0 libgl1` (Debian/Ubuntu); NixOS dùng `steam-run`
   hoặc symlink `_tkinter` (xem [`../../README.md`](../../README.md)).
 
 ## Số liệu để trích dẫn

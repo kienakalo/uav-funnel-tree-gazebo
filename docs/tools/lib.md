@@ -46,7 +46,7 @@ thì ném lỗi vì thuật toán cần mesh hợp lệ.
 | Hàm | Việc |
 | --- | --- |
 | `use_interactive()` | Trả tên backend đồ hoạ (QtAgg, TkAgg, Qt5Agg, GTK3Agg) hoặc `None` |
-| `unavailable_message()` | Câu thông báo nêu cách cài (apt.txt cho Debian/Ubuntu, `steam-run` cho NixOS) |
+| `unavailable_message()` | Câu thông báo nêu cách cài: gói hệ thống trên Debian/Ubuntu, `steam-run` hoặc symlink `_tkinter` trên NixOS |
 
 Matplotlib lặng lẽ rơi về `Agg` khi không nạp được toolkit, và `plt.show()` sau
 đó không làm gì. `use_interactive` gọi `matplotlib.use(..., force=True)` trước

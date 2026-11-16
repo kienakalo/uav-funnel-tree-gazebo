@@ -1,9 +1,0 @@
-# System packages (Debian/Ubuntu) for the optional 3D windows: --show in
-# data_viz and route_viz, --pick in set_start_goal. These are apt packages,
-# not pip packages, so they stay out of requirements.txt.
-#
-# Install with: xargs -a apt.txt sudo apt install -y
-libzstd1
-libxkbcommon0
-libgl1
-libegl1

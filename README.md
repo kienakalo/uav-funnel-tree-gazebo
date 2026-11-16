@@ -42,8 +42,8 @@ Cửa sổ 3D (`--show`, `--pick`) cần thêm thư viện hệ thống, pip kh�
 
 ```bash
 # Debian/Ubuntu
-sudo apt install python3-tk      # hoặc: .venv/bin/pip install PyQt6
-xargs -a apt.txt sudo apt install -y
+sudo apt install python3-tk libzstd1 libxkbcommon0 libgl1 libegl1
+# hoặc: .venv/bin/pip install PyQt6   (vẫn cần các lib hệ thống ở trên)
 
 # NixOS: Tk nằm trong site-packages của interpreter Nix, venv không thấy
 ln -sf "$(python3 -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])')"/_tkinter*.so \
@@ -54,7 +54,7 @@ steam-run .venv/bin/python tools/plan/route_viz.py \
   --routes generated/routes/city.standardized.triangulation.json --show
 ```
 
-`apt.txt` chỉ dùng cho các cửa sổ đó; chạy stage bằng PNG thì không cần.
+Chỉ cửa sổ 3D cần các gói này; chạy stage bằng PNG thì không cần.
 
 `main.py` tự dùng `.venv/bin/python` nếu có, ngược lại dùng `python3`.
 
@@ -147,9 +147,9 @@ một lần, các lần sau chạy lại chỉ đọc, không hỏi lại.
 ```
 
 `--pick` (và `--show` của `data_viz`, `route_viz`) cần backend đồ hoạ: cài
-`sudo apt install python3-tk` hoặc `pip install PyQt6` trong `.venv`, kèm các
-gói trong `apt.txt`. Thiếu backend thì `--show` báo lỗi rõ và dừng; `--pick` tự
-chuyển sang chọn bằng bàn phím.
+`sudo apt install python3-tk` hoặc `pip install PyQt6` trong `.venv`, kèm
+`libzstd1 libxkbcommon0 libgl1` (Debian/Ubuntu). Thiếu backend thì `--show` báo
+lỗi rõ và dừng; `--pick` tự chuyển sang chọn bằng bàn phím.
 
 Mặc định tool làm việc trên bề mặt thành phố. Muốn chọn cho mesh khác, hoặc cho
 tất cả:
