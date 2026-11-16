@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
-# Main libraries: Gazebo Jetty Python bindings (gz.sim10, gz.math9); csv, json,
-# math, os, pathlib (Python stdlib); trajectory (local project module).
+# Main libraries: Gazebo Jetty Python bindings (gz.sim10/gz.math9 from a source
+# build, gz.sim/gz.math from the Debian/Ubuntu packages); csv, json, math, os,
+# pathlib (Python stdlib); trajectory (local project module).
 """Fly one planned Funnel route with a 1 kg point-mass force controller.
 
 Gazebo loads this module through gz-sim-python-system-loader-system. The world
@@ -24,8 +25,12 @@ import math
 import os
 from pathlib import Path
 
-from gz.math9 import Vector3d
-from gz.sim10 import Model, Link
+try:  # Debian/Ubuntu packages install the bindings without a version suffix
+    from gz.math import Vector3d
+    from gz.sim import Model, Link
+except ModuleNotFoundError:  # source builds expose gz.math9 and gz.sim10
+    from gz.math9 import Vector3d
+    from gz.sim10 import Model, Link
 from trajectory import Trajectory, control_acceleration
 
 COLUMNS = ['sim_time', 'x', 'y', 'z', 'target_x', 'target_y', 'target_z', 'error',

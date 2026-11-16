@@ -36,12 +36,12 @@
 ## `--check`
 
 ```
-check: gz, gz.sim10, plugin, world and SDF are ready
+check: gz, gz.sim10/gz.sim, plugin, world and SDF are ready
 world: funnel_sim_city_standardized_triangulation_g1
 run:   generated/simulate/city.standardized.triangulation-g1
 ```
 
-Nó kiểm: `gz` có trong PATH; `/usr/bin/python3` import được `gz.sim10`/`gz.math9`; plugin `funnel_drone_system` import được với `PYTHONPATH=tools/simulate/plugin`; `funnel_physics.sdf` và `route.json` tồn tại; `gz sdf -k` chấp nhận SDF.
+Nó kiểm: `gz` có trong PATH; `/usr/bin/python3` import được `gz.sim10`/`gz.math9` (bản build từ source) hoặc `gz.sim`/`gz.math` (gói Debian/Ubuntu); plugin `funnel_drone_system` import được với `PYTHONPATH=tools/simulate/plugin`; `funnel_physics.sdf` và `route.json` tồn tại; `gz sdf -k` chấp nhận SDF.
 
 ## Biến môi trường truyền cho Gazebo
 

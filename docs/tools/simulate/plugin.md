@@ -4,7 +4,7 @@
 | --- | --- |
 | Stage | `simulate` bước 2 |
 | File | `tools/simulate/plugin/trajectory.py`, `funnel_drone_system.py` |
-| Chạy trong | tiến trình Gazebo, system Python 3.12 có `gz.sim10` |
+| Chạy trong | tiến trình Gazebo, system Python 3.12 có `gz.sim10` (source build) hoặc `gz.sim` (gói Debian/Ubuntu) |
 | Vào | `route.json` (qua `FUNNEL_ROUTE`) |
 | Ra | `physics_telemetry.csv`, `telemetry_metadata.json` (trong `FUNNEL_OUTPUT_DIR`) |
 
@@ -98,7 +98,7 @@ Thời lượng danh nghĩa sau khi rút gọn (dwell 1,5 s):
 
 ## Giới hạn
 
-- Cần `gz.sim10`; không chạy được bằng venv 3.14 (không có binding).
+- Cần `gz.sim10`/`gz.math9` hoặc `gz.sim`/`gz.math`; không chạy được bằng venv 3.14 (không có binding).
 - Không import NumPy/Matplotlib — plugin chạy trong Gazebo bằng Python hệ thống.
 - Chưa kiểm chứng API trên Gazebo Jetty thực tế; nếu tên hàm đổi, sửa theo
   binding và chạy lại `--check`.

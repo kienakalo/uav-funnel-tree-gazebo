@@ -65,8 +65,12 @@ fail() { echo "run_simulate: $*" >&2; exit 1; }
 
 check_environment() {
   command -v gz >/dev/null 2>&1 || fail "gz not found; install Gazebo Jetty"
-  /usr/bin/python3 -c 'from gz.sim10 import Model, Link; from gz.math9 import Vector3d' \
-    >/dev/null 2>&1 || fail "system python3 has no gz.sim10 bindings"
+  # Source builds expose gz.sim10/gz.math9; Debian/Ubuntu packages install the
+  # same bindings without a version suffix.
+  if ! /usr/bin/python3 -c 'from gz.sim10 import Model, Link; from gz.math9 import Vector3d' >/dev/null 2>&1 &&
+     ! /usr/bin/python3 -c 'from gz.sim import Model, Link; from gz.math import Vector3d' >/dev/null 2>&1; then
+    fail "system python3 has no gz-sim 10 bindings (gz.sim10 or gz.sim)"
+  fi
   PYTHONPATH="$PWD/tools/simulate/plugin${PYTHONPATH:+:$PYTHONPATH}" \
     /usr/bin/python3 -c 'import funnel_drone_system' >/dev/null 2>&1 \
     || fail "cannot import funnel_drone_system from tools/simulate/plugin"
@@ -81,7 +85,7 @@ check_files() {
 if [[ "$check_only" == true ]]; then
   check_environment
   check_files
-  echo "check: gz, gz.sim10, plugin, world and SDF are ready"
+  echo "check: gz, gz.sim10/gz.sim, plugin, world and SDF are ready"
   echo "world: $world"
   echo "run:   $folder"
   exit 0
