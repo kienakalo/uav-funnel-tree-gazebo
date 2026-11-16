@@ -175,8 +175,8 @@ Chi tiết cờ và schema JSON ở
 - `.glb`: glTF 2 nhị phân; scene chuẩn hoá giữ Y-up, mesh dẫn xuất dùng Z-up.
 - `.paths.json`: đường tham chiếu cho ảnh kiểm tra.
 
-Quy ước chi tiết ở [`docs/data-format.md`](docs/data-format.md); mô tả thuật
-toán từng bước ở [`docs/pipeline.md`](docs/pipeline.md).
+Quy ước chi tiết ở [`docs/data-format.md`](docs/data-format.md); mỗi tool một
+file mô tả thuật toán ở [`docs/tools/`](docs/tools/README.md).
 
 ## Cấu trúc thư mục
 
@@ -207,7 +207,7 @@ lib/
 generated/               # đầu ra
 docs/
   data-format.md         # quy ước định dạng
-  pipeline.md            # từng bước và thuật toán của mỗi tool
+  tools/                 # mỗi tool một file: vào/ra, thuật toán, giới hạn
 ```
 
 `lib/` không phải package: các module được import theo tên sau khi thêm `lib/`

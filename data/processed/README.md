@@ -28,7 +28,7 @@ Tên tệp phản ánh chuỗi bước: `city.standardized.triangulation.off` = 
 standardize → triangulation.
 
 Thuật toán dựng bề mặt (lưới ô, khe hở, lan truyền dốc) được mô tả từng bước
-ở [`docs/pipeline.md`](../docs/pipeline.md) mục 2.5.
+ở [`docs/tools/triangulation.md`](../docs/tools/triangulation.md).
 
 ## Vì sao không có `city.standardized.off`
 
