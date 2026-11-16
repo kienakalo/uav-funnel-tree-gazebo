@@ -88,7 +88,7 @@ một lần, các lần sau chạy lại chỉ đọc, không hỏi lại.
 # lần đầu: chọn tay, lưu vào data/processed/missions/<mesh>.json
 .venv/bin/python tools/data/set_start_goal.py
 
-# chọn bằng chuột trong cửa sổ 3D
+# chọn bằng chuột trong cửa sổ 3D (cần Tk hoặc Qt, xem dưới)
 .venv/bin/python tools/data/set_start_goal.py --pick
 
 # không tương tác: chọn theo chỉ số hoặc toạ độ
@@ -103,7 +103,9 @@ một lần, các lần sau chạy lại chỉ đọc, không hỏi lại.
 .venv/bin/python tools/data/set_start_goal.py --force
 ```
 
-Chi tiết cờ và schema JSON ở
+`--pick` cần backend đồ hoạ: cài `sudo apt install python3-tk` hoặc
+`pip install PyQt6` trong `.venv`. Không có backend thì tool tự chuyển sang chọn
+bằng bàn phím, không dừng giữa chừng. Chi tiết cờ và schema JSON ở
 [`data/processed/README.md`](data/processed/README.md).
 
 ## Định dạng

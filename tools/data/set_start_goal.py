@@ -32,6 +32,7 @@ import argparse
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
 import sys
 
@@ -43,6 +44,7 @@ DEFAULT_MESH = ROOT / 'data/processed/meshes/city.standardized.triangulation.off
 DEFAULT_OUTPUT = ROOT / 'data/processed/missions'
 MAX_ALL_GOALS = 300
 TABLE_LIMIT = 200
+NON_GUI_BACKENDS = {'agg', 'pdf', 'svg', 'ps', 'cairo', 'template'}
 
 
 def fail(message):
@@ -240,13 +242,37 @@ def ask_console(read_line, write, points, faces, mode, max_snap):
     return start, goals, len(goals) == len(points) - 1
 
 
+def gui_backend():
+    """Name of an interactive matplotlib backend, or None without one."""
+    try:
+        import matplotlib
+    except Exception:
+        return None
+    backend = matplotlib.get_backend().lower()
+    if backend not in NON_GUI_BACKENDS:
+        return backend
+    if not (os.environ.get('DISPLAY') or os.environ.get('WAYLAND_DISPLAY')):
+        return None
+    for candidate in ('TkAgg', 'QtAgg', 'Qt5Agg', 'GTK3Agg'):
+        try:
+            matplotlib.use(candidate, force=True)
+            chosen = matplotlib.get_backend().lower()
+            if chosen not in NON_GUI_BACKENDS:
+                return chosen
+        except Exception:
+            continue
+    matplotlib.use('Agg', force=True)
+    return None
+
+
 def ask_pick(points, faces):
-    """Pick START/GOAL by clicking vertices in a 3D window."""
+    """Pick START/GOAL by clicking; None when the window cannot be used."""
     try:
         import matplotlib.pyplot as plt
         from mpl_toolkits.mplot3d import Axes3D  # noqa: F401  (registers projection)
     except Exception as error:  # pragma: no cover - depends on the display
-        fail(f'--pick needs a display: {error}')
+        print(f'  không nạp được Matplotlib: {error}', flush=True)
+        return None
 
     figure = plt.figure(figsize=(11, 9))
     axes = figure.add_subplot(111, projection='3d')
@@ -297,10 +323,15 @@ def ask_pick(points, faces):
 
     figure.canvas.mpl_connect('pick_event', on_pick)
     figure.canvas.mpl_connect('key_press_event', on_key)
-    redraw()
-    plt.show()
+    try:
+        redraw()
+        plt.show()
+    except Exception as error:  # pragma: no cover - depends on the display
+        print(f'  không mở được cửa sổ 3D: {error}', flush=True)
+        return None
     if state['start'] is None or not state['goals']:
-        fail('--pick finished without a START and at least one GOAL')
+        print('  cửa sổ đã đóng mà chưa chọn đủ START và GOAL', flush=True)
+        return None
     start = describe(points, state['start'])
     goals = [describe(points, index) for index in state['goals']]
     return start, goals, len(goals) == len(points) - 1
@@ -372,6 +403,21 @@ def summary(record, path):
         for goal in goals:
             print(f'GOAL {goal.get("id", "")}: đỉnh {goal["vertex"]} {goal["xyz"]}'
                   + (f' (snap {goal["snap"]:.3f})' if goal.get('snap') else ''))
+
+
+def choose_console(path, points, faces, mode, max_snap):
+    """Ask on the terminal, using /dev/tty when stdin is piped."""
+    streams = terminal_streams()
+    if streams is None:
+        fail('no saved mission and no terminal to ask on: pass --start X Y Z / '
+             '--goal X Y Z, --start-vertex/--goal-vertex or --all-goals')
+    read_line, write = streams
+    write(f'Chưa có {relative(path)} — chọn START/GOAL:')
+    print_vertices(points, faces, write=write)
+    try:
+        return ask_console(read_line, write, points, faces, mode, max_snap)
+    except EOFError:
+        fail('input ended before START and GOAL were chosen')
 
 
 # --------------------------------------------------------------------------
@@ -471,22 +517,31 @@ def main():
             if not goals:
                 fail('pass --goal, --goal-vertex or --all-goals')
     elif args.pick:
-        print_vertices(points, faces)
-        start, goals, all_goals = ask_pick(points, faces)
-        selected_by = 'pick'
+        backend = gui_backend()
+        if backend is None:
+            print('  --pick cần cửa sổ đồ hoạ nhưng Matplotlib không có backend '
+                  'tương tác (Tk/Qt/GTK).', flush=True)
+            print('  Cài thêm: sudo apt install python3-tk, hoặc '
+                  '"pip install PyQt6" trong .venv.', flush=True)
+            print('  Chuyển sang chọn bằng bàn phím.', flush=True)
+            start, goals, all_goals = choose_console(path, points, faces, args.snap,
+                                                     max_snap)
+            selected_by = 'console'
+        else:
+            print(f'  cửa sổ 3D (backend {backend}): click đỉnh, s=START, '
+                  'g=GOAL, u=bỏ, Enter=lưu.', flush=True)
+            picked = ask_pick(points, faces)
+            if picked is not None:
+                start, goals, all_goals = picked
+                selected_by = 'pick'
+            else:
+                print('  chuyển sang chọn bằng bàn phím.', flush=True)
+                start, goals, all_goals = choose_console(path, points, faces,
+                                                         args.snap, max_snap)
+                selected_by = 'console'
     else:
-        streams = terminal_streams()
-        if streams is None:
-            fail('no saved mission and no terminal to ask on: pass --start X Y Z / '
-                 '--goal X Y Z, --start-vertex/--goal-vertex or --all-goals')
-        read_line, write = streams
-        write(f'Chưa có {relative(path)} — chọn START/GOAL:')
-        print_vertices(points, faces, write=write)
-        try:
-            start, goals, all_goals = ask_console(read_line, write, points, faces,
-                                                  args.snap, max_snap)
-        except EOFError:
-            fail('input ended before START and GOAL were chosen')
+        start, goals, all_goals = choose_console(path, points, faces, args.snap,
+                                                 max_snap)
         selected_by = 'console'
 
     if all_goals and len(points) > MAX_ALL_GOALS:
