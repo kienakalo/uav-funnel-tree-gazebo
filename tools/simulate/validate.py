@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
+# Main libraries: Matplotlib; Python stdlib (argparse, csv, json, math, sys,
+# pathlib).
+"""Check one Gazebo run against the route it was given.
+
+Input:  generated/simulate/<mission>-<goal>/physics_telemetry.csv
+        the telemetry metadata beside it
+Output: validation.json and tracking.png in the same folder
+
+A run passes when the last telemetry row is in the complete phase and the
+largest position error stays under --max-error (default 1.0 m). Exit code is
+non-zero when it does not pass, so a stage can stop on it.
+
+Examples:
+  .venv/bin/python tools/simulate/validate.py --mission city.standardized.triangulation --goal g1
+  .venv/bin/python tools/simulate/validate.py --run generated/simulate/cliff-v3 --max-error 0.5
+"""
+import argparse
+import csv
+import hashlib
+import json
+import math
+import sys
+from pathlib import Path
+
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_ROOT = ROOT / 'generated/simulate'
+
+
+def fail(message):
+    raise SystemExit(f'validate: {message}')
+
+
+def relative(path):
+    return path.relative_to(ROOT) if path.is_relative_to(ROOT) else path
+
+
+def read_rows(path):
+    with Path(path).open(encoding='utf-8', newline='') as handle:
+        rows = list(csv.DictReader(handle))
+    if not rows:
+        fail(f'{relative(path)} has no telemetry rows')
+    required = {'sim_time', 'x', 'y', 'z', 'error', 'vx', 'vy', 'vz', 'phase'}
+    if not required.issubset(rows[0]):
+        fail(f'{relative(path)} is missing columns: '
+             f'{", ".join(sorted(required - set(rows[0])))}')
+    return rows
+
+
+def run_folder(args):
+    if args.run:
+        return args.run.resolve()
+    return (args.root / f'{args.mission}-{args.goal}').resolve()
+
+
+def analyse(rows, max_error):
+    times = [float(row['sim_time']) for row in rows]
+    errors = [float(row['error']) for row in rows]
+    speeds = [math.hypot(float(row['vx']), float(row['vy']), float(row['vz']))
+              for row in rows]
+    accelerations = []
+    for previous, current in zip(rows, rows[1:]):
+        dt = float(current['sim_time']) - float(previous['sim_time'])
+        if dt <= 0:
+            continue
+        dvx = float(current['vx']) - float(previous['vx'])
+        dvy = float(current['vy']) - float(previous['vy'])
+        dvz = float(current['vz']) - float(previous['vz'])
+        accelerations.append(math.sqrt(dvx * dvx + dvy * dvy + dvz * dvz) / dt)
+    return {
+        'rows': len(rows),
+        'completed': rows[-1]['phase'] == 'complete',
+        'duration': round(times[-1] - times[0], 3),
+        'max_error': round(max(errors), 4),
+        'mean_error': round(sum(errors) / len(errors), 4),
+        'max_speed': round(max(speeds), 4),
+        'max_acceleration': round(max(accelerations, default=0.), 4),
+        'max_error_limit': max_error,
+    }
+
+
+def render(rows, folder, title, limit):
+    times = [float(row['sim_time']) for row in rows]
+    errors = [float(row['error']) for row in rows]
+    figure, axes = plt.subplots(figsize=(10, 4.5))
+    axes.plot(times, errors, color='#c0392b', linewidth=1.4, label='position error')
+    axes.axhline(limit, color='#2c3e50', linestyle='--', linewidth=1.,
+                 label=f'limit {limit:g} m')
+    axes.set_xlabel('simulated time (s)')
+    axes.set_ylabel('error (m)')
+    axes.set_title(title)
+    axes.grid(alpha=.3)
+    axes.legend(loc='upper right')
+    figure.tight_layout()
+    output = folder / 'tracking.png'
+    figure.savefig(output, dpi=150)
+    plt.close(figure)
+    return output
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('--run', type=Path,
+                        help='Run folder (default: generated/simulate/<mission>-<goal>)')
+    parser.add_argument('--root', type=Path, default=DEFAULT_ROOT)
+    parser.add_argument('--mission', default='city.standardized.triangulation')
+    parser.add_argument('--goal', default='g1')
+    parser.add_argument('--max-error', type=float, default=1.0, metavar='M',
+                        help='Largest allowed position error in metres (default: 1.0)')
+    parser.add_argument('--no-png', action='store_true',
+                        help='Do not write tracking.png')
+    args = parser.parse_args()
+
+    if not (args.max_error > 0 and math.isfinite(args.max_error)):
+        parser.error('--max-error must be positive and finite')
+    folder = run_folder(args)
+    telemetry = folder / 'physics_telemetry.csv'
+    metadata_path = folder / 'telemetry_metadata.json'
+    if not telemetry.is_file():
+        fail(f'missing {relative(telemetry)}; run scripts/run_simulate.sh first')
+    rows = read_rows(telemetry)
+    result = analyse(rows, args.max_error)
+    metadata = {}
+    if metadata_path.is_file():
+        metadata = json.loads(metadata_path.read_text(encoding='utf-8'))
+    result.update({
+        'mission': metadata.get('mission'),
+        'goal': metadata.get('goal'),
+        'world': metadata.get('world'),
+        'route_sha256': metadata.get('route_sha256'),
+        'run_id': metadata.get('run_id'),
+        'nominal_duration': metadata.get('nominal_duration'),
+        'telemetry': str(relative(telemetry)),
+        'telemetry_sha256': hashlib.sha256(telemetry.read_bytes()).hexdigest(),
+        'passed': result['completed'] and result['max_error'] <= args.max_error,
+    })
+    output = folder / 'validation.json'
+    output.write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
+
+    title = (f'{args.mission}-{args.goal}: {result["rows"]} rows, '
+             f'max error {result["max_error"]:.2f} m')
+    if not args.no_png:
+        image = render(rows, folder, title, args.max_error)
+        print(f'Save at: {image}')
+    print(f'Rows {result["rows"]}, duration {result["duration"]:.1f} s, '
+          f'max error {result["max_error"]:.3f} m, mean {result["mean_error"]:.3f} m')
+    print(f'Max speed {result["max_speed"]:.2f} m/s, '
+          f'max accel {result["max_acceleration"]:.2f} m/s², '
+          f'completed {result["completed"]}')
+    print(f'Save at: {output}')
+    if not result['passed']:
+        raise SystemExit('validate: run failed (not complete or error above the limit)')
+
+
+if __name__ == '__main__':
+    main()

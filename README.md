@@ -71,6 +71,10 @@ python3 main.py data --no-all-meshes       # chỉ bề mặt thành phố
 python3 main.py data --force-missions      # chọn lại cả mesh đã có
 
 python3 main.py plan        # lập tuyến, vẽ ảnh, đối chiếu reference
+
+# cần Gazebo Jetty; mỗi lần một goal
+python3 main.py simulate --goal g1
+python3 main.py simulate --goal g2 --headless
 ```
 
 Sáu bước, dừng ngay khi một bước lỗi:
@@ -200,6 +204,11 @@ tools/plan/
   compare.py             # so độ dài với data/expected
 tools/simulate/
   build_world.py         # dựng world Gazebo + mesh từ một route
+  validate.py            # chấm telemetry: sai số bám, tốc độ, hoàn thành
+  plugin/                # trajectory + bộ điều khiển chạy trong Gazebo
+scripts/
+  run_simulate.sh        # dựng world, bay, chờ kết thúc
+  gazebo_system_python.sh  # chạy gz bằng Python hệ thống
 algo/
   funnel_tree.py         # lan truyền, dựng lại tuyến, tìm source
 lib/

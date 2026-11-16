@@ -23,6 +23,9 @@ Mỗi kết quả phải trả lời được: **dữ liệu nào, mã nào, tha
 | `data/processed/missions/*.json` | Có | Không có timestamp |
 | `generated/routes/*.json` | **Không** | `planning_seconds` đổi mỗi lần chạy |
 | `generated/compare/*.json` | Có | Không chứa thời gian |
+| `generated/simulate/*/physics_telemetry.csv` | Không | Phụ thuộc physics Gazebo |
+| `generated/simulate/*/telemetry_metadata.json` | Không | Có `run_id` của phiên |
+| `generated/simulate/*/validation.json` | Không | Có `run_id` và số đo phiên |
 
 Vì `planning_seconds` là số đo thật, chạy lại `main.py plan` sẽ làm route JSON
 dirty trong Git. Đó là lựa chọn có chủ đích: báo cáo cần thời gian chạy.
@@ -62,6 +65,8 @@ commit.
   (pin trong `requirements.txt`).
 - Phiên bản Python và NumPy của lần chạy được ghi trong từng route JSON.
 - Gói hệ thống cho cửa sổ 3D: `libzstd1 libxkbcommon0 libgl1` (Debian/Ubuntu); NixOS dùng `steam-run`
+- Mô phỏng: Ubuntu 24.04, Gazebo Jetty (gz-sim 10.6.0), binding `gz.sim10`; kết quả
+  telemetry chỉ có nghĩa với đúng môi trường này
   hoặc symlink `_tkinter` (xem [`../../README.md`](../../README.md)).
 
 ## Số liệu để trích dẫn

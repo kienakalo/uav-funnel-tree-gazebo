@@ -10,6 +10,8 @@ Stages:
             then record a START/GOAL mission
   plan      run Funnel for the saved missions, render the routes and compare
             their lengths with data/expected
+  simulate  build one Gazebo world, fly the route, then validate the run
+            (needs Gazebo Jetty and a display unless --headless)
   flow      print the stages and the commands they run
 
 Examples:
@@ -20,6 +22,8 @@ Examples:
   python3 main.py data --no-all-meshes   # chỉ bề mặt thành phố
   python3 main.py data --force-missions  # chọn lại cả mesh đã có
   python3 main.py plan                   # lập tuyến + ảnh + đối chiếu
+  python3 main.py simulate --goal g2     # dựng world, bay, kiểm kết quả
+  python3 main.py simulate --headless    # chạy server, không mở GUI
 
 The last step records a START/GOAL mission for every .off in
 data/processed/meshes. --no-all-meshes limits it to the navigation surface,
@@ -54,11 +58,14 @@ STAGES = {
         [PYTHON, 'tools/plan/route_viz.py'],
         [PYTHON, 'tools/plan/compare.py'],
     ],
+    # Built by stage_commands because it takes a mission and a goal.
+    'simulate': [],
 }
 
 DESCRIPTIONS = {
     'data': 'raw -> processed (fixtures, scene, GLB, surface, previews, mission)',
     'plan': 'funnel routes, route images and the reference comparison',
+    'simulate': 'one Gazebo world, the flight and its validation',
 }
 
 
@@ -70,7 +77,26 @@ def display(command):
 
 
 def stage_commands(name, args):
-    """Stage commands, with the mission flags appended to the last step."""
+    """Stage commands; the simulate stage is built from the mission and goal."""
+    if name == 'simulate':
+        mission = args.mission or 'city.standardized.triangulation'
+        goal = args.goal or 'g1'
+        # run_simulate.sh builds the world itself, so the stage only calls it
+        # once and then validates the telemetry it leaves behind.
+        run = ['bash', 'scripts/run_simulate.sh',
+               '--mission', mission, '--goal', goal]
+        if args.headless:
+            run.append('--headless')
+        if args.software:
+            run.append('--software')
+        if args.show_surface:
+            run.append('--show-surface')
+        validate = [PYTHON, 'tools/simulate/validate.py',
+                    '--mission', mission, '--goal', goal,
+                    '--max-error', f'{args.max_error or 1.0:g}']
+        if args.no_png:
+            validate.append('--no-png')
+        return [run, validate]
     commands = [list(command) for command in STAGES[name]]
     if name == 'data':
         if args.all_meshes:
@@ -117,10 +143,31 @@ def main():
                              'thành phố')
     parser.add_argument('--force-missions', action='store_true',
                         help='Bước mission: chọn lại cả khi đã có file mission')
+    parser.add_argument('--mission', help='simulate: route stem '
+                        '(default: city.standardized.triangulation)')
+    parser.add_argument('--goal', help='simulate: goal id (default: g1)')
+    parser.add_argument('--headless', action='store_true',
+                        help='simulate: run the Gazebo server without the GUI')
+    parser.add_argument('--software', action='store_true',
+                        help='simulate: force software rendering')
+    parser.add_argument('--show-surface', action='store_true',
+                        help='simulate: draw the navigation surface as well')
+    parser.add_argument('--max-error', type=float, default=None, metavar='M',
+                        help='simulate: largest allowed tracking error (default: 1.0 m)')
+    parser.add_argument('--no-png', action='store_true',
+                        help='simulate: skip tracking.png')
     args = parser.parse_args()
     if args.force_missions and not args.all_meshes:
         parser.error('--force-missions needs --all-meshes; for one mesh run '
                      'tools/data/set_start_goal.py --force')
+    simulate_flags = (args.mission or args.goal or args.headless or args.software
+                      or args.show_surface or args.max_error is not None
+                      or args.no_png)
+    if simulate_flags and 'simulate' not in (args.stages or ['data']):
+        parser.error('--mission/--goal/--headless/--software/--show-surface/'
+                     '--max-error/--no-png only apply to the simulate stage')
+    if args.max_error is not None and not (args.max_error > 0):
+        parser.error('--max-error must be positive')
     stages = args.stages or ['data']
     if 'flow' in stages:
         show_flow(args)

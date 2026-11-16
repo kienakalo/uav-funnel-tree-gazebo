@@ -45,6 +45,8 @@ Stage `simulate` cần Gazebo nên chạy riêng, không nằm trong `main.py al
 | plan | Đối chiếu reference | [`compare.md`](plan/compare.md) |
 | simulate | Dựng world + mesh | [`build_world.md`](simulate/build_world.md) |
 | simulate | Plugin bay (trajectory + controller) | [`plugin.md`](simulate/plugin.md) |
+| simulate | Dựng world + bay + backup | [`run_simulate.md`](simulate/run_simulate.md) |
+| simulate | Chấm kết quả | [`validate.md`](simulate/validate.md) |
 | — | Thuật toán | [`funnel_tree.md`](funnel_tree.md) |
 | — | Thư viện dùng chung | [`lib.md`](lib.md) |
 | — | Tái lập | [`reproducibility.md`](reproducibility.md) |
