@@ -1,0 +1,78 @@
+{
+  "mesh": "data/processed/meshes/cube.off",
+  "mesh_sha256": "6b844f3cd49ee6ba473f01dea6e12caa82363181c557aad5dd89acc9c3db63a0",
+  "mesh_vertices": 8,
+  "mesh_faces": 12,
+  "boundary_edges": 18,
+  "vertex_spacing": 1.0,
+  "snap_mode": "xy",
+  "max_snap": 0.707107,
+  "mode": "all-goals",
+  "selected_by": "console",
+  "start": {
+    "vertex": 0,
+    "xyz": [
+      0.0,
+      0.0,
+      1.0
+    ]
+  },
+  "goals": [
+    {
+      "vertex": 1,
+      "xyz": [
+        0.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "vertex": 2,
+      "xyz": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "vertex": 3,
+      "xyz": [
+        1.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "vertex": 4,
+      "xyz": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "vertex": 5,
+      "xyz": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "vertex": 6,
+      "xyz": [
+        1.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "vertex": 7,
+      "xyz": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    }
+  ]
+}

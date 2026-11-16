@@ -1,0 +1,142 @@
+{
+  "mesh": "data/processed/meshes/star.off",
+  "mesh_sha256": "6cdb241372a64d4b5e6c76f9356e4b129ec9cbeb89b511b2c6eabf063134f078",
+  "mesh_vertices": 16,
+  "mesh_faces": 28,
+  "boundary_edges": 42,
+  "vertex_spacing": 1.5,
+  "snap_mode": "xy",
+  "max_snap": 1.06066,
+  "mode": "all-goals",
+  "selected_by": "console",
+  "start": {
+    "vertex": 0,
+    "xyz": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "goals": [
+    {
+      "vertex": 1,
+      "xyz": [
+        1.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "vertex": 2,
+      "xyz": [
+        3.0,
+        2.0,
+        0.0
+      ]
+    },
+    {
+      "vertex": 3,
+      "xyz": [
+        1.0,
+        3.0,
+        0.0
+      ]
+    },
+    {
+      "vertex": 4,
+      "xyz": [
+        0.0,
+        4.0,
+        0.0
+      ]
+    },
+    {
+      "vertex": 5,
+      "xyz": [
+        -1.0,
+        3.0,
+        0.0
+      ]
+    },
+    {
+      "vertex": 6,
+      "xyz": [
+        -1.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "vertex": 7,
+      "xyz": [
+        -3.0,
+        2.0,
+        0.0
+      ]
+    },
+    {
+      "vertex": 8,
+      "xyz": [
+        0.0,
+        0.0,
+        4.0
+      ]
+    },
+    {
+      "vertex": 9,
+      "xyz": [
+        1.0,
+        1.0,
+        4.0
+      ]
+    },
+    {
+      "vertex": 10,
+      "xyz": [
+        3.0,
+        2.0,
+        4.0
+      ]
+    },
+    {
+      "vertex": 11,
+      "xyz": [
+        1.0,
+        3.0,
+        4.0
+      ]
+    },
+    {
+      "vertex": 12,
+      "xyz": [
+        0.0,
+        4.0,
+        4.0
+      ]
+    },
+    {
+      "vertex": 13,
+      "xyz": [
+        -1.0,
+        3.0,
+        4.0
+      ]
+    },
+    {
+      "vertex": 14,
+      "xyz": [
+        -3.0,
+        2.0,
+        4.0
+      ]
+    },
+    {
+      "vertex": 15,
+      "xyz": [
+        -1.0,
+        1.0,
+        4.0
+      ]
+    }
+  ]
+}

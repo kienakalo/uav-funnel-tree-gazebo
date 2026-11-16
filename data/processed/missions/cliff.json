@@ -1,0 +1,70 @@
+{
+  "mesh": "data/processed/meshes/cliff.off",
+  "mesh_sha256": "d4c9c65ad0fd6c64b4e5ae3e70a034d4761d093d02f431159fabf345fb914f75",
+  "mesh_vertices": 7,
+  "mesh_faces": 10,
+  "boundary_edges": 15,
+  "vertex_spacing": 0.959325,
+  "snap_mode": "xy",
+  "max_snap": 0.678345,
+  "mode": "all-goals",
+  "selected_by": "console",
+  "start": {
+    "vertex": 0,
+    "xyz": [
+      2.0,
+      2.0,
+      0.0
+    ]
+  },
+  "goals": [
+    {
+      "vertex": 1,
+      "xyz": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "vertex": 2,
+      "xyz": [
+        3.0,
+        -2.0,
+        0.0
+      ]
+    },
+    {
+      "vertex": 3,
+      "xyz": [
+        2.0,
+        -1.0,
+        3.0
+      ]
+    },
+    {
+      "vertex": 4,
+      "xyz": [
+        1.0,
+        -0.5,
+        1.5
+      ]
+    },
+    {
+      "vertex": 5,
+      "xyz": [
+        0.91865,
+        1.45943,
+        1.5
+      ]
+    },
+    {
+      "vertex": 6,
+      "xyz": [
+        0.0,
+        2.0,
+        3.0
+      ]
+    }
+  ]
+}
