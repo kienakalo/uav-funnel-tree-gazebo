@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: NumPy; Matplotlib (chỉ khi dùng --pick); Python stdlib
-# (argparse, hashlib, json, math, os, pathlib, sys); local modules (mesh_off).
+# (argparse, hashlib, json, math, pathlib, sys); local modules (mesh_off,
+# plotting).
 """Choose START and GOAL vertices on an OFF mesh and save them as JSON.
 
 Input:  data/processed/meshes/city.standardized.triangulation.off (or --mesh)
@@ -41,7 +42,6 @@ import argparse
 import hashlib
 import json
 import math
-import os
 from pathlib import Path
 import sys
 
@@ -50,12 +50,12 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'lib'))
 from mesh_off import inspect_mesh, read_off
+from plotting import unavailable_message, use_interactive
 
 DEFAULT_MESH = ROOT / 'data/processed/meshes/city.standardized.triangulation.off'
 DEFAULT_OUTPUT = ROOT / 'data/processed/missions'
 MAX_ALL_GOALS = 300
 TABLE_LIMIT = 200
-NON_GUI_BACKENDS = {'agg', 'pdf', 'svg', 'ps', 'cairo', 'template'}
 
 
 def fail(message):
@@ -233,25 +233,7 @@ def ask_console(read_line, write, points, faces, mode, max_snap):
 
 def gui_backend():
     """Name of an interactive matplotlib backend, or None without one."""
-    try:
-        import matplotlib
-    except Exception:
-        return None
-    backend = matplotlib.get_backend().lower()
-    if backend not in NON_GUI_BACKENDS:
-        return backend
-    if not (os.environ.get('DISPLAY') or os.environ.get('WAYLAND_DISPLAY')):
-        return None
-    for candidate in ('TkAgg', 'QtAgg', 'Qt5Agg', 'GTK3Agg'):
-        try:
-            matplotlib.use(candidate, force=True)
-            chosen = matplotlib.get_backend().lower()
-            if chosen not in NON_GUI_BACKENDS:
-                return chosen
-        except Exception:
-            continue
-    matplotlib.use('Agg', force=True)
-    return None
+    return use_interactive()
 
 
 def ask_pick(points, faces):
@@ -493,10 +475,7 @@ def process_mesh(mesh_path, args):
     elif args.pick:
         backend = gui_backend()
         if backend is None:
-            print('  --pick cần cửa sổ đồ hoạ nhưng Matplotlib không có backend '
-                  'tương tác (Tk/Qt/GTK).', flush=True)
-            print('  Cài thêm: sudo apt install python3-tk, hoặc '
-                  '"pip install PyQt6" trong .venv.', flush=True)
+            print(f'  --pick: {unavailable_message()}', flush=True)
             print('  Chuyển sang chọn bằng bàn phím.', flush=True)
             start, goals, all_goals = choose_console(path, points, faces, args.snap,
                                                      max_snap)

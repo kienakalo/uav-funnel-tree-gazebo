@@ -128,9 +128,10 @@ một lần, các lần sau chạy lại chỉ đọc, không hỏi lại.
 .venv/bin/python tools/data/set_start_goal.py --force
 ```
 
-`--pick` cần backend đồ hoạ: cài `sudo apt install python3-tk` hoặc
-`pip install PyQt6` trong `.venv`. Không có backend thì tool tự chuyển sang chọn
-bằng bàn phím, không dừng giữa chừng.
+`--pick` (và `--show` của `data_viz`, `route_viz`) cần backend đồ hoạ: cài
+`sudo apt install python3-tk` hoặc `pip install PyQt6` trong `.venv`, kèm thư
+viện hệ thống `sudo apt install libzstd1 libxkbcommon0 libgl1`. Thiếu backend
+thì `--show` báo lỗi rõ và dừng; `--pick` tự chuyển sang chọn bằng bàn phím.
 
 Mặc định tool làm việc trên bề mặt thành phố. Muốn chọn cho mesh khác, hoặc cho
 tất cả:
@@ -184,6 +185,7 @@ algo/
 lib/
   mesh_glb.py            # container GLB
   mesh_off.py            # đọc/ghi OFF + lớp Mesh (kề, góc, khoảng cách)
+  plotting.py            # chọn backend cửa sổ, báo lỗi rõ khi thiếu
 generated/               # đầu ra, không commit
 docs/data-format.md      # quy ước định dạng
 ```

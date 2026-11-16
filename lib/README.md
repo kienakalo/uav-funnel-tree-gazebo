@@ -1,6 +1,6 @@
 # Mã nguồn dùng chung
 
-Hai module. Đây **không phải package**: không có `__init__.py`, các module được
+Ba module. Đây **không phải package**: không có `__init__.py`, các module được
 import trực tiếp theo tên (`from mesh_glb import write_glb`) sau khi chương trình
 thêm `lib/` vào `sys.path`. Tool mới dùng `lib/` cần thêm cùng một dòng.
 
@@ -8,6 +8,7 @@ thêm `lib/` vào `sys.path`. Tool mới dùng `lib/` cần thêm cùng một d�
 | --- | --- | --- |
 | `mesh_glb.py` | `read_glb`, `write_glb`, `indexed_from_triangles`: container GLB 2 | — (chỉ stdlib + NumPy) |
 | `mesh_off.py` | `read_off`, `write_off`, `inspect_mesh`, `unique_edge_count` và lớp `Point`/`Mesh` | — (chỉ stdlib + NumPy) |
+| `plotting.py` | `use_interactive`, `unavailable_message`: chọn backend cửa sổ, báo rõ khi thiếu | — (chỉ stdlib) |
 
 Lớp `Mesh` trong `mesh_off.py` là cấu trúc dữ liệu thuật toán đi trên: `points`,
 `faces`, `vertex_faces`, `edge_faces`, `distance`, `angle`, `other_face`,

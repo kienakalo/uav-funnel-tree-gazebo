@@ -22,14 +22,20 @@ import json
 import sys
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / 'lib'))
+
 import numpy as np
 import matplotlib
-if '--show' not in sys.argv:
+from plotting import unavailable_message, use_interactive
+
+if '--show' in sys.argv:
+    if use_interactive() is None:
+        raise SystemExit(f'route_viz: {unavailable_message()}')
+else:
     matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / 'lib'))
 from mesh_off import read_off
 
 DEFAULT_INPUT = ROOT / 'generated/routes'
