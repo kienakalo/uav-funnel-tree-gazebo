@@ -37,9 +37,10 @@ python3 main.py flow        # liệt kê các bước và lệnh
 python3 main.py data        # chạy toàn bộ stage
 python3 main.py data --dry-run
 
-# bước 6 chọn START/GOAL cho mọi mesh, kể cả mesh kiểm thử
-python3 main.py data --all-meshes
-python3 main.py data --all-meshes --force-missions   # chọn lại từ đầu
+# bước 6 mặc định chọn START/GOAL cho mọi mesh (10 file mission)
+python3 main.py data
+python3 main.py data --no-all-meshes       # chỉ bề mặt thành phố
+python3 main.py data --force-missions      # chọn lại cả mesh đã có
 ```
 
 Sáu bước, dừng ngay khi một bước lỗi:

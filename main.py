@@ -11,17 +11,18 @@ Stages:
   flow      print the stage and the commands it runs
 
 Examples:
-  python3 main.py                       # same as: python3 main.py data
+  python3 main.py                        # same as: python3 main.py data
   python3 main.py flow
   python3 main.py data
   python3 main.py data --dry-run
-  python3 main.py data --all-meshes     # chọn START/GOAL cho mọi mesh .off
-  python3 main.py data --all-meshes --force-missions
+  python3 main.py data --no-all-meshes   # chỉ bề mặt thành phố
+  python3 main.py data --force-missions  # chọn lại cả mesh đã có
 
-By default the last step records a START/GOAL mission for the navigation
-surface only. --all-meshes runs the same choice flow over every .off in
-data/processed/meshes, and --force-missions replaces missions that already
-exist. Both flags are interactive: run them in a terminal.
+The last step records a START/GOAL mission for every .off in
+data/processed/meshes. --no-all-meshes limits it to the navigation surface,
+and --force-missions replaces missions that already exist. The step is
+interactive: run it in a terminal, or commit the mission files for a
+non-interactive run.
 
 The data stage needs NumPy, Matplotlib (previews) and Shapely (triangulation).
 It rewrites data/processed/ and generated/data_viz/, and writes the missions to
@@ -100,15 +101,17 @@ def main():
                         help='data or flow')
     parser.add_argument('--dry-run', action='store_true',
                         help='Print the commands without running them')
-    parser.add_argument('--all-meshes', action='store_true',
-                        help='Bước mission: chọn START/GOAL cho mọi mesh .off, '
-                             'không chỉ bề mặt thành phố')
+    parser.add_argument('--all-meshes', action=argparse.BooleanOptionalAction,
+                        default=True,
+                        help='Bước mission: chọn START/GOAL cho mọi mesh .off '
+                             '(mặc định). Dùng --no-all-meshes để chỉ chọn bề mặt '
+                             'thành phố')
     parser.add_argument('--force-missions', action='store_true',
                         help='Bước mission: chọn lại cả khi đã có file mission')
     args = parser.parse_args()
     if args.force_missions and not args.all_meshes:
-        parser.error('--force-missions only applies together with --all-meshes; '
-                     'dùng tools/data/set_start_goal.py --force cho một mesh')
+        parser.error('--force-missions needs --all-meshes; for one mesh run '
+                     'tools/data/set_start_goal.py --force')
     stages = args.stages or ['data']
     if 'flow' in stages:
         show_flow(args)

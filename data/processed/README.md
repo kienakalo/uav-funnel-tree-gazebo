@@ -148,9 +148,10 @@ hai thì dừng với thông báo rõ ràng.
 # chọn cho mọi mesh còn thiếu
 .venv/bin/python tools/data/set_start_goal.py --all-meshes
 
-# hoặc chạy cả stage với bước chọn cho mọi mesh
-python3 main.py data --all-meshes
-python3 main.py data --all-meshes --force-missions
+# hoặc chạy cả stage: bước mission mặc định chọn cho mọi mesh
+python3 main.py data
+python3 main.py data --no-all-meshes    # chỉ bề mặt thành phố
+python3 main.py data --force-missions   # chọn lại cả mesh đã có
 
 # chọn bằng chuột trong cửa sổ 3D
 .venv/bin/python tools/data/set_start_goal.py --pick
