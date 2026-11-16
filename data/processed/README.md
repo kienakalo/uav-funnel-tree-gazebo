@@ -27,6 +27,9 @@ dưới và in ra khi chạy tool.
 Tên tệp phản ánh chuỗi bước: `city.standardized.triangulation.off` = city →
 standardize → triangulation.
 
+Thuật toán dựng bề mặt (lưới ô, khe hở, lan truyền dốc) được mô tả từng bước
+ở [`docs/pipeline.md`](../docs/pipeline.md) mục 2.5.
+
 ## Vì sao không có `city.standardized.off`
 
 Scene chuẩn hoá là **GLB** vì cần giữ object, transform và mở được bằng

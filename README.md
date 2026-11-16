@@ -175,8 +175,8 @@ Chi tiết cờ và schema JSON ở
 - `.glb`: glTF 2 nhị phân; scene chuẩn hoá giữ Y-up, mesh dẫn xuất dùng Z-up.
 - `.paths.json`: đường tham chiếu cho ảnh kiểm tra.
 
-Quy ước chi tiết ở [`docs/data-format.md`](docs/data-format.md) và
-[`data/README.md`](data/README.md).
+Quy ước chi tiết ở [`docs/data-format.md`](docs/data-format.md); mô tả thuật
+toán từng bước ở [`docs/pipeline.md`](docs/pipeline.md).
 
 ## Cấu trúc thư mục
 
@@ -204,8 +204,10 @@ lib/
   mesh_glb.py            # container GLB
   mesh_off.py            # đọc/ghi OFF + lớp Mesh (kề, góc, khoảng cách)
   plotting.py            # chọn backend cửa sổ, báo lỗi rõ khi thiếu
-generated/               # đầu ra, không commit
-docs/data-format.md      # quy ước định dạng
+generated/               # đầu ra
+docs/
+  data-format.md         # quy ước định dạng
+  pipeline.md            # từng bước và thuật toán của mỗi tool
 ```
 
 `lib/` không phải package: các module được import theo tên sau khi thêm `lib/`
