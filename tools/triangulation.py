@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: NumPy, Shapely; Python stdlib (argparse, heapq, json, math,
-# struct, sys, tempfile, pathlib); local modules (build_navigation_surface,
-# glb2off).
+# sys, pathlib); local modules (build_navigation_surface, glb2off).
 """Triangulate a navigation surface from the standardized city scene.
 
 Input:  data/processed/scenes/city.standardized.glb
@@ -15,6 +14,11 @@ spread into ramps. Coordinates are in the normalized Gazebo frame (Z-up), the
 same frame as the delivery plan. This is a safety envelope above the city, not
 the bare terrain or rooftops.
 
+The city triangles are read from the standardized scene, so the step needs no
+intermediate STL. The scene is re-read with the same reader the visualization
+uses, which bakes the node transforms, switches to Z-up and normalizes the
+width to 200 m.
+
 Parameters are printed to the console and documented in
 data/processed/README.md. No sidecar is written.
 """
@@ -22,9 +26,7 @@ import argparse
 import heapq
 import json
 import math
-import struct
 import sys
-import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -41,39 +43,14 @@ from glb2off import read_glb_scene
 DEFAULT_SCENE = ROOT / 'data/processed/scenes/city.standardized.glb'
 DEFAULT_PLAN = ROOT / 'generated/funnel_physics/delivery/horizontal_plan.json'
 DEFAULT_OUTPUT = ROOT / 'data/processed/meshes/city.standardized.triangulation.off'
-DEFAULT_STL = ROOT / 'generated/funnel_preview/city.stl'
 
 CLEARANCE = 1.5
 HALF_WIDTH = 1.6
 MAX_AXIS_SLOPE = .5
-STL_RECORD = np.dtype([('normal', '<f4', (3,)), ('triangle', '<f4', (3, 3)),
-                       ('attr', '<u2')])
 
 
-def write_stl(filename, vertices, faces):
-    triangles = vertices[faces]
-    normals = np.cross(triangles[:, 1] - triangles[:, 0],
-                       triangles[:, 2] - triangles[:, 0])
-    length = np.linalg.norm(normals, axis=1)
-    normals /= np.maximum(length[:, None], 1e-30)
-    records = np.zeros(len(faces), dtype=STL_RECORD)
-    records['normal'] = normals
-    records['triangle'] = triangles
-    with Path(filename).open('wb') as handle:
-        handle.write(b'HCM normalized preview; attribution in ATTRIBUTION.md'.ljust(80, b' '))
-        handle.write(struct.pack('<I', len(faces)))
-        handle.write(records.tobytes())
-
-
-def build_surface(start, goal, step, coverage='city', stl_path=None):
-    """Every whole mesh cell clears all inflated city-triangle AABBs below it.
-
-    Local copy of tools/plan_surface_delivery.py: build_surface, which still
-    imports modules that are being reworked. Keep the two in sync while both
-    exist.
-    """
-    triangles = np.fromfile(stl_path or (ROOT / 'generated/funnel_preview/city.stl'),
-                            dtype=STL_RECORD, offset=84)['triangle']
+def build_surface(triangles, start, goal, step, coverage='city'):
+    """Every whole mesh cell clears all inflated city-triangle AABBs below it."""
     low, high = triangles.min(axis=1), triangles.max(axis=1)
     spatial = STRtree(polygons(triangles[:, :, :2]))
     xy = np.array([start[:2], goal[:2]])
@@ -154,12 +131,8 @@ def main():
     parser.add_argument('--cell', type=float, default=5.)
     parser.add_argument('--coverage', choices=('city', 'mission'), default='city')
     parser.add_argument('--output', type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument('--stl', type=Path, default=DEFAULT_STL,
-                        help='Canonical normalized city STL used by the delivery plan')
     parser.add_argument('--force', action='store_true',
                         help='Overwrite an existing surface')
-    parser.add_argument('--from-scene', action='store_true',
-                        help='Rebuild the STL from the scene instead of using the canonical STL')
     args = parser.parse_args()
     if not args.scene.is_file():
         parser.error(f'Missing standardized scene: {args.scene}. Run tools/standardize.py first.')
@@ -169,20 +142,11 @@ def main():
         parser.error(f'{args.output} already exists; pass --force to overwrite')
 
     vertices, faces = read_glb_scene(args.scene, 200.)
-    temporary = tempfile.TemporaryDirectory()
-    if args.from_scene:
-        stl_path = Path(temporary.name) / 'city.standardized.stl'
-        write_stl(stl_path, vertices, faces)
-    else:
-        if not args.stl.is_file():
-            parser.error(f'Missing canonical STL: {args.stl}; run tools/prepare_funnel_gazebo.py')
-        stl_path = args.stl
-
     plan = json.loads(args.plan.read_text(encoding='utf-8'))
     start = np.array(plan['fixed_start'])
     goal = np.r_[plan['waypoints'][-1][:2], plan['selection']['ground_z'] + 1.1]
     points, surface_faces, source, target, stats = build_surface(
-        start, goal, args.cell, args.coverage, stl_path=stl_path)
+        vertices[faces], start, goal, args.cell, args.coverage)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     write_off(args.output, points, surface_faces, stats['edges'])
@@ -199,7 +163,6 @@ def main():
         'nonmanifold_edges': int(stats['nonmanifold_edges']),
     }))
     print(f'Save at: {args.output}')
-    temporary.cleanup()
 
 
 if __name__ == '__main__':

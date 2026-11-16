@@ -31,10 +31,10 @@ standardize → triangulation.
 Scene chuẩn hoá là **GLB** vì cần giữ object, transform và mở được bằng
 Blender/MeshLab. `.off` chỉ dành cho mesh dẫn xuất: một lưới duy nhất, đỉnh
 dùng chung, toạ độ double. Thành phố ở hệ Gazebo đã chuẩn hoá được
-`tools/data_viz.py --scene` dựng trực tiếp từ `scenes/city.standardized.glb`
-(`src/city.py: load_city`, chuẩn hoá về width 200), nên không cần thêm một bản
-OFF ~20 MB không có nơi dùng. `tools/triangulation.py` cũng đọc
-`generated/funnel_preview/city.stl` trong cùng hệ đó.
+`tools/data_viz.py --scene` và `tools/triangulation.py` dựng trực tiếp từ
+`scenes/city.standardized.glb` qua `tools/glb2off.py: read_glb_scene` (bake
+transform, đổi Z-up, chuẩn hoá width 200), nên không cần thêm một bản OFF
+~20 MB không có nơi dùng và cũng không cần STL trung gian.
 
 ## Chạy
 
@@ -44,19 +44,23 @@ python3 tools/standardize.py
 python3 tools/off2glb.py
 .venv/bin/python tools/triangulation.py --force
 .venv/bin/python tools/data_viz.py --all
+.venv/bin/python tools/set_start_goal.py \
+  --start -38.752 22.103 7.206 --goal 74.737 -55.357 7.206 \
+  --name data-demo --force
 ```
 
-Bước cuối render mỗi mesh `.off` thành một ảnh PNG trong
+Bước `data_viz` render mỗi mesh `.off` thành một ảnh PNG trong
 `generated/data_viz/`, kèm các đường tham chiếu trong `data/expected/` nếu có.
-Dùng `--show` để mở cửa sổ 3D tương tác thay vì ghi PNG.
+Dùng `--show` để mở cửa sổ 3D tương tác thay vì ghi PNG. Bước cuối dựng một
+nhiệm vụ mẫu trong `generated/missions/data-demo/`.
 
 `check.py`, `plan.py` và `tests/` đọc fixture từ `data/processed/meshes/`,
 không đọc thẳng `data/raw/`.
 
 Thêm `--force` khi ghi đè bề mặt đã có; nếu không, tool dừng. `triangulation.py`
-cần Shapely và dùng STL chuẩn `generated/funnel_preview/city.stl` (cùng hệ với
-`horizontal_plan.json`). Thêm `--from-scene` nếu muốn dựng lại STL từ scene;
-khi đó bề mặt có thể lệch khoảng 1e-6 do scene lưu float32 và bị chuẩn hoá lại.
+cần Shapely, đọc thẳng `data/processed/scenes/city.standardized.glb` và lấy
+START/GOAL từ `generated/funnel_physics/delivery/horizontal_plan.json` (cùng hệ
+toạ độ). Không còn bước STL trung gian.
 
 ## Xem mesh `.off`
 
@@ -102,7 +106,7 @@ thoát. Cần môi trường có giao diện (Ubuntu/WSLg); nếu backend không
 dùng chế độ ghi PNG.
 
 Mesh có `data/expected/<tên>.paths.json` sẽ được vẽ đè các đường tham chiếu
-màu đỏ. `python3 main.py data` render tất cả ở bước cuối của stage `data`.
+màu đỏ. `python3 main.py data` render tất cả ở bước 5 của stage `data`.
 
 ## Chọn START/GOAL thủ công
 
@@ -187,11 +191,35 @@ Fixture có thể chỉ định bằng chỉ số đỉnh:
 | Vertical clearance | 1,5 |
 | Horizontal half width | 1,6 |
 | Max axis slope | 0,5 |
-| STL đầu vào | `generated/funnel_preview/city.stl` |
+| Scene đầu vào | `data/processed/scenes/city.standardized.glb` |
+| Plan đầu vào | `generated/funnel_physics/delivery/horizontal_plan.json` |
 | Kết quả | 2.295 đỉnh, 4.400 tam giác, 6.694 cạnh |
 
 Tham số được in ra console mỗi lần chạy. Không có file metadata đi kèm; muốn
 tái lập thì dùng đúng lệnh và tham số ở trên.
+
+### Thay đổi nguồn dựng bề mặt (2026-11-16)
+
+`tools/triangulation.py` chuyển từ STL trung gian
+(`generated/funnel_preview/city.stl`, dựng từ `data/raw/scenes/city.glb`) sang
+đọc thẳng scene đã chuẩn hoá. Hai nguồn không cho cùng byte vì
+`tools/standardize.py` làm tròn float32 *trước* khi chuẩn hoá, còn STL làm tròn
+*sau*. Đo được trên bề mặt 2.295 đỉnh:
+
+| | Trước | Sau |
+| --- | --- | --- |
+| SHA256 `city.standardized.triangulation.off` | `7baf3c084dd6767350c8b0dcf27e5490aa3b7ba16fabfd6854df0d6cf9ed7310` | `f6e01c6d421f71aec828ae2f71593e7b2d0460604453459eb5e86b2ea47b28df` |
+| Dung lượng | 117.644 byte | 117.870 byte |
+| Toạ độ XY và danh sách mặt | — | giống tuyệt đối |
+| Cao độ z | — | lệch ≤ 1,822e-06 m (1385/2295 đỉnh) |
+
+Các manifest đã track trong `generated/city_three_goals/`,
+`generated/funnel_physics/surface_delivery/`,
+`generated/funnel_surface_reference/` và `generated/surface_sensitivity/` ghi SHA
+cũ như dấu vết của lần chạy trước; bản `surface.off` riêng của từng thí nghiệm
+vẫn nguyên nên kết quả bên trong vẫn tương ứng với hình học đã dùng. Đổi SHA này
+không làm thay đổi hình học ở mức có nghĩa (≈2 µm), nhưng phải chạy lại thí
+nghiệm nếu cần manifest khớp tuyệt đối.
 
 ## Trục toạ độ
 

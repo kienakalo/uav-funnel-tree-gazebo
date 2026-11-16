@@ -88,7 +88,7 @@ data/raw/scenes/city.glb
         │ tools/standardize.py
         ▼
 data/processed/scenes/city.standardized.glb          Y-up, để xem/trao đổi
-        │ tools/triangulation.py                     (cùng STL chuẩn của delivery plan)
+        │ tools/triangulation.py                     (đọc thẳng scene, không qua STL)
         ▼
 data/processed/meshes/city.standardized.triangulation.off         Z-up, hệ Gazebo
         │
@@ -200,7 +200,9 @@ Tiêu chí hoàn thành:
 - **GLB float32**: fixture `demo_mesh` có toạ độ double (~300), chuyển sang
   GLB sẽ làm tròn còn khoảng 7 chữ số. Giữ `.off` làm nguồn gốc double và
   coi GLB là bản dẫn xuất để tránh thay đổi ngữ nghĩa của kiểm thử.
-- **Gazebo và GLB**: cần kiểm tra một lần với `scene.glb` trước khi bỏ STL.
+- **Gazebo và GLB**: `tools/triangulation.py` đã bỏ STL trung gian; Gazebo vẫn
+  dùng `city.stl`/`surface.stl` làm visual + collision, nên cần kiểm tra một lần
+  với `scene.glb` trước khi bỏ STL ở phần mô phỏng.
 - **Không có NumPy trong môi trường hiện tại**: không thể chạy `check.py`
   hoặc regenerate; migration phải thực hiện trong môi trường Ubuntu của dự án.
 
