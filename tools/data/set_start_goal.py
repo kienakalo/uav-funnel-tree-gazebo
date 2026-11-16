@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: NumPy; Matplotlib (chỉ khi dùng --pick); Python stdlib
-# (argparse, hashlib, json, math, pathlib, sys).
+# (argparse, hashlib, json, math, os, pathlib, sys); local modules (off).
 """Choose START and GOAL vertices on an OFF mesh and save them as JSON.
 
 Input:  data/processed/meshes/city.standardized.triangulation.off (or --mesh)
@@ -48,6 +48,8 @@ import sys
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / 'src'))
+from off import inspect_mesh, read_off
 
 DEFAULT_MESH = ROOT / 'data/processed/meshes/city.standardized.triangulation.off'
 DEFAULT_OUTPUT = ROOT / 'data/processed/missions'
@@ -69,38 +71,16 @@ def relative(path):
 
 
 def read_mesh(path):
-    """Read a triangle-only OFF file and check the topology Funnel needs."""
-    lines = [line.strip() for line in
-             Path(path).read_text(encoding='utf-8').splitlines() if line.strip()]
-    if not lines or lines[0] != 'OFF':
-        fail(f'{path}: not an OFF file')
-    try:
-        vertex_count, face_count, _ = map(int, lines[1].split())
-    except ValueError:
-        fail(f'{path}: the header is not "V F E"')
-    if vertex_count < 3 or face_count < 1 or len(lines) != 2 + vertex_count + face_count:
-        fail(f'{path}: header and line count disagree')
-    points = np.array([[float(value) for value in line.split()]
-                       for line in lines[2:2 + vertex_count]])
-    faces = np.array([[int(value) for value in line.split()[1:]]
-                      for line in lines[2 + vertex_count:]])
-    if faces.ndim != 2 or faces.shape[1] != 3:
-        fail(f'{path}: only triangle faces are supported')
-    if faces.min() < 0 or faces.max() >= vertex_count:
-        fail(f'{path}: face index outside 0..{vertex_count - 1}')
-    if len({tuple(point) for point in points.tolist()}) != vertex_count:
+    """Read an OFF mesh and check the topology a mission needs."""
+    points, faces = read_off(path)
+    if len(np.unique(points, axis=0)) != len(points):
         fail(f'{path}: two vertices share coordinates')
-    areas = np.linalg.norm(np.cross(points[faces[:, 1]] - points[faces[:, 0]],
-                                    points[faces[:, 2]] - points[faces[:, 0]]),
-                           axis=1) / 2
-    if (areas <= 1e-12).any():
-        fail(f'{path}: {int((areas <= 1e-12).sum())} degenerate triangles')
-    edges = np.sort(np.concatenate((faces[:, [0, 1]], faces[:, [1, 2]],
-                                    faces[:, [2, 0]])), axis=1)
-    _, counts = np.unique(edges, axis=0, return_counts=True)
-    if counts.max() > 2:
+    stats = inspect_mesh(points, faces)
+    if stats['degenerate_triangles']:
+        fail(f'{path}: {stats["degenerate_triangles"]} degenerate triangles')
+    if stats['nonmanifold_edges']:
         fail(f'{path}: an edge borders more than two faces')
-    return points, faces, len(edges) - int((counts == 2).sum())
+    return points, faces, stats['boundary_edges']
 
 
 def vertex_spacing(points):

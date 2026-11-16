@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
 # Main libraries: NumPy, Matplotlib; Python stdlib (argparse, json, math, sys,
-# pathlib); local modules (glb2off).
+# pathlib); local modules (glb2off, off).
 """Render OFF meshes to PNG, or open them in an interactive 3D window.
 
 GLB files can be opened by Blender, MeshLab or any glTF viewer; OFF files need
@@ -31,30 +31,14 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / 'src'))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from glb2off import read_glb_scene
+from off import read_off
 
 DEFAULT_INPUT = ROOT / 'data/processed/meshes'
 DEFAULT_OUTPUT = ROOT / 'generated/data_viz'
 DEFAULT_SCENE = ROOT / 'data/processed/scenes/city.standardized.glb'
-
-
-def read_off(path):
-    """Read a triangle-only OFF file into vertex and face arrays."""
-    lines = [line.strip() for line in
-             Path(path).read_text(encoding='utf-8').splitlines() if line.strip()]
-    if not lines or lines[0] != 'OFF':
-        raise SystemExit(f'{path}: not an OFF file')
-    vertex_count, face_count, _ = map(int, lines[1].split())
-    if vertex_count < 3 or face_count < 1 or len(lines) != 2 + vertex_count + face_count:
-        raise SystemExit(f'{path}: header and line count disagree')
-    points = np.array([[float(value) for value in line.split()]
-                       for line in lines[2:2 + vertex_count]])
-    faces = np.array([[int(value) for value in line.split()[1:]]
-                      for line in lines[2 + vertex_count:]])
-    if faces.ndim != 2 or faces.shape[1] != 3:
-        raise SystemExit(f'{path}: only triangle faces are supported')
-    return points, faces
 
 
 def read_paths(path):

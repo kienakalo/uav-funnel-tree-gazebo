@@ -28,11 +28,11 @@ Quy ước trong repo:
 - `E` không dùng để dựng topology; số cạnh thực được suy ra từ danh sách mặt.
   Vài fixture có `E` không chính xác, nên không được tin giá trị này.
 - Tệp `.off` được đối xử **byte-exact**: `.gitattributes` đặt `*.off -text`.
-- `tools/data/glb2off.py: write_off` ghi toạ độ bằng `%.17g` để đọc lại đúng giá trị
-  double đã tính, không bị làm tròn khi lưu.
-- `tools/data/set_start_goal.py` kiểm tra thêm topology khi đọc: không đỉnh trùng toạ
-  độ, không mặt suy biến, mỗi cạnh kề tối đa hai mặt, mỗi đỉnh thuộc đúng một
-  nhóm mặt liên thông.
+- `src/off.py` là reader/writer duy nhất: `read_off` trả mảng NumPy, `write_off`
+  ghi toạ độ bằng `%.17g` để đọc lại đúng giá trị double đã tính.
+- `inspect_mesh` trong `src/off.py` kiểm topology: không mặt suy biến, mỗi cạnh
+  kề tối đa hai mặt, mỗi đỉnh thuộc đúng một nhóm mặt liên thông;
+  `set_start_goal` gọi thêm kiểm tra đỉnh trùng toạ độ.
 
 ## GLB
 

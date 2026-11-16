@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
-# Main libraries: NumPy; Python stdlib (argparse, json, struct, sys, pathlib).
+# Main libraries: NumPy; Python stdlib (argparse, json, struct, sys, pathlib);
+# local modules (off).
 """Convert a city GLB into a triangle OFF mesh.
 
 Input:  data/processed/scenes/city.standardized.glb
@@ -26,6 +27,9 @@ import sys
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / 'src'))
+from off import write_off
+
 DEFAULT_INPUT = ROOT / 'data/processed/scenes/city.standardized.glb'
 DEFAULT_OUTPUT = ROOT / 'generated/meshes'
 JSON_CHUNK = 0x4e4f534a
@@ -148,24 +152,6 @@ def read_glb_scene(filename, width):
     scale = width / max(high[0] - low[0], high[1] - low[1])
     origin = np.array([(low[0] + high[0]) / 2, (low[1] + high[1]) / 2, low[2]])
     return (vertices - origin) * scale, faces
-
-
-def unique_edge_count(faces):
-    edges = np.concatenate((faces[:, [0, 1]], faces[:, [1, 2]], faces[:, [2, 0]]))
-    edges = np.sort(edges, axis=1)
-    return int(np.unique(edges, axis=0).shape[0])
-
-
-def write_off(path, vertices, faces):
-    edges = unique_edge_count(faces)
-    with path.open('w', encoding='utf-8', newline='\n') as handle:
-        handle.write('OFF\n')
-        handle.write(f'{len(vertices)} {len(faces)} {edges}\n')
-        for x, y, z in vertices:
-            handle.write(f'{x:.17g} {y:.17g} {z:.17g}\n')
-        for a, b, c in faces:
-            handle.write(f'3 {a} {b} {c}\n')
-    return edges
 
 
 def main():

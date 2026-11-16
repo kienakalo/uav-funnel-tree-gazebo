@@ -76,7 +76,7 @@ phố, khe hở dọc 1,5, dự phòng ngang 1,6 và độ dốc tối đa 0,5. 
 - `V` dòng tiếp theo: `x y z`.
 - `F` dòng tiếp theo: `3 a b c` — một tam giác, chỉ số đỉnh bắt đầu từ 0.
 
-Các reader trong `tools/` chỉ nhận mặt tam giác. Giá trị `E` không được dùng
+Reader trong `src/off.py` chỉ nhận mặt tam giác. Giá trị `E` không được dùng
 để dựng topology; số cạnh thực được suy ra từ danh sách mặt.
 
 ## Định dạng `.paths.json`

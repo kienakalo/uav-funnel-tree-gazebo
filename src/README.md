@@ -1,6 +1,6 @@
 # Mã nguồn dùng chung
 
-Hai module. Đây **không phải package**: không có `__init__.py`, các module được
+Ba module. Đây **không phải package**: không có `__init__.py`, các module được
 import trực tiếp theo tên (`from glb import write_glb`) sau khi chương trình
 thêm `src/` vào `sys.path`. Tool mới dùng `src/` cần thêm cùng một dòng.
 
@@ -8,10 +8,12 @@ thêm `src/` vào `sys.path`. Tool mới dùng `src/` cần thêm cùng một d�
 | --- | --- | --- |
 | `funnel_tree.py` | `seeds`, `propagate`, `reconstruct`, `solve`, `clip_children`: lan truyền Funnel và dựng lại tuyến | — (chỉ NumPy) |
 | `glb.py` | `read_glb`, `write_glb`, `indexed_from_triangles`: container GLB 2 | — (chỉ stdlib + NumPy) |
+| `off.py` | `read_off`, `write_off`, `inspect_mesh`, `unique_edge_count`: định dạng OFF | — (chỉ stdlib + NumPy) |
 
 ## Trạng thái sử dụng
 
-`glb.py` được `tools/data/standardize.py` và `tools/data/off2glb.py` dùng.
+`glb.py` được `tools/data/standardize.py` và `tools/data/off2glb.py` dùng;
+`off.py` là reader/writer OFF duy nhất, dùng ở cả năm tool còn lại.
 `funnel_tree.py` **chưa tool nào import**: `set_start_goal.py` chỉ chọn điểm,
 không chạy Funnel, nên phần lõi này đang chờ tool lập tuyến.
 

@@ -158,6 +158,7 @@ tools/data/
 src/
   funnel_tree.py         # lan truyền và dựng lại tuyến
   glb.py                 # container GLB
+  off.py                 # đọc/ghi/kiểm topology OFF
 generated/               # đầu ra, không commit
 docs/data-format.md      # quy ước định dạng
 ```
