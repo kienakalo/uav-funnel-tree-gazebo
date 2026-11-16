@@ -18,8 +18,10 @@
     "vertices_after": 12402,
     "cell": 1.0
   },
-  "waypoints": 156,
-  "waypoint_length": 284.077194,
+  "waypoints": 47,
+  "waypoints_before_simplify": 156,
+  "simplify_tolerance": 0.1,
+  "waypoint_length": 284.056451,
   "model": "1 kg point mass with force feedback; box body collision; decorative rotors",
   "frame": "Z-up, width 200 m"
 }

@@ -138,6 +138,36 @@ def decimate(points, faces, cell):
     return clustered[used], remap[mapped], stats
 
 
+def simplify(points, tolerance):
+    """Douglas-Peucker on the 3D polyline; keeps the path within tolerance."""
+    if tolerance <= 0 or len(points) < 3:
+        return [tuple(map(float, point)) for point in points]
+
+    def recurse(segment):
+        first, last = segment[0], segment[-1]
+        ab = [last[i] - first[i] for i in range(3)]
+        length2 = sum(value * value for value in ab)
+        best, index = -1., 0
+        for position in range(1, len(segment) - 1):
+            ap = [segment[position][i] - first[i] for i in range(3)]
+            if length2 < 1e-18:
+                distance = math.sqrt(sum(value * value for value in ap))
+            else:
+                t = sum(ap[i] * ab[i] for i in range(3)) / length2
+                t = max(0., min(1., t))
+                projection = [first[i] + t * ab[i] for i in range(3)]
+                distance = math.dist(segment[position], projection)
+            if distance > best:
+                best, index = distance, position
+        if best <= tolerance:
+            return [first, last]
+        left = recurse(segment[:index + 1])
+        right = recurse(segment[index:])
+        return left[:-1] + right
+
+    return recurse([tuple(map(float, point)) for point in points])
+
+
 def load_route(path):
     record = json.loads(Path(path).read_text(encoding='utf-8'))
     if not isinstance(record, dict) or not record.get('routes'):
@@ -372,6 +402,9 @@ def main():
                         help='Vertex clustering cell for collision (default: 1.0 m)')
     parser.add_argument('--collision', choices=('decimated', 'full'), default='decimated')
     parser.add_argument('--visual', choices=('glb', 'stl'), default='glb')
+    parser.add_argument('--simplify', type=float, default=0.1, metavar='M',
+                        help='Douglas-Peucker tolerance for the route in metres '
+                             '(default: 0.1; 0 disables)')
     parser.add_argument('--surface', action='store_true',
                         help='Also write surface.stl as a visual of the envelope')
     parser.add_argument('--check', action='store_true',
@@ -395,6 +428,10 @@ def main():
         return
 
     goal, goal_vertex, waypoints = choose_goal(record, args.goal)
+    original_waypoints = len(waypoints)
+    if args.simplify < 0 or not math.isfinite(args.simplify):
+        parser.error('--simplify must be zero or positive and finite')
+    waypoints = simplify(waypoints, args.simplify)
     mission = Path(record['mission']).stem
     out = args.output / f'{mission}-{goal}'
 
@@ -441,6 +478,8 @@ def main():
         'collision_mode': args.collision,
         'collision_stats': meshes['collision_stats'],
         'waypoints': len(waypoints),
+        'waypoints_before_simplify': original_waypoints,
+        'simplify_tolerance': args.simplify,
         'waypoint_length': round(sum(math.dist(a, b) for a, b in
                                       zip(waypoints, waypoints[1:])), 6),
         'model': '1 kg point mass with force feedback; box body collision; decorative rotors',
@@ -450,7 +489,8 @@ def main():
                                              encoding='utf-8')
 
     print(f'Mission {mission}, goal {goal} (vertex {goal_vertex})')
-    print(f'Route: {len(waypoints)} waypoints, {metadata["waypoint_length"]:.2f} m')
+    print(f'Route: {original_waypoints} -> {len(waypoints)} waypoints '
+          f'(simplify {args.simplify:g} m), {metadata["waypoint_length"]:.2f} m')
     print(f'Visual: {relative(meshes["visual"])} — {meshes["visual_triangles"]} triangles')
     stats = meshes['collision_stats']
     print(f'Collision: {relative(meshes["collision"])} — '

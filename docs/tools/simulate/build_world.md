@@ -5,7 +5,7 @@
 | Stage | `simulate` bước 1 |
 | Vào | `generated/routes/<mission>.json`, bề mặt trong `route.mesh`, scene chuẩn hoá |
 | Ra | `generated/simulate/<mission>-<goal>/` (6 file) |
-| Cờ | `--mission`, `--route`, `--goal`, `--list-goals`, `--scene`, `--output`, `--collision-grid`, `--collision {decimated,full}`, `--visual {glb,stl}`, `--surface`, `--check` |
+| Cờ | `--mission`, `--route`, `--goal`, `--list-goals`, `--scene`, `--output`, `--collision-grid`, `--collision {decimated,full}`, `--visual {glb,stl}`, `--simplify M`, `--surface`, `--check` |
 
 ## Input
 
@@ -37,7 +37,7 @@ generated/simulate/city.standardized.triangulation-g1/
 ├── city.sim.collision.stl     1,3 MB    26.296 tam giác (collision, decimate 1 m)
 ├── surface.stl                220 KB    chỉ khi --surface
 ├── funnel_physics.sdf         2,9 KB
-├── route.json                 5,0 KB    72 waypoint
+├── route.json                 1,5 KB    18 waypoint (đã rút gọn)
 └── world_metadata.json        1,1 KB
 ```
 
@@ -90,8 +90,20 @@ Chọn goal, ghi `route.json`:
 }
 ```
 
-Waypoint lấy nguyên từ route của stage `plan` (đã kiểm: khớp 100%, 72 điểm,
-133,71 m).
+Waypoint lấy từ route của stage `plan`, sau đó **rút gọn Douglas–Peucker** với
+`--simplify` (mặc định **0,1 m**); `--simplify 0` tắt. Nhờ vậy `route.json` chỉ
+còn các điểm cần thiết thay vì mọi điểm cắt cạnh:
+
+| Goal | Trước | Sau | Độ dài | Thời gian bay (dwell 1,5 s) |
+| --- | --- | --- | --- | --- |
+| g1 | 72 | **18** | 133,70 m | 92,1 s |
+| g2 | 156 | **47** | 284,06 m | 224,1 s |
+| g3 | 82 | **34** | 140,54 m | 140,0 s |
+
+Sai lệch hình học do rút gọn ≤ 0,1 m trên lưới ô 5 m; độ dài gần như không đổi
+(133,71 → 133,70 m). `dwell` giữ **1,5 s**: plugin cho drone dừng hẳn tại mỗi
+waypoint (mỗi đoạn là quintic smoothstep 0 → 0), nên rút gọn làm giảm hẳn số lần
+dừng–đi lại. Nếu không rút gọn, g1 mất 234,6 s với 72 lần dừng.
 
 ### 5. SDF
 
@@ -128,7 +140,8 @@ Không ghi gì, chỉ kiểm:
 | GLB đọc lại | 204.682 đỉnh / 301.482 tam giác |
 | STL đọc lại | 26.296 tam giác, kích thước khớp header, 0 suy biến |
 | Bounds STL vs GLB | lệch ≤ 0,221 m (cell 1 m) |
-| Waypoint vs route plan | khớp tuyệt đối |
+| Rút gọn Douglas–Peucker 0,1 m | 72→18, 156→47, 82→34 điểm; độ dài lệch ≤ 0,02 m |
+| Waypoint sau rút gọn nằm trên route gốc | đúng thứ tự, giữ điểm đầu/cuối |
 | Chạy lại 2 lần | 5/5 file cùng SHA256 |
 | `--collision full` | 15.074.184 byte, `--check` pass |
 | `--visual stl` | 15.074.184 byte, `--check` pass |
@@ -143,4 +156,7 @@ Không ghi gì, chỉ kiểm:
 - Phụ thuộc assimp của Gazebo Jetty có đọc `.glb`; nếu không, dùng `--visual stl`.
 - Vertex clustering có thể tạo lỗ nhỏ trên vỏ công trình; `--collision full`
   là đường lui.
-- Plugin `funnel_drone_system` chưa được port (bước 2); SDF đã trỏ tới nó.
+- Plugin `funnel_drone_system` nằm ở `tools/simulate/plugin/` (bước 2); `run_simulate.sh`
+  phải đưa thư mục đó vào `PYTHONPATH` để Gazebo import được.
+- `dwell 1,5 s` khiến chuyến bay g2 dài 224 s; nếu cần nhanh, giảm `dwell` trong
+  `build_world.py` (hằng số `DWELL`).

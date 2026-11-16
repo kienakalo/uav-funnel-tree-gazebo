@@ -44,6 +44,7 @@ Stage `simulate` cần Gazebo nên chạy riêng, không nằm trong `main.py al
 | plan | Ảnh tuyến | [`route_viz.md`](plan/route_viz.md) |
 | plan | Đối chiếu reference | [`compare.md`](plan/compare.md) |
 | simulate | Dựng world + mesh | [`build_world.md`](simulate/build_world.md) |
+| simulate | Plugin bay (trajectory + controller) | [`plugin.md`](simulate/plugin.md) |
 | — | Thuật toán | [`funnel_tree.md`](funnel_tree.md) |
 | — | Thư viện dùng chung | [`lib.md`](lib.md) |
 | — | Tái lập | [`reproducibility.md`](reproducibility.md) |
