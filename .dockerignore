@@ -1,0 +1,16 @@
+# Build context for the pipeline image (see Dockerfile). Everything the
+# pipeline reads is copied; everything it writes, and every local environment,
+# is left out. Mount generated/ and results/ at run time instead.
+.git
+.gitignore
+.gitattributes
+.venv
+.obsidian
+.pytest_cache
+__pycache__
+**/__pycache__
+*.py[cod]
+*.log
+AGENTS.md
+generated
+results

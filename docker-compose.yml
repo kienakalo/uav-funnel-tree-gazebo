@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2026, Đỗ Lê Chí Kiên and Nguyễn Trương Đăng Quang
+# Main libraries: Docker Compose 2.x; Docker Engine 29.
+#
+# Run the pipeline in the image built by the Dockerfile. The repository is
+# mounted over /work, so the run uses your files and leaves its output in your
+# generated/ and results/ instead of inside the container.
+#
+#   FUNNEL_UID=$(id -u) FUNNEL_GID=$(id -g) docker compose run --rm pipeline
+#   docker compose run --rm pipeline python3 main.py data --no-ask
+#
+# Three render backends, because Gazebo needs a GPU or a software rasteriser:
+#   pipeline          NVIDIA through CDI (the machine the numbers came from)
+#   pipeline-intel    Intel/AMD through /dev/dri
+#   pipeline-software llvmpipe, slow but works anywhere
+
+x-pipeline: &pipeline
+  build: .
+  image: uav-funnel-tree:pipeline
+  working_dir: /work
+  # Run as the host user, or the run writes root-owned files into the checkout.
+  user: "${FUNNEL_UID:-1000}:${FUNNEL_GID:-1000}"
+  volumes:
+    - .:/work
+    # Gazebo's GUI needs the host X socket; harmless for --headless runs.
+    - /tmp/.X11-unix:/tmp/.X11-unix:ro
+  environment:
+    DISPLAY: "${DISPLAY:-}"
+    QT_QPA_PLATFORM: xcb
+    # Matplotlib and Gazebo write caches; keep them out of the mounted repo.
+    HOME: /tmp
+    XDG_RUNTIME_DIR: /tmp/xdg
+    MPLCONFIGDIR: /tmp/matplotlib
+    FUNNEL_PYTHON: /usr/bin/python3
+    FUNNEL_RUNTIME: native
+    __NV_PRIME_RENDER_OFFLOAD: "1"
+    __GLX_VENDOR_LIBRARY_NAME: nvidia
+  stdin_open: true
+  tty: true
+  stop_grace_period: 30s
+
+services:
+  pipeline:
+    <<: *pipeline
+    devices:
+      - nvidia.com/gpu=all
+  pipeline-intel:
+    <<: *pipeline
+    devices:
+      - /dev/dri:/dev/dri
+  pipeline-software:
+    <<: *pipeline
+    environment:
+      DISPLAY: "${DISPLAY:-}"
+      QT_QPA_PLATFORM: xcb
+      HOME: /tmp
+      XDG_RUNTIME_DIR: /tmp/xdg
+      MPLCONFIGDIR: /tmp/matplotlib
+      FUNNEL_PYTHON: /usr/bin/python3
+      FUNNEL_RUNTIME: native
+      LIBGL_ALWAYS_SOFTWARE: "1"

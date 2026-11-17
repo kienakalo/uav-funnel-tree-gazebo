@@ -80,8 +80,10 @@ route="$PWD/$folder/route.json"
 output="$PWD/$folder"
 log="$folder/gazebo.log"
 csv="$folder/physics_telemetry.csv"
-planner=python3
-[[ -x .venv/bin/python ]] && planner=.venv/bin/python
+planner="${FUNNEL_PYTHON:-python3}"
+if [[ -z ${FUNNEL_PYTHON:-} && -x .venv/bin/python ]]; then
+  planner=.venv/bin/python
+fi
 container_name="funnel-$(printf '%s_%s' "$mission" "$goal" | sed 's/[^A-Za-z0-9]/_/g')-$$"
 gui_home=''
 gazebo_pid=''

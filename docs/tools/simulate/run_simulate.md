@@ -49,6 +49,14 @@ ngoài các file trong thư mục run.
 Máy chỉ cần Docker; image đã có Gazebo Jetty 10.5.0, bindings Python
 (`gz.sim`/`gz.math` không hậu tố) và `libassimp5`.
 
+Hai biến môi trường đổi cách chọn runtime, dùng khi script chạy *bên trong* một
+image đã có Gazebo (xem [`../docker.md`](../docker.md)):
+
+| Biến | Tác dụng |
+| --- | --- |
+| `FUNNEL_RUNTIME=native` | `main.py` thêm `--native` cho bước bay, để không mở container lồng nhau |
+| `FUNNEL_PYTHON=/usr/bin/python3` | bỏ qua `.venv/bin/python` của host đang mount, dùng interpreter trong image |
+
 ```bash
 bash tools/simulate/run_simulate.sh --check
 python3 main.py simulate --goal g1

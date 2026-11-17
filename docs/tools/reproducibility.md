@@ -113,8 +113,11 @@ nào sinh ra thì đọc `validation.json`/`route.json` (có `route_sha256`,
 
 ## Môi trường
 
-- Python 3.14.8, NumPy 2.5.4, Matplotlib 3.11.2, Shapely 2.2.0, Pillow 13.0.0
-  (pin trong `requirements.txt`).
+- Host đo số liệu: Python 3.14.8, NumPy 2.5.4, Matplotlib 3.11.2, Shapely
+  2.2.0, Pillow 13.0.0 (pin trong `requirements.txt`).
+- Image `Dockerfile`: Python 3.12.3 với đúng bốn version đó. `main.py data`
+  trong image cho **cùng SHA bề mặt** `f6e01c6d…`, `plan` cho cùng độ dài route
+  và `compare` 5/5; xem [`docker.md`](docker.md).
 - Phiên bản Python và NumPy của lần chạy được ghi trong từng route JSON.
 - Gói hệ thống cho cửa sổ 3D trên host: `libzstd1 libxkbcommon0 libgl1`
   (Debian/Ubuntu); NixOS dùng `steam-run` hoặc symlink `_tkinter`.

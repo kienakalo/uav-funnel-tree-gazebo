@@ -74,6 +74,24 @@ steam-run .venv/bin/python tools/plan/route_viz.py \
 
 Chỉ cửa sổ 3D cần các gói này; chạy stage bằng PNG thì không cần.
 
+### Chạy trong container
+
+Không muốn cài Python + Gazebo trên máy thì dùng image dựng sẵn từ `Dockerfile`
+(Gazebo Jetty + bốn gói pip pinned). Máy chỉ cần Docker, và với `simulate` thì
+thêm GPU:
+
+```bash
+docker compose build pipeline
+FUNNEL_UID=$(id -u) FUNNEL_GID=$(id -g) \
+  docker compose run --rm pipeline python3 main.py --no-ask
+docker compose run --rm pipeline python3 main.py simulate --goal g1 --headless
+```
+
+Compose mount repo vào `/work` nên kết quả vẫn nằm trong `generated/` và
+`results/` của bạn. Image đặt `FUNNEL_RUNTIME=native` để `simulate` dùng `gz`
+trong image thay vì mở container thứ hai. Chi tiết, ba backend GPU và cổng kiểm
+chứng (SHA bề mặt phải trùng bản trên host): [`docs/tools/docker.md`](docs/tools/docker.md).
+
 `main.py` tự dùng `.venv/bin/python` nếu có, ngược lại dùng `python3`.
 
 ## Chạy

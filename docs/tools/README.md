@@ -61,6 +61,7 @@ vẫn chạy cả ba theo thứ tự.
 | plan | Đối chiếu reference | [`compare.md`](plan/compare.md) |
 | plan | So sánh các lần chạy đã lưu | [`compare_runs.md`](plan/compare_runs.md) |
 | — | Kiểm tra ảnh ↔ tham số | [`figures.md`](figures.md) |
+| — | Đóng gói cả pipeline trong Docker | [`docker.md`](docker.md) |
 | simulate | Dựng world + mesh | [`build_world.md`](simulate/build_world.md) |
 | simulate | Plugin bay (trajectory + controller) | [`plugin.md`](simulate/plugin.md) |
 | simulate | Bay trong Gazebo (+ backup telemetry cũ) | [`run_simulate.md`](simulate/run_simulate.md) |

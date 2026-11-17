@@ -76,7 +76,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 VENV = ROOT / '.venv/bin/python'
-PYTHON = str(VENV) if VENV.is_file() else sys.executable
+# FUNNEL_PYTHON lets the pipeline image choose its own interpreter. Without it
+# a mounted host checkout would run the host venv, whose binaries do not work
+# inside the image.
+PYTHON = os.environ.get('FUNNEL_PYTHON') or (
+    str(VENV) if VENV.is_file() else sys.executable)
+PYTHON_NAME = '.venv/bin/python' if PYTHON == str(VENV) else 'python3'
 DEFAULT_MISSION = 'city.standardized.triangulation'
 DEFAULT_GOAL = 'g1'
 
@@ -236,7 +241,7 @@ ARCHIVE = ROOT / 'results/runs'
 def display(command):
     shown = list(command)
     if shown and shown[0] == PYTHON:
-        shown[0] = '.venv/bin/python' if VENV.is_file() else 'python3'
+        shown[0] = PYTHON_NAME
     return ' '.join(shown)
 
 
@@ -303,6 +308,10 @@ def stage_commands(name, args):
             if args.container is True:
                 pair[1]['run'].append('--container')
             elif args.container is False:
+                pair[1]['run'].append('--native')
+            elif os.environ.get('FUNNEL_RUNTIME', '').strip().lower() == 'native':
+                # Inside the pipeline image gz is installed, so a bare
+                # `main.py` must not try to start a second Gazebo container.
                 pair[1]['run'].append('--native')
             if args.image:
                 pair[1]['run'] += ['--image', args.image]
