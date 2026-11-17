@@ -1,0 +1,29 @@
+{
+  "command": "main.py --force",
+  "stages": [
+    "data",
+    "plan",
+    "simulate"
+  ],
+  "label": null,
+  "cleared": [],
+  "interactive": true,
+  "parameters": {
+    "triangulation": {
+      "cell": 5.0,
+      "clearance": 1.5,
+      "half_width": 1.6,
+      "max_slope": 0.5
+    }
+  },
+  "sources": {
+    "triangulation": {
+      "cell": "default",
+      "clearance": "default",
+      "half_width": "default",
+      "max_slope": "default"
+    }
+  },
+  "commit": "1a270fd",
+  "seconds": 58.043
+}

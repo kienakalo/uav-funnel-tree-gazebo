@@ -132,7 +132,7 @@ nên chạy lại với cùng tham số cho ra cùng file.
 | `CLEARANCE` | 1,5 m | Khe hở dọc tối thiểu trên công trình |
 | `HALF_WIDTH` | 1,6 m | Nới ngang khi truy vấn tam giác |
 | `MAX_AXIS_SLOPE` | 0,5 | Độ dốc tối đa khi mở ramp (m/m) |
-| START/GOAL mặc định | `-38.7521 22.1034 7.2056` → `74.7366 -55.3572 7.2056` | Hai đầu nhiệm vụ giao hàng |
+| START/GOAL mặc định | `-38.7521 22.1034 7.2056` → `74.7366 -55.3572 7.2056` | Hai đầu nhiệm vụ giao hàng; x/y chèn vào lưới, z chỉ dùng cho bước kiểm tra cột đứng — mission lưu z của bề mặt (hiện `8.6430` và `8.9476`) |
 
 ## Kết quả
 

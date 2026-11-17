@@ -197,18 +197,26 @@ def print_vertices(points, faces, limit=TABLE_LIMIT, write=print):
 
 
 def ask_console(read_line, write, points, faces, mode, max_snap):
-    """Prompt for one START and n GOALs; 'all' takes every other vertex."""
+    """Prompt for one START and n GOALs; 'all' takes every other vertex.
+
+    Each question is written as a whole line before the read. A prompt passed
+    to input() carries no newline, and main.py forwards a step's output line by
+    line, so such a prompt never reaches the screen: the tool waits for an
+    answer that looks like it was never asked for.
+    """
     start = None
     while start is None:
-        answer = read_line('START — chỉ số đỉnh hoặc "x y z": ').strip()
+        write('START — số đỉnh hoặc "x y z":')
+        answer = read_line().strip()
         if not answer:
             continue
         index, record = resolve(answer, points, mode, max_snap, 'START')
         start = record
     goals = []
     while True:
-        answer = read_line('GOAL — chỉ số/«x y z», "all" cho mọi đỉnh còn lại, '
-                           'dòng trống để xong: ').strip()
+        write('GOAL — số đỉnh/«x y z», "all" cho mọi đỉnh còn lại, '
+              'dòng trống để xong:')
+        answer = read_line().strip()
         if not answer:
             break
         if answer.lower() == 'all':
@@ -440,6 +448,9 @@ def choose_console(path, points, faces, mode, max_snap):
     read_line, write = streams
     write(f'Chưa có {relative(path)} — chọn START/GOAL:')
     print_vertices(points, faces, write=write)
+    write('Trả lời bằng số đỉnh trong bảng, hoặc toạ độ "x y z" (mét); '
+          'mỗi câu một dòng.')
+    write(f'  Hình xem trước: generated/data_viz/{Path(path).stem}.png')
     try:
         return ask_console(read_line, write, points, faces, mode, max_snap)
     except EOFError:

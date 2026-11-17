@@ -98,15 +98,25 @@ Nếu đường thẳng ra ngoài dải mặt (`r` ngoài `[0,1]`) → `ValueErr
 
 - `timeout` và `max_nodes` là tham số bắt buộc của `propagate` (mỗi lần gọi).
 - Vượt thời gian → `TimeoutError`; vượt số node → `RuntimeError`.
-- Số lần lan truyền là số đo hiệu năng, ghi trong route JSON (`stats.propagations`).
+- Số lần lan truyền là số đo hiệu năng: `stats.propagations` là tổng của cả
+  mission, `routes[].search.propagations` là của từng goal.
 
-Đo trên bề mặt thành phố 2.295 đỉnh (mission START 182):
+Đo trên bề mặt thành phố 2.295 đỉnh, mission START 792 (ba goal của thí nghiệm
+3 goal trong repo cũ):
 
 | Goal | Số lần lan truyền | Thời gian | Độ dài |
 | --- | --- | --- | --- |
-| 1275 | 33 | 23,9 s | 133,71 m |
-| 1147 | 33 | 22,9 s | 140,57 m |
-| 2112 | 187 | 128,7 s | 284,08 m |
+| 1810 | 49 | 39,3 s | 142,42 m |
+| 1910 | 34 | 23,6 s | 125,64 m |
+| 1518 | 21 | 14,3 s | 86,15 m |
+
+Số đọc từ `generated/routes/city.standardized.triangulation.json`: tổng 104 lần
+lan truyền, 646 source, cả ba goal 77,2 s.
+
+Thời gian phụ thuộc tải máy, không phải chỉ số của thuật toán: cùng mission này
+lần khác đo 88,9 s; mission cũ dài hơn đo 188 s (`cell5`) và 295 s (`cell5b`).
+Kết luận về thuật toán dựa vào **số lần lan truyền và độ dài**, không dựa vào
+giây.
 
 ## Kiểm chứng
 

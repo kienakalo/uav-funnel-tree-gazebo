@@ -86,18 +86,24 @@ def plan_mission(path, seconds, max_nodes, clipping):
         fail(f'{path}: the mission has no GOAL')
 
     started = time.monotonic()
+    per_goal = {}
     try:
         if mission['mode'] == 'explicit' and len(goals) > 1:
             # One search per goal: a combined search keeps a frontier sized by
             # the farthest goal, which is slower than three shorter searches.
             paths, propagations, considered = {}, 0, 0
             for _, vertex in goals:
+                goal_started = time.monotonic()
                 found, search = solve_targets(mesh, source, [vertex],
                                               timeout=seconds, max_nodes=max_nodes,
                                               clipping=clipping)
                 paths.update(found)
                 propagations += search['propagations']
                 considered = max(considered, search['sources_considered'])
+                per_goal[vertex] = {
+                    'propagations': search['propagations'],
+                    'seconds': round(time.monotonic() - goal_started, 3),
+                }
             stats = {'sources_considered': considered,
                      'propagations': propagations, 'mode': 'per-goal',
                      'clipping': clipping}
@@ -113,9 +119,14 @@ def plan_mission(path, seconds, max_nodes, clipping):
     routes = []
     for identifier, vertex in goals:
         waypoints = [[round(value, 9) for value in point] for point in paths[vertex]]
-        routes.append({'id': identifier, 'vertex': vertex,
-                       'length': round(route_length(paths[vertex]), 9),
-                       'waypoints': waypoints})
+        entry = {'id': identifier, 'vertex': vertex,
+                 'length': round(route_length(paths[vertex]), 9),
+                 'waypoints': waypoints}
+        if vertex in per_goal:
+            # Per-goal cost, so a table of one goal can be reproduced without
+            # splitting the run: the total in stats hides which goal is slow.
+            entry['search'] = per_goal[vertex]
+        routes.append(entry)
     record = {
         'mission': str(relative(path)),
         'mission_sha256': sha256(path),

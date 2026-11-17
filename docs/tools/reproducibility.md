@@ -149,10 +149,10 @@ ghi nguồn và phiên chạy khi chèn vào báo cáo. Số đo nằm trong
 | Tham số bay | 5 m/s, 3 m/s², dwell 0 s, start delay 2 s |
 | SHA256 bề mặt | `f6e01c6d421f71aec828ae2f71593e7b2d0460604453459eb5e86b2ea47b28df` |
 | SHA256 `city.standardized.glb` | `cdd605eedc01011c5c39408ce167fca6244d1a9e0a7527450d13861570a837cb` (sau khi sửa bufferView + thêm NORMAL) |
-| Route city (polyline) | 133,70 m · 284,06 m · 140,54 m |
-| Cung spline | 134,9 m · 286,8 m · 142,4 m |
-| Bay g1 / g2 / g3 | 34,2 s / 64,6 s / 35,6 s; sai số lớn nhất 0,820 / 0,989 / 0,971 m (lần chạy 2026-11-17, mỗi lần bay lại lệch khoảng ±1 s) |
-| Thời gian `main.py plan` | 195,8 s cho cả 10 mission (city ~188 s) |
+| Route city (polyline) | 142,42 m · 125,64 m · 86,15 m (mission START 792 → 1810 / 1910 / 1518) |
+| Cung spline | chưa đo cho mission hiện tại; lần bay cũ (START 182): 134,9 m · 286,8 m · 142,4 m |
+| Bay g1 / g2 / g3 | chưa bay lại cho mission hiện tại. Lần đã lưu `results/runs/cell5` (START 182): 34,2 s / 64,6 s / 35,6 s, sai số 0,820 / 0,989 / 0,971 m; lặp lại ở `cell5b`: 34,5 s / 64,3 s / 35,4 s, cùng sai số |
+| Thời gian `main.py plan` | 85,7 s cho cả 10 mission (city 77,2 s); lần khác 89,4 s — phụ thuộc tải máy |
 | Đối chiếu reference | 5/5 fixture, sai lệch lớn nhất 1,7e-5 |
 | Trạng thái thuật toán | experimental, chưa chứng nhận tối ưu |
 

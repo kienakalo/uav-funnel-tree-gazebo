@@ -1,7 +1,7 @@
 {
   "image": "generated/routes/cube.png",
-  "image_sha256": "71a6a085b01ffa4190ddf476293bb1fd7c71fd565d83ea469ee6034c1f614636",
-  "generated_at": "2026-11-17T18:28:19+07:00",
+  "image_sha256": "ebb59058609aebec3405ee753d779034c0973530b4ee71cbe8e6c96ee9c64cc0",
+  "generated_at": "2026-11-17T21:13:49+07:00",
   "parameters": {
     "seconds": 300.0,
     "max_nodes": 200000,
@@ -25,6 +25,6 @@
     "routes_sha256": "d7fadab30cc1c6f0ea8d9bb7ebd57fae00f9dddc2c71cff5ca308d5823b5b551"
   },
   "script": "tools/plan/route_viz.py",
-  "script_sha256": "4537bbe023004615732f9fd9f7bde99f9ed3c237b23aaee37f0ff0e50339b56b",
+  "script_sha256": "292ab19b420b4c975e4f43914d00668248902560318b1d9b93ed633468126da7",
   "command": "tools/plan/route_viz.py"
 }

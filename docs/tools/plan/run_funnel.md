@@ -42,7 +42,7 @@ secondary source) điều đó làm số lần lan truyền tăng mạnh. Đo đ
   "mission_sha256": "…",
   "mesh": "data/processed/meshes/city.standardized.triangulation.off",
   "mesh_sha256": "…",
-  "source": 182,
+  "source": 792,
   "solver": {
     "name": "funnel_tree",
     "module": "algo/funnel_tree.py",
@@ -53,11 +53,12 @@ secondary source) điều đó làm số lần lan truyền tăng mạnh. Đo đ
   },
   "mode": "explicit",
   "routes": [
-    {"id": "g1", "vertex": 1275, "length": 133.71, "waypoints": [[x,y,z], …]}
+    {"id": "g1", "vertex": 1810, "length": 142.42, "waypoints": [[x,y,z], …],
+     "search": {"propagations": 49, "seconds": 39.34}}
   ],
-  "stats": {"sources_considered": 647, "propagations": 253,
+  "stats": {"sources_considered": 646, "propagations": 104,
             "mode": "per-goal", "clipping": true},
-  "planning_seconds": 189.4,
+  "planning_seconds": 77.2,
   "environment": {"python": "3.14.8", "numpy": "2.5.4"}
 }
 ```
@@ -68,7 +69,8 @@ secondary source) điều đó làm số lần lan truyền tăng mạnh. Đo đ
 | `waypoints` | Toạ độ 3D của các điểm gãy trên mặt, gồm cả START và đích |
 | `source` | Đỉnh START |
 | `solver.module_sha256` | Hash của `algo/funnel_tree.py` lúc chạy |
-| `stats.propagations` | Số lần lan truyền thực tế (chỉ số đo hiệu năng) |
+| `stats.propagations` | Tổng số lần lan truyền của cả mission (chỉ số đo hiệu năng) |
+| `routes[].search` | Chi phí riêng của goal đó (`propagations`, `seconds`); có khi mission nhiều goal, nhờ vậy một dòng trong bảng đo tái lập được từ một lần chạy |
 | `planning_seconds` | Thời gian tường; làm file đổi mỗi lần chạy |
 
 ## Giới hạn

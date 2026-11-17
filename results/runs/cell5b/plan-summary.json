@@ -1,0 +1,19 @@
+{
+  "passed": [
+    "J17",
+    "L",
+    "cliff",
+    "demo_mesh",
+    "star"
+  ],
+  "failed": [],
+  "skipped": [
+    "city.standardized.triangulation",
+    "cube",
+    "dome",
+    "icosahedron",
+    "terrain"
+  ],
+  "tolerance": 0.0001,
+  "note": "skipped meshes have no data/expected reference; the project does not ship a second solver and an edge-graph baseline would only bound the surface distance"
+}

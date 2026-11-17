@@ -179,9 +179,14 @@ def main():
                         help='Open a 3D window instead of writing PNG files')
     args = parser.parse_args()
 
-    paths = ([path.resolve() for path in args.routes] if args.routes
-             else sorted(args.input.glob('*.json')))
-    paths = [path for path in paths if path.name != 'summary.json']
+    if args.routes:
+        paths = [path.resolve() for path in args.routes]
+    else:
+        # The folder also holds the figure sidecars (<name>.png.json), which
+        # have no route in them; the glob used to pick them up and crash.
+        paths = [path for path in sorted(args.input.glob('*.json'))
+                 if path.name != 'summary.json'
+                 and not path.name.endswith('.png.json')]
     if not paths:
         raise SystemExit(f'route_viz: no route file in {args.input}; '
                          'run tools/plan/run_funnel.py first')

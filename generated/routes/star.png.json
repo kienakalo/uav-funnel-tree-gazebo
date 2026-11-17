@@ -1,7 +1,7 @@
 {
   "image": "generated/routes/star.png",
-  "image_sha256": "084756b75d69a9ff8f4edd189e51b874adc65449e4babc6fefa7ff245b25dacd",
-  "generated_at": "2026-11-17T18:28:21+07:00",
+  "image_sha256": "4ba901f9c2a1e3a8bc8a7a8cf1a91aca81bba9d9508a103d3556d4c26f966e9d",
+  "generated_at": "2026-11-17T21:13:51+07:00",
   "parameters": {
     "seconds": 300.0,
     "max_nodes": 200000,
@@ -27,9 +27,9 @@
     "mesh_sha256": "6cdb241372a64d4b5e6c76f9356e4b129ec9cbeb89b511b2c6eabf063134f078",
     "mission_sha256": "dd68a94f0498d55d39266acc6ad89839bf7c6c03bb8b3e0765de46a80d73fd9b",
     "module_sha256": "42465e58992c985455afddfa62d145febfc96cbbb0597b209c0a1c2ca2947bf2",
-    "routes_sha256": "b0e3e26cecf9f51c748faec613e5e28513a6f65bc4c4392e6ee7f908738e0ed2"
+    "routes_sha256": "acd2077cc7956edf785789f2fc878a1aa3eb14c21d44e8280776f381e8ea3934"
   },
   "script": "tools/plan/route_viz.py",
-  "script_sha256": "4537bbe023004615732f9fd9f7bde99f9ed3c237b23aaee37f0ff0e50339b56b",
+  "script_sha256": "292ab19b420b4c975e4f43914d00668248902560318b1d9b93ed633468126da7",
   "command": "tools/plan/route_viz.py"
 }

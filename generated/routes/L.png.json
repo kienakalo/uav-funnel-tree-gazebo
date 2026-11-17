@@ -1,7 +1,7 @@
 {
   "image": "generated/routes/L.png",
-  "image_sha256": "6f38b41c611948be021924acb5e0e80588ec6bac2a596130c0d0020ba1ba1122",
-  "generated_at": "2026-11-17T18:28:17+07:00",
+  "image_sha256": "fb25b778d9be8e9836edeac7fdd0119e767daa31865c65e3e4a96f4acfbf0100",
+  "generated_at": "2026-11-17T21:13:48+07:00",
   "parameters": {
     "seconds": 300.0,
     "max_nodes": 200000,
@@ -9,26 +9,26 @@
   },
   "facts": {
     "routes": 11,
-    "planning": "0.0 s",
-    "v0": "2.8 m",
-    "v2": "1.0 m",
-    "v3": "1.4 m",
-    "v4": "1.0 m",
+    "planning": "0.1 s",
+    "v1": "2.8 m",
+    "v2": "3.6 m",
+    "v3": "2.8 m",
+    "v4": "2.4 m",
     "v5": "1.4 m",
-    "v6": "2.0 m",
-    "v7": "2.2 m",
-    "v8": "1.0 m",
-    "v9": "2.4 m",
+    "v6": "1.4 m",
+    "v7": "1.0 m",
+    "v8": "2.2 m",
+    "v9": "1.0 m",
     "v10": "2.2 m",
-    "v11": "2.8 m"
+    "v11": "2.0 m"
   },
   "sources": {
     "mesh_sha256": "f6220d7d50da97b47281dda48296b16b257e5b0e5686151f344c697859adee21",
-    "mission_sha256": "3f627031f6970fb67703c29912d9452b45f2ecfcdb321d23afc70ad4fd28e70e",
+    "mission_sha256": "e61983503e78ccbef707f55b77396ff1c7edbb13bd866553a6c6fa2ccef58fa1",
     "module_sha256": "42465e58992c985455afddfa62d145febfc96cbbb0597b209c0a1c2ca2947bf2",
-    "routes_sha256": "68d5dc39512f41a94fc042dc0ea7c5c25522dd7ba22e8d4f2ac0871b17a74970"
+    "routes_sha256": "7629b87563c4cf20467d1809c3f66973903f62eecae5f3c3c6348871b74df9de"
   },
   "script": "tools/plan/route_viz.py",
-  "script_sha256": "4537bbe023004615732f9fd9f7bde99f9ed3c237b23aaee37f0ff0e50339b56b",
+  "script_sha256": "292ab19b420b4c975e4f43914d00668248902560318b1d9b93ed633468126da7",
   "command": "tools/plan/route_viz.py"
 }

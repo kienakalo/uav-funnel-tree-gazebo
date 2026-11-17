@@ -199,6 +199,10 @@ mặt có SHA khác. Bước 7 của `data` chạy
 vào bề mặt mới theo đúng toạ độ START/GOAL đã lưu, nên `plan` không dừng với
 lỗi *"mesh changed since the mission was saved"*.
 
+Bước nào hỏi trên terminal (`set_start_goal.py`) in mỗi câu hỏi thành **một dòng
+riêng**, nên đọc được trong output của `main.py`. Trước đây prompt không có `\n`
+nên bị pipe giữ lại: câu hỏi không hiện ra và tool trông như bị treo.
+
 ## parameters.json
 
 Cuối mỗi run (kể cả khi lỗi) `main.py` ghi `generated/parameters.json`:

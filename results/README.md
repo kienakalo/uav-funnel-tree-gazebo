@@ -24,6 +24,17 @@ Quy ước:
 - `--fresh` và mọi stage đều không xoá `results/`.
 - `comparison/` sinh lại được từ `runs/`, nên có thể bỏ và tạo lại bất cứ lúc nào.
 
+## Các archive đang có
+
+| Label | Mission | Nội dung |
+| --- | --- | --- |
+| `cell5` | START 182 (−100, −95) → g1 1275, g2 2112, g3 1147 | bay 34,2 s / 64,6 s / 35,6 s; `max_error` 0,820 / 0,989 / 0,971 m |
+| `cell5b` | như trên, chạy lại `main.py --force` | bay 34,5 s / 64,3 s / 35,4 s; cùng sai số — dùng để nói độ lặp lại |
+
+Mission hiện tại của thành phố đã đổi sang START 792 → 1810 / 1910 / 1518 (xem
+[`../docs/tools/data/set_start_goal.md`](../docs/tools/data/set_start_goal.md)),
+nên **chưa** có archive cho nó: bay lại rồi `--archive <label>` mới có.
+
 Đọc và so sánh:
 
 ```bash

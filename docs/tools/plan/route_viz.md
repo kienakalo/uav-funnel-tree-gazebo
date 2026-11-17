@@ -3,14 +3,14 @@
 | | |
 | --- | --- |
 | Stage | `plan` bước 2 |
-| Vào | `generated/routes/*.json` + mesh ghi trong file |
+| Vào | `generated/routes/*.json` + mesh ghi trong file; bỏ qua `<tên>.png.json` (sidecar ảnh) và `summary.json` |
 | Ra | `generated/routes/<mission>.png` + `<mission>.png.json` (dấu tham số) |
 | Cờ | `--routes` (lặp lại), `--input`, `--output`, `--max-routes N` (60), `--show` |
 
 ## Vì sao tách khỏi `run_funnel`
 
-Vẽ lại không cần chạy lại Funnel: trên bề mặt thành phố, lập tuyến mất ~190 s,
-còn vẽ chỉ vài giây. Tách ra cũng giúp `run_funnel` không phụ thuộc Matplotlib
+Vẽ lại không cần chạy lại Funnel: trên bề mặt thành phố, lập tuyến mất khoảng
+80 s cho 3 goal (mission hiện tại), còn vẽ chỉ vài giây. Tách ra cũng giúp `run_funnel` không phụ thuộc Matplotlib
 và chạy được trên máy không có cửa sổ.
 
 ## Nội dung ảnh

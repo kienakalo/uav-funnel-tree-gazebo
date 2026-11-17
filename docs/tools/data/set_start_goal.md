@@ -37,6 +37,37 @@
 | Chuột | `set_start_goal.py --pick` | `s` = START, `g` = GOAL, `u` = bỏ GOAL cuối, Enter = lưu |
 | Không tương tác | `--start-vertex 1 --all-goals` | Dùng cho script/CI |
 
+Mỗi câu hỏi được in thành **một dòng riêng** trước khi đọc câu trả lời. Cần vậy
+vì `main.py` chuyển output của từng bước theo dòng: prompt không có `\n` nằm lại
+trong pipe, người dùng không thấy câu hỏi và tool trông như bị treo dù nó đang
+chờ gõ.
+
+## Mission của thành phố
+
+Bề mặt `city.standardized.triangulation.off` dùng START/GOAL của thí nghiệm
+delivery trong repo cũ (`generated/city_three_goals/cases.json`, commit
+`acc040b`), trùng với `DEFAULT_START`/`DEFAULT_GOAL` của
+[`triangulation.py`](triangulation.md):
+
+| | Đỉnh | xyz (m) | Vai trò |
+| --- | --- | --- | --- |
+| START | 792 | −38,7521 · 22,1034 · 8,6430 | xuất phát, phía tây-trung tâm |
+| g1 | 1810 | 74,7366 · −55,3572 · 8,9476 | đích xa, góc đông-nam |
+| g2 | 1910 | 80,0000 · −10,0000 · 10,4556 | đích phía đông |
+| g3 | 1518 | 40,0000 · 50,0000 · 15,1724 | đích phía bắc |
+
+```bash
+.venv/bin/python tools/data/set_start_goal.py --force \
+    --start-vertex 792 --goal-vertex 1810 --goal-vertex 1910 --goal-vertex 1518
+```
+
+- x/y và chỉ số đỉnh khớp bản cũ; z cao hơn 1,44 m (START) và 1,74 m (g1) vì
+  envelope đã đổi sau thí nghiệm đó — mission ghi z của bề mặt hiện tại.
+- Bề mặt **không** phụ thuộc mission: đổi START/GOAL chỉ đổi route, SHA bề mặt
+  vẫn `f6e01c6d…`.
+- Mission cũ (START 182 ở góc −100, −95) và các lần bay của nó nằm trong
+  [`results/runs/`](../../results/README.md).
+
 ## Schema JSON
 
 | Trường | Nội dung |
@@ -65,8 +96,8 @@ id `g1..g3` giữ nguyên, rồi ghi lại SHA/kích thước.
 
 ```text
 data/processed/missions/city.standardized.triangulation.json: bề mặt đã đổi, cập nhật lại lựa chọn cũ
-  START đỉnh 182 -> 182 (0.000 m)
-  g1 đỉnh 1275 -> 1275 (0.000 m)
+  START đỉnh 792 -> 792 (0.000 m)
+  g1 đỉnh 1810 -> 1810 (0.000 m)
   ...
 Save at: data/processed/missions/city.standardized.triangulation.json
 
@@ -109,6 +140,6 @@ Vì vậy `main.py data` trên máy không có bàn phím cần mission đã com
 
 ## Đầu ra hiện tại
 
-10 file trong `data/processed/missions/`: city START 182 → 3 GOAL
-(1275, 2112, 1147); 5 fixture START 1 (theo reference); 4 fixture còn lại START 0
-all-goals.
+10 file trong `data/processed/missions/`: city START 792 → 3 GOAL
+(1810, 1910, 1518); 2 fixture START 1 theo reference (cliff, demo_mesh); 7 fixture
+còn lại START 0 all-goals (J17, L, cube, dome, icosahedron, star, terrain).

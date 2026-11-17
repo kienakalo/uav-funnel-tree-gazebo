@@ -124,6 +124,9 @@ Chọn goal, ghi `route.json`:
 Waypoint lấy từ route của stage `plan`, sau đó **rút gọn Douglas–Peucker** với
 `--simplify` (mặc định **0,1 m**); `--simplify 0` tắt.
 
+Số dưới đây của lần bay đã lưu (`results/runs/cell5`, mission cũ START 182);
+mission hiện tại (START 792 → 1810 / 1910 / 1518) chưa dựng world.
+
 | Goal | Trước | Sau | Độ dài polyline | Cung spline | Thời gian bay |
 | --- | --- | --- | --- | --- | --- |
 | g1 | 72 | **18** | 133,70 m | 134,9 m | 28,7 s |
