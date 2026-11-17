@@ -3,8 +3,8 @@
 | | |
 | --- | --- |
 | Stage | `simulate` (bước cuối) |
-| Vào | `generated/simulate/<mission>-<goal>/physics_telemetry.csv` + `telemetry_metadata.json` |
-| Ra | `validation.json`, `tracking.png` (bản đồ + sai số) trong cùng thư mục |
+| Vào | `generated/simulate/<mission>-<goal>/physics_telemetry.csv` + `telemetry_metadata.json` + `world_metadata.json` |
+| Ra | `validation.json`, `tracking.png` + `tracking.png.json` (dấu tham số) trong cùng thư mục |
 | Cờ | `--run DIR`, `--root DIR`, `--mission`, `--goal`, `--max-error M`, `--no-png` |
 
 ## Chỉ số
@@ -37,6 +37,18 @@ Hai panel:
 Panel 1 trả lời câu "drone có đi đúng tuyến không"; panel 2 trả lời "bám sát
 đến mức nào". Ảnh là hình vẽ từ CSV, không phải ảnh chụp cửa sổ Gazebo.
 
+### Đóng dấu tham số
+
+| Ghi vào | Nội dung |
+| --- | --- |
+| Chân ảnh | `speed`, `accel`, `dwell`, `delay`, `simplify`, `collision grid`, `error limit`, `goal`, số dòng, thời lượng, `max error`, `mean`, `completed`, SHA ngắn, thời điểm |
+| Metadata PNG | cùng nội dung, dạng `tEXt` |
+| `tracking.png.json` | tham số, facts, SHA của scene/bề mặt/route/telemetry + SHA ảnh, dòng lệnh |
+
+Tham số bay đọc từ `world_metadata.json` (không phải `telemetry_metadata.json`,
+file đó chỉ có mission/goal/run id). Nhờ vậy ảnh bay ở 5 m/s và ở 2 m/s phân
+biệt được dù cùng tên `tracking.png`.
+
 ## `validation.json`
 
 ```json
@@ -60,11 +72,6 @@ Panel 1 trả lời câu "drone có đi đúng tuyến không"; panel 2 trả l�
   "passed": true
 }
 ```
-
-## `tracking.png`
-
-Một đồ thị: `error` theo thời gian mô phỏng, kèm đường ngưỡng `--max-error`.
-Dùng để thấy nhanh drone bám tuyến từ đầu đến cuối hay lệch ở đoạn nào.
 
 ## Ví dụ
 

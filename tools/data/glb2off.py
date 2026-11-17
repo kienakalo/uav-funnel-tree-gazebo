@@ -28,6 +28,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'lib'))
+from figstamp import relative, sha256
 from mesh_off import write_off
 
 DEFAULT_INPUT = ROOT / 'data/processed/scenes/city.standardized.glb'
@@ -186,12 +187,30 @@ def main():
     if lines != expected:
         raise SystemExit(f'glb2off: wrote {lines} lines, expected {expected}')
     low, high = vertices.min(axis=0), vertices.max(axis=0)
+    result = {
+        'vertices': int(len(vertices)),
+        'triangles': int(len(faces)),
+        'edges': int(edges),
+        'bytes': output.stat().st_size,
+    }
+    sidecar = output.with_suffix('.params.json')
+    sidecar.write_text(json.dumps({
+        'output': str(relative(output)),
+        'output_sha256': sha256(output),
+        'scene': str(relative(scene)),
+        'scene_sha256': sha256(scene),
+        'parameters': {'width': args.width},
+        'result': result,
+        'script': str(relative(Path(__file__))),
+        'script_sha256': sha256(Path(__file__)),
+    }, indent=2) + '\n', encoding='utf-8')
     print(f'Input:  {scene} — {len(vertices)} vertices, {len(faces)} triangles')
     print(f'Bounds: x [{low[0]:.2f}, {high[0]:.2f}] '
           f'y [{low[1]:.2f}, {high[1]:.2f}] z [{low[2]:.2f}, {high[2]:.2f}]')
     print(f'Output: {output} — {edges} edges, '
           f'{output.stat().st_size / 1e6:.1f} MB')
     print(f'Save at: {output}')
+    print(f'Save at: {sidecar}')
 
 
 if __name__ == '__main__':

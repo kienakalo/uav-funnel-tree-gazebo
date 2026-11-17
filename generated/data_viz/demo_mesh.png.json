@@ -1,0 +1,18 @@
+{
+  "image": "generated/data_viz/demo_mesh.png",
+  "image_sha256": "95e47e7c2d532b809324fa41a27d7962302c62e37e227749f15a99175590df4f",
+  "generated_at": "2026-11-17T19:11:11+07:00",
+  "parameters": {
+    "expected paths": true
+  },
+  "facts": {
+    "vertices": 31,
+    "triangles": 62
+  },
+  "sources": {
+    "mesh_sha256": "363549c6f0f35cddefa2ee73f618966879c836d82bd372097af39e1889462f09"
+  },
+  "script": "tools/data/data_viz.py",
+  "script_sha256": "a69b5f0a20d641b042d6d1037a07a58631021f7b6c4cb3a3095a057dc9c21721",
+  "command": "tools/data/data_viz.py --all"
+}

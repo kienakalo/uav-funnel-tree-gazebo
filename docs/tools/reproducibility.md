@@ -67,9 +67,42 @@ Tham số đã dùng nằm ở hai chỗ, nên một kết quả luôn truy đư
 | --- | --- |
 | `generated/parameters.json` | `main.py` ghi mỗi run: tham số từng bước, nguồn (mặc định / người trả lời / cờ), dòng lệnh, commit, thời gian chạy |
 | `data/processed/meshes/city.standardized.triangulation.params.json` | `triangulation.py` ghi cạnh bề mặt: tham số, SHA của scene, script và file `.off` |
+| `data/processed/meshes/city.standardized.glb2off.params.json` | `glb2off.py` ghi cạnh bản xem: `width`, SHA của scene và file OFF |
+| `<ảnh>.png.json` | `figstamp` ghi cạnh mỗi PNG: tham số, facts, SHA của input + ảnh, script, dòng lệnh (xem [`figures.md`](figures.md)) |
+| `results/runs/<label>/manifest.json` | `main.py --label` ghi cả một lần chạy: tham số + nguồn, SHA, độ dài route, kết quả bay |
 
 `generated/parameters.json` không commit (mỗi run ghi đè). Khi trích số liệu
 vào báo cáo, chép cả tham số từ file này, không chỉ chép kết quả.
+
+### Ảnh có dấu tham số
+
+Mỗi PNG do pipeline sinh (`data_viz`, `route_viz`, `validate`) mang tham số ở
+ba chỗ: chân ảnh, metadata PNG và sidecar `.png.json`. Nhờ vậy hai ảnh cùng tên
+ở hai cấu hình khác nhau vẫn phân biệt được. Kiểm tra bằng:
+
+```bash
+.venv/bin/python tools/figures.py
+```
+
+Đánh đổi đã chọn: dấu có **thời điểm chạy**, nên chạy lại cùng tham số vẫn cho
+PNG khác byte. So sánh giữa hai lần chạy bằng tham số + SHA của input
+(`surface`, `route`), **không** bằng hash ảnh.
+
+### Archive và so sánh giữa các lần chạy
+
+`--fresh` chỉ xoá những gì các stage được chọn sinh lại (xem
+[`main.md`](main.md)); số liệu của một lần chạy chỉ còn nếu đã lưu:
+
+```bash
+python3 main.py --label cell5        # chạy rồi lưu
+python3 main.py --label cell4        # cấu hình khác, không cần --fresh
+python3 tools/plan/compare_runs.py   # bảng cho báo cáo
+```
+
+Archive nằm ở `results/runs/<label>/`, ngoài mọi vùng xoá. Mỗi archive giữ
+`manifest.json`, `parameters.json`, sidecar bề mặt, mission, route + ảnh route,
+`plan-summary.json` và thư mục từng goal (`validation.json`, `world_metadata.json`,
+quỹ đạo bay, `tracking.png` + sidecar, `telemetry_metadata.json`).
 
 ## Môi trường
 
@@ -118,8 +151,8 @@ ghi nguồn và phiên chạy khi chèn vào báo cáo. Số đo nằm trong
 | SHA256 `city.standardized.glb` | `cdd605eedc01011c5c39408ce167fca6244d1a9e0a7527450d13861570a837cb` (sau khi sửa bufferView + thêm NORMAL) |
 | Route city (polyline) | 133,70 m · 284,06 m · 140,54 m |
 | Cung spline | 134,9 m · 286,8 m · 142,4 m |
-| Bay g1 / g2 / g3 | 34,2 s / 65,1 s / 36,3 s; sai số lớn nhất 0,820 / 0,989 / 0,971 m |
-| Thời gian `main.py plan` | ~3 phút 20 giây |
+| Bay g1 / g2 / g3 | 34,2 s / 64,6 s / 35,6 s; sai số lớn nhất 0,820 / 0,989 / 0,971 m (lần chạy 2026-11-17, mỗi lần bay lại lệch khoảng ±1 s) |
+| Thời gian `main.py plan` | 195,8 s cho cả 10 mission (city ~188 s) |
 | Đối chiếu reference | 5/5 fixture, sai lệch lớn nhất 1,7e-5 |
 | Trạng thái thuật toán | experimental, chưa chứng nhận tối ưu |
 

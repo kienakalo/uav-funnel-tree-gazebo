@@ -1,0 +1,26 @@
+{
+  "image": "generated/routes/city.standardized.triangulation.png",
+  "image_sha256": "4c0a5a813b7cb3dc0aa97855e9e9db320e4b45db8841a0a70b76799e695a138f",
+  "generated_at": "2026-11-17T18:28:18+07:00",
+  "parameters": {
+    "seconds": 300.0,
+    "max_nodes": 200000,
+    "clipping": true
+  },
+  "facts": {
+    "routes": 3,
+    "planning": "188.0 s",
+    "g1": "133.7 m",
+    "g2": "284.1 m",
+    "g3": "140.6 m"
+  },
+  "sources": {
+    "mesh_sha256": "f6e01c6d421f71aec828ae2f71593e7b2d0460604453459eb5e86b2ea47b28df",
+    "mission_sha256": "e2a0a7e09a12a76eb76c8a08f0c85a161ef0106797d3a715c247ce37ad011346",
+    "module_sha256": "42465e58992c985455afddfa62d145febfc96cbbb0597b209c0a1c2ca2947bf2",
+    "routes_sha256": "00c4b48e88fb95b5c719a8fefdbf28701bf7eb39bd4edf058214c4c3abf273d5"
+  },
+  "script": "tools/plan/route_viz.py",
+  "script_sha256": "4537bbe023004615732f9fd9f7bde99f9ed3c237b23aaee37f0ff0e50339b56b",
+  "command": "tools/plan/route_viz.py"
+}

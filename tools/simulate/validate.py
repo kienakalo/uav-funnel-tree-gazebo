@@ -30,7 +30,56 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / 'lib'))
+from figstamp import save as save_stamped
+
 DEFAULT_ROOT = ROOT / 'generated/simulate'
+LABELS = {
+    'max_error_limit': ('error limit', ' m'),
+    'speed': ('speed', ' m/s'),
+    'max_acceleration': ('accel', ' m/s²'),
+    'dwell': ('dwell', ' s'),
+    'start_delay': ('delay', ' s'),
+    'simplify': ('simplify', ' m'),
+    'collision_grid': ('collision grid', ' m'),
+    'goal': ('goal', ''),
+    'rows': ('rows', ''),
+    'duration': ('duration', ''),
+    'max_error': ('max error', ''),
+    'mean_error': ('mean', ''),
+    'completed': ('completed', ''),
+}
+
+
+def stamp_data(metadata, result, limit):
+    """Flight settings and outcome, for the footer and the sidecar."""
+    metadata = metadata or {}
+    flight = metadata.get('flight') or {}
+    parameters = {
+        'speed': flight.get('speed'),
+        'max_acceleration': flight.get('max_acceleration'),
+        'dwell': flight.get('dwell'),
+        'start_delay': flight.get('start_delay'),
+        'simplify': metadata.get('simplify_tolerance'),
+        'collision_grid': (metadata.get('collision_stats') or {}).get('cell'),
+        'max_error_limit': limit,
+    }
+    facts = {
+        'goal': metadata.get('goal'),
+        'rows': result['rows'],
+        'duration': f'{result["duration"]:.1f} s',
+        'max_error': f'{result["max_error"]:.3f} m',
+        'mean_error': f'{result["mean_error"]:.3f} m',
+        'completed': result['completed'],
+    }
+    sources = {
+        'scene_sha256': metadata.get('scene_sha256'),
+        'surface_sha256': metadata.get('surface_sha256'),
+        'route_sha256': (metadata.get('route_sha256')
+                         or result.get('route_sha256')),
+        'telemetry_sha256': result.get('telemetry_sha256'),
+    }
+    return parameters, facts, sources
 
 
 def fail(message):
@@ -85,7 +134,7 @@ def analyse(rows, max_error):
     }
 
 
-def render(rows, folder, title, limit):
+def render(rows, folder, title, limit, metadata, result):
     times = [float(row['sim_time']) for row in rows]
     errors = [float(row['error']) for row in rows]
     xs = [float(row['x']) for row in rows]
@@ -125,9 +174,12 @@ def render(rows, folder, title, limit):
 
     figure.tight_layout()
     output = folder / 'tracking.png'
-    figure.savefig(output, dpi=150)
+    parameters, facts, sources = stamp_data(metadata, result, limit)
+    image, sidecar = save_stamped(
+        figure, output, parameters=parameters, facts=facts, sources=sources,
+        labels=LABELS, script=__file__, subject=title)
     plt.close(figure)
-    return output
+    return image, sidecar
 
 
 def main():
@@ -156,6 +208,15 @@ def main():
     metadata = {}
     if metadata_path.is_file():
         metadata = json.loads(metadata_path.read_text(encoding='utf-8'))
+    # The flight settings live in the world build, not in the telemetry record.
+    world_path = folder / 'world_metadata.json'
+    world = {}
+    if world_path.is_file():
+        world = json.loads(world_path.read_text(encoding='utf-8'))
+    stamp_metadata = dict(world)
+    for key, value in metadata.items():
+        if value is not None:
+            stamp_metadata[key] = value
     result.update({
         'mission': metadata.get('mission'),
         'goal': metadata.get('goal'),
@@ -173,8 +234,10 @@ def main():
     title = (f'{args.mission}-{args.goal}: {result["rows"]} rows, '
              f'max error {result["max_error"]:.2f} m')
     if not args.no_png:
-        image = render(rows, folder, title, args.max_error)
+        image, sidecar = render(rows, folder, title, args.max_error,
+                                stamp_metadata, result)
         print(f'Save at: {image}')
+        print(f'Save at: {sidecar}')
     print(f'Rows {result["rows"]}, duration {result["duration"]:.1f} s, '
           f'max error {result["max_error"]:.3f} m, mean {result["mean_error"]:.3f} m')
     print(f'Max speed {result["max_speed"]:.2f} m/s, '

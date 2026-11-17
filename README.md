@@ -62,14 +62,18 @@ Chỉ cửa sổ 3D cần các gói này; chạy stage bằng PNG thì không c�
 
 ```bash
 python3 main.py flow        # liệt kê các bước, lệnh và tham số sẽ hỏi
-python3 main.py             # hỏi chạy lại từ đầu + tham số, rồi data -> plan -> simulate
-python3 main.py --fresh     # xoá kết quả cũ rồi chạy cả ba, không hỏi
+python3 main.py             # hỏi xoá gì + tham số, rồi data -> plan -> simulate
+python3 main.py --fresh     # xoá những gì các stage sẽ sinh lại, không hỏi
 python3 main.py --no-ask    # không hỏi gì, dùng mặc định
 python3 main.py data --dry-run   # xem câu hỏi + lệnh, không đổi file nào
+python3 main.py --label cell5    # chạy rồi lưu kết quả để so sánh về sau
+python3 main.py --archive cell5  # chỉ lưu kết quả đang có, không chạy lại
+python3 tools/plan/compare_runs.py  # bảng cell5 vs cell4 cho báo cáo
+python3 tools/figures.py         # kiểm tra ảnh đã ghi đúng tham số chưa
 
 python3 main.py data        # chỉ stage dữ liệu
 
-# bước 6 mặc định chọn START/GOAL cho mọi mesh (10 file mission)
+# bước 7 mặc định chọn START/GOAL cho mọi mesh (10 file mission)
 python3 main.py data
 python3 main.py data --no-all-meshes       # chỉ bề mặt thành phố
 python3 main.py data --force-missions      # chọn lại cả mesh đã có
@@ -85,16 +89,17 @@ python3 main.py simulate --goal g2 --gpu nvidia
 python3 main.py simulate --goal g3 --headless  # không mở cửa sổ
 ```
 
-Sáu bước, dừng ngay khi một bước lỗi:
+Bảy bước, dừng ngay khi một bước lỗi:
 
 | # | Lệnh | Vào → Ra |
 | --- | --- | --- |
 | 1 | `tools/data/copy_meshes.py --write` | `data/raw/meshes/*.off` → `data/processed/meshes/*.off` |
 | 2 | `tools/data/standardize.py` | `data/raw/scenes/city.glb` → `scenes/city.standardized.glb` |
-| 3 | `tools/data/off2glb.py` | `raw/meshes/*.off` → `scenes/meshes/*.off2glb.glb` |
-| 4 | `tools/data/triangulation.py --force` | `city.standardized.glb` → `meshes/city.standardized.triangulation.off` |
-| 5 | `tools/data/data_viz.py --all` | `processed/meshes/*.off` → `generated/data_viz/*.png` |
-| 6 | `tools/data/set_start_goal.py --all-meshes --refresh-changed` | bề mặt → `data/processed/missions/<mesh>.json` |
+| 3 | `tools/data/glb2off.py --force` | `city.standardized.glb` → `meshes/city.standardized.glb2off.off` (bản xem cho báo cáo) |
+| 4 | `tools/data/off2glb.py` | `raw/meshes/*.off` → `scenes/meshes/*.off2glb.glb` |
+| 5 | `tools/data/triangulation.py --force` | `city.standardized.glb` → `meshes/city.standardized.triangulation.off` |
+| 6 | `tools/data/data_viz.py --all` | `processed/meshes/*.off` → `generated/data_viz/*.png` + sidecar |
+| 7 | `tools/data/set_start_goal.py --all-meshes --refresh-changed` | bề mặt → `data/processed/missions/<mesh>.json` |
 
 Stage `plan` có ba bước:
 
@@ -112,8 +117,8 @@ trong Gazebo, `validate.py` chấm telemetry. Mặc định Gazebo chạy trong 
 `validation.json` và `tracking.png`. Chi tiết:
 [`docs/tools/simulate/run_simulate.md`](docs/tools/simulate/run_simulate.md).
 
-Bước 4 cần `--force` vì tệp đích đã tồn tại; nếu không, tool dừng để tránh ghi
-đè ngoài ý muốn. Bước 6 dùng lại lựa chọn START/GOAL đã lưu; lần đầu chưa có
+Bước 5 cần `--force` vì tệp đích đã tồn tại; nếu không, tool dừng để tránh ghi
+đè ngoài ý muốn. Bước 7 dùng lại lựa chọn START/GOAL đã lưu; lần đầu chưa có
 `data/processed/missions/<mesh>.json` thì tool hỏi chọn ngay trong terminal rồi
 ghi file. Không có file nào được ship sẵn: commit lựa chọn của bạn nếu muốn tái
 lập. Tham số bề mặt được in ra console và ghi ở

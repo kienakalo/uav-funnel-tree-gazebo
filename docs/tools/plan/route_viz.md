@@ -4,7 +4,7 @@
 | --- | --- |
 | Stage | `plan` bước 2 |
 | Vào | `generated/routes/*.json` + mesh ghi trong file |
-| Ra | `generated/routes/<mission>.png` |
+| Ra | `generated/routes/<mission>.png` + `<mission>.png.json` (dấu tham số) |
 | Cờ | `--routes` (lặp lại), `--input`, `--output`, `--max-routes N` (60), `--show` |
 
 ## Vì sao tách khỏi `run_funnel`
@@ -25,6 +25,25 @@ và chạy được trên máy không có cửa sổ.
 | Tiêu đề | `<mission> — N route(s), T s` (T lấy từ `planning_seconds`) |
 | Tỉ lệ | `set_box_aspect` theo bounding box thật của mesh |
 
+## Đóng dấu tham số
+
+| Ghi vào | Nội dung |
+| --- | --- |
+| Chân ảnh | `solve limit`, `max nodes`, `clipping`, `planning`, độ dài từng goal, tham số bay nếu đã dựng world, SHA ngắn, thời điểm |
+| Metadata PNG | cùng nội dung, dạng `tEXt` |
+| `<mission>.png.json` | tham số, facts, SHA của mesh/mission/module/route + SHA ảnh, dòng lệnh |
+
+Nguồn:
+
+- `generated/routes/<mission>.json`: `solver.timeout_seconds`,
+  `solver.max_nodes`, `solver.clipping`, `planning_seconds`, `mesh_sha256`,
+  `mission_sha256`, `solver.module_sha256`, danh sách route + độ dài.
+- `generated/simulate/<mission>-g*/world_metadata.json` nếu đã dựng world:
+  `flight.speed`, `flight.max_acceleration`, `flight.dwell`,
+  `flight.start_delay`, `simplify_tolerance`, `collision_stats.cell`.
+  Chưa dựng world thì ảnh **không** ghi tốc độ, để không ai tưởng là 5 m/s.
+  Nhiều goal có cấu hình bay khác nhau thì ghi `flight mixed`.
+
 ## `--max-routes`
 
 Khi số tuyến lớn hơn ngưỡng, tool giữ các tuyến **dài nhất** (sắp xếp giảm dần
@@ -37,7 +56,8 @@ generated/routes/cliff.png      1069×1104, ~258 KB
 generated/routes/city.standardized.triangulation.png   1184×1101, ~380 KB
 ```
 
-150 dpi, `bbox_inches='tight'`. Ảnh **có commit** cùng JSON (kết quả stage `plan`).
+150 dpi, `bbox_inches='tight'`. Ảnh và sidecar **có commit** cùng JSON (kết quả
+stage `plan`).
 
 ## `--show`
 

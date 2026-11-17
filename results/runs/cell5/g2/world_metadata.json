@@ -1,0 +1,43 @@
+{
+  "mission": "data/processed/missions/city.standardized.triangulation.json",
+  "goal": "g2",
+  "goal_vertex": 2112,
+  "route_file": "generated/routes/city.standardized.triangulation.json",
+  "route_sha256": "00c4b48e88fb95b5c719a8fefdbf28701bf7eb39bd4edf058214c4c3abf273d5",
+  "surface": "data/processed/meshes/city.standardized.triangulation.off",
+  "surface_sha256": "f6e01c6d421f71aec828ae2f71593e7b2d0460604453459eb5e86b2ea47b28df",
+  "scene": "data/processed/scenes/city.standardized.glb",
+  "scene_sha256": "cdd605eedc01011c5c39408ce167fca6244d1a9e0a7527450d13861570a837cb",
+  "world": "funnel_sim_city_standardized_triangulation_g2",
+  "visual_format": "glb",
+  "visual_normals": true,
+  "camera_pose": [
+    -100.0,
+    -100.0,
+    58.415,
+    0.0,
+    19.471,
+    45.0
+  ],
+  "lighting": "directional sun with shadows; visual-only ground plane",
+  "collision_mode": "decimated",
+  "collision_stats": {
+    "faces_before": 301482,
+    "faces_after": 26296,
+    "vertices_before": 204682,
+    "vertices_after": 12402,
+    "cell": 1.0
+  },
+  "waypoints": 47,
+  "waypoints_before_simplify": 156,
+  "simplify_tolerance": 0.1,
+  "flight": {
+    "speed": 5.0,
+    "max_acceleration": 3.0,
+    "dwell": 0.0,
+    "start_delay": 2.0
+  },
+  "waypoint_length": 284.056451,
+  "model": "1 kg point mass with force feedback; box body collision; decorative rotors",
+  "frame": "Z-up, width 200 m"
+}

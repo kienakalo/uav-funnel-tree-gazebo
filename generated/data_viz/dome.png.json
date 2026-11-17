@@ -1,0 +1,18 @@
+{
+  "image": "generated/data_viz/dome.png",
+  "image_sha256": "f3cea48d915ceb65a7c831f89e2887eb4135d2bffc787a781500e56d1d5b0788",
+  "generated_at": "2026-11-17T19:11:12+07:00",
+  "parameters": {
+    "expected paths": true
+  },
+  "facts": {
+    "vertices": 25,
+    "triangles": 40
+  },
+  "sources": {
+    "mesh_sha256": "b98c4160b730cf6b88b57f0453dc7cecc67c080d5e18636cd06727217560d63a"
+  },
+  "script": "tools/data/data_viz.py",
+  "script_sha256": "a69b5f0a20d641b042d6d1037a07a58631021f7b6c4cb3a3095a057dc9c21721",
+  "command": "tools/data/data_viz.py --all"
+}

@@ -4,7 +4,7 @@
 | --- | --- |
 | Vai trò | Chạy một hoặc nhiều stage bằng subprocess |
 | Vào | Tên stage (`data`, `plan`, `simulate`, `flow`) + cờ |
-| Ra | Chạy các tool và dừng ở lỗi đầu tiên; ghi `generated/parameters.json` |
+| Ra | Chạy các tool và dừng ở lỗi đầu tiên; ghi `generated/parameters.json`; `--label`/`--archive` chép kết quả vào `results/runs/<label>/` |
 
 ## Cách chọn interpreter
 
@@ -21,7 +21,7 @@ về `sys.executable` — khi đó phải activate venv trước.
 
 | Stage | Số bước | Nội dung |
 | --- | --- | --- |
-| `data` | 6 | copy fixtures → standardize → off2glb → triangulation → data_viz → set_start_goal |
+| `data` | 7 | copy fixtures → standardize → glb2off → off2glb → triangulation → data_viz → set_start_goal |
 | `plan` | 3 | run_funnel → route_viz → compare |
 | `simulate` | 3 × số goal | build_world → run_simulate `--no-build` → validate, lặp cho từng goal (mặc định cả g1, g2, g3) |
 
@@ -32,10 +32,15 @@ Thứ tự trong `data` có chủ đích:
 
 1. `copy_meshes` chạy trước để fixture có mặt trong `data/processed/`.
 2. `standardize` tạo scene chuẩn hoá mà `triangulation` đọc.
-3. `off2glb` độc lập với 1–2, chỉ tạo bản xem.
-4. `triangulation` ghi đè bề mặt (luôn kèm `--force`).
-5. `data_viz` render mọi `.off` **sau** khi bề mặt đã có.
-6. `set_start_goal` chạy cuối để nếu nó cần hỏi thì các bước trước đã xong.
+3. `glb2off` xuất cả thành phố ra `.off` để xem và để chụp hình cho báo cáo
+   (bước này in nhãn *bản xem thành phố cho báo cáo, không phải đầu vào thuật
+   toán*; `triangulation` không đọc file này).
+4. `off2glb` độc lập với 1–3, chỉ tạo bản xem ngược lại.
+5. `triangulation` ghi đè bề mặt (luôn kèm `--force`).
+6. `data_viz` render mọi `.off` trong `data/processed/meshes/` **sau** khi bề
+   mặt và bản xem thành phố đã có, nên nó cũng vẽ `city.standardized.glb2off.png`.
+7. `set_start_goal` chạy cuối để nếu nó cần hỏi thì các bước trước đã xong;
+   `--all-meshes` bỏ qua `*.glb2off.off`.
 
 ## Cờ
 
@@ -43,10 +48,12 @@ Thứ tự trong `data` có chủ đích:
 | --- | --- |
 | `flow` | In các lệnh rồi thoát |
 | `--dry-run` | In lệnh và câu hỏi tham số, không chạy, không hỏi, không xoá |
-| `--fresh` | Xoá kết quả cũ rồi chạy cả ba stage, không hỏi (chỉ dùng khi không ghi stage) |
+| `--fresh` | Xoá đúng những thư mục mà các stage được chọn sẽ sinh lại, không hỏi |
+| `--label NAME` | Chạy xong thì chép số liệu + ảnh vào `results/runs/NAME/` để so sánh giữa các lần chạy |
+| `--archive NAME` | Không chạy gì, chỉ chép kết quả đang có vào `results/runs/NAME/` |
 | `--no-ask` | Không hỏi gì: giữ toàn bộ tham số mặc định |
 | `--quiet` | Ẩn output của tool, chỉ in bước + thời gian; output hiện ra khi bước lỗi |
-| `--all-meshes` / `--no-all-meshes` | Bước 6 chọn cho mọi mesh (mặc định) hay chỉ bề mặt |
+| `--all-meshes` / `--no-all-meshes` | Bước 7 chọn cho mọi mesh (mặc định) hay chỉ bề mặt |
 | `--force-missions` | Chỉ với `--all-meshes`: chọn lại cả mesh đã có mission |
 | `--mission STEM` | `simulate`: route stem (mặc định `city.standardized.triangulation`) |
 | `--goal ID` | `simulate`: chỉ bay một goal; mặc định bay mọi goal của route |
@@ -64,32 +71,81 @@ Thứ tự trong `data` có chủ đích:
 `--force-missions` không đi cùng `--no-all-meshes` (báo lỗi), vì chọn lại một
 mesh nên gọi trực tiếp `set_start_goal.py --force`.
 
-## Chạy lại từ đầu
+## Xoá và sinh lại theo stage
 
-Chạy đủ ba stage mà không ghi stage nào, `main.py` hỏi trước khi làm gì:
+`main.py` hỏi trước khi chạy, và chỉ liệt kê những thư mục mà **các stage được
+chọn** sẽ ghi lại:
 
 ```text
-Trả lời y sẽ xoá và sinh lại:
-    generated/  82 file · 36.7 MB
-    data/processed/meshes/  11 file · 18.4 MB
+Trả lời y sẽ xoá và sinh lại (data, plan):
+    data/processed/meshes/  12 file · 18.5 MB
     data/processed/scenes/  10 file · 6.1 MB
-    Giữ lại: data/processed/missions/ (START/GOAL), data/raw/, data/expected/
-    Container Gazebo còn sót: funnel-city_standardized_triangulation_g1-12345
+    generated/data_viz/  22 file · 2.5 MB
+    generated/routes/  20 file · 1.4 MB
+    generated/compare/  6 file · 0.1 MB
+    Giữ lại: data/processed/missions/ (START/GOAL), data/raw/, data/expected/, results/runs/ (archive)
 Chạy lại từ đầu? (y/N): 
 ```
 
+| Stage được chọn | Xoá | Giữ nguyên |
+| --- | --- | --- |
+| `data` | `data/processed/meshes/`, `data/processed/scenes/`, `generated/data_viz/` | route, compare, simulate, archive |
+| `plan` | `generated/routes/`, `generated/compare/` | ảnh data_viz, simulate, archive |
+| `simulate` | `generated/simulate/<mission>-<goal>/` của **đúng các goal sắp bay** | goal khác, route, plan, archive |
+
 - **Enter = Không**: giữ kết quả cũ và chạy tiếp. Gõ `y` mới xoá.
-- `--fresh` bỏ qua câu hỏi và xoá luôn; `--fresh` không đi cùng một stage nào
-  (báo lỗi), vì xoá `generated/` rồi chạy riêng `simulate` sẽ mất route của
-  g2/g3 và lặng lẽ bay lại chỉ g1.
+- `--fresh` bỏ qua câu hỏi và xoá luôn, dùng được với một stage: chạy
+  `python3 main.py plan --fresh` chỉ dọn route/compare, không mất ảnh bề mặt
+  hay lần bay trước.
 - stdin không phải terminal (pipe, cron, CI) thì không hỏi: in
   `Không có terminal để hỏi; giữ kết quả cũ (dùng --fresh để xoá).`
 - Xoá xong in `Đã xoá <n> file · <MB>` và lệnh khôi phục
   `git checkout -- generated data`.
 - `data/processed/missions/` **không bị xoá**: mission ghi lựa chọn START/GOAL,
   không sinh lại được. Muốn chọn lại thì `--force-missions`.
-- Container Gazebo còn sót tên `funnel-*` (do lần chạy trước bị kill) bị
-  `docker rm -f` cùng lúc.
+- `results/runs/` **không bị xoá** ở bất kỳ stage nào: đó là nơi giữ số liệu của
+  những lần chạy đã lưu.
+- Container Gazebo còn sót tên `funnel-*` bị `docker rm -f` khi stage
+  `simulate` được chọn.
+
+## Lưu một lần chạy để so sánh
+
+Đổi `cell` từ 5 m sang 4 m làm bề mặt, route và kết quả bay đều khác, nhưng mọi
+tool ghi vào cùng tên file. Muốn so sánh hai cấu hình sau khi đã chạy xong thì
+lưu từng lần chạy lại:
+
+```bash
+python3 main.py --label cell5          # chạy theo cấu hình hiện tại rồi lưu
+python3 main.py --label cell4          # lần chạy thứ hai, không cần --fresh
+python3 tools/plan/compare_runs.py     # bảng cell5 vs cell4 cho báo cáo
+```
+
+`--archive` dùng khi kết quả đã có sẵn trên đĩa và không muốn chạy lại:
+
+```bash
+python3 main.py --archive cell5
+```
+
+Mỗi archive là một thư mục trong `results/runs/<label>/`:
+
+| File | Nội dung |
+| --- | --- |
+| `manifest.json` | tham số + nguồn, commit, SHA scene/bề mặt/route, START/GOAL đã snap, độ dài route từng goal, thời lượng bay, `max_error`, `passed`, danh sách file kèm SHA |
+| `parameters.json` | bản sao `generated/parameters.json` của lần chạy |
+| `surface.params.json` | tham số + SHA của bề mặt đã dùng |
+| `mission.json`, `route.json`, `route.png`, `route.png.json` | mission, route đã lập và ảnh tuyến |
+| `plan-summary.json` | `generated/compare/summary.json` (đối chiếu reference) |
+| `g1/`, `g2/`, `g3/` | `validation.json`, `world_metadata.json`, `route.json` (quỹ đạo bay), `tracking.png` + sidecar, `telemetry_metadata.json` |
+
+- Label chỉ gồm chữ, số, dấu chấm, gạch dưới, gạch ngang; label đã có thì tool
+  **dừng**, không ghi đè archive cũ.
+- Archive chụp toàn bộ kết quả đang có, kèm `stages` của lần chạy và danh sách
+  `missing`; muốn bảng đầy đủ thì chạy cả ba stage rồi mới lưu.
+- File nào thiếu thì manifest ghi vào `missing` và in ra, archive vẫn được tạo.
+- `parameters` trong manifest là những nhóm mà lần chạy đó thực sự hỏi (ví dụ
+  chỉ chạy `simulate` thì có `world`, `flight`, `gazebo`, `validate`); tham số
+  hình học và solver vẫn truy được qua `surface.params.json` và `routes.solver`,
+  và `compare_runs.py` tự gộp lại.
 
 ## Tham số hỏi khi chạy
 
@@ -134,12 +190,11 @@ phải giới hạn cứng) nhưng in thêm một dòng cảnh báo:
 Chỉ giá trị vô lý mới bị hỏi lại: số âm, 0 với tham số phải dương, chữ không
 phải số.
 
-Nhập sai (chữ, số âm, 0) thì tool báo và hỏi lại. Sau khi hỏi in lại
-`→ cell=5 clearance=1.5 ...`, thêm `(đã đổi)` nếu có giá trị khác mặc định,
-kèm dòng `$ <lệnh đầy đủ>` để chép vào báo cáo.
+Sau khi hỏi, `main.py` in lại `→ cell=5 clearance=1.5 ...`, thêm `(đã đổi)`
+nếu có giá trị khác mặc định, kèm dòng `$ <lệnh đầy đủ>` để chép vào báo cáo.
 
 Đổi tham số hình học (`cell`, `clearance`, `half-width`, `max-slope`) làm bề
-mặt có SHA khác. Bước 6 của `data` chạy
+mặt có SHA khác. Bước 7 của `data` chạy
 `set_start_goal.py --all-meshes --refresh-changed`: mission cũ được snap lại
 vào bề mặt mới theo đúng toạ độ START/GOAL đã lưu, nên `plan` không dừng với
 lỗi *"mesh changed since the mission was saved"*.
@@ -152,7 +207,9 @@ Cuối mỗi run (kể cả khi lỗi) `main.py` ghi `generated/parameters.json`
 {
   "command": "main.py data",
   "stages": ["data"],
-  "cleared": false,
+  "label": null,
+  "cleared": ["data/processed/meshes", "data/processed/scenes",
+              "generated/data_viz"],
   "interactive": true,
   "parameters": {"triangulation": {"cell": 5.0, "clearance": 1.5,
                                    "half_width": 1.6, "max_slope": 0.5}},
@@ -164,8 +221,9 @@ Cuối mỗi run (kể cả khi lỗi) `main.py` ghi `generated/parameters.json`
 ```
 
 `parameters` là giá trị đã dùng; `sources` cho biết mỗi giá trị đến từ mặc
-định, từ câu trả lời hay từ cờ dòng lệnh. File này không commit (mỗi run ghi
-đè); muốn trích vào báo cáo thì lấy từ đây.
+định, từ câu trả lời hay từ cờ dòng lệnh; `cleared` là những thư mục đã xoá ở
+đầu run (rỗng nếu giữ kết quả cũ). File này không commit (mỗi run ghi đè); muốn
+trích vào báo cáo thì lấy từ đây, hoặc lấy bản đã lưu trong archive.
 
 ## Đầu ra trên terminal
 
@@ -214,8 +272,8 @@ hoặc gọi tool trực tiếp.
 ## Ví dụ
 
 ```bash
-python3 main.py                     # hỏi chạy lại từ đầu, hỏi tham số, rồi chạy
-python3 main.py --fresh             # xoá kết quả cũ rồi chạy cả ba
+python3 main.py                     # hỏi xoá gì, hỏi tham số, rồi chạy
+python3 main.py --fresh             # xoá những gì các stage sẽ sinh lại
 python3 main.py --no-ask            # không hỏi, dùng mặc định
 python3 main.py flow                # xem lệnh
 python3 main.py data --dry-run      # xem câu hỏi + lệnh, không đổi gì
@@ -223,12 +281,15 @@ python3 main.py plan
 python3 main.py simulate --goal g2 --headless
 python3 main.py data --no-all-meshes
 python3 main.py data --force-missions
+python3 main.py --label cell5       # chạy rồi lưu kết quả vào results/runs/cell5
+python3 main.py --archive cell5     # chỉ lưu kết quả đang có
 ```
 
 ## Mở rộng
 
-Thêm stage = thêm một khóa vào `STAGES` và `DESCRIPTIONS`; mỗi phần tử là một
-dict `{'run': [...], 'params': [...]}` — `run` là lệnh tuyệt đối (phần tử đầu là
-interpreter), `params` là danh sách nhóm trong `PARAM_GROUPS`. Thêm một nhóm
-tham số = thêm một khóa vào `PARAM_GROUPS` và `GROUP_TITLES`, không cần sửa
-`run_stage`.
+Thêm stage = thêm một khóa vào `STAGES`, `DESCRIPTIONS` và (nếu có thư mục
+riêng cần xoá) `CLEARED`; mỗi phần tử là một dict
+`{'run': [...], 'params': [...], 'note': '...'}` — `run` là lệnh tuyệt đối
+(phần tử đầu là interpreter), `params` là danh sách nhóm trong `PARAM_GROUPS`,
+`note` là nhãn in cạnh tên bước. Thêm một nhóm tham số = thêm một khóa vào
+`PARAM_GROUPS` và `GROUP_TITLES`, không cần sửa `run_stage`.

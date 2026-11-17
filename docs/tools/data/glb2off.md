@@ -2,9 +2,9 @@
 
 | | |
 | --- | --- |
-| Stage | `data` bước 4 (dùng gián tiếp) — cũng là tool độc lập |
+| Stage | `data` bước 3 (bản xem cho báo cáo) — cũng là tool độc lập |
 | Vào | GLB 2 bất kỳ (mặc định `data/processed/scenes/city.standardized.glb`) |
-| Ra | `data/processed/meshes/<stem>.glb2off.off` |
+| Ra | `data/processed/meshes/<stem>.glb2off.off` + `<stem>.params.json` |
 | Cờ | `--output`, `--width` (200), `--force` |
 | Được import bởi | `triangulation.py`, `data_viz.py`, `standardize.py` |
 
@@ -55,6 +55,28 @@ Input:  204682 vertices, 301490 triangles
 Bounds: x [-100.00, 100.00] y [-87.78, 87.78] z [0.00, 18.54]
 Output: 498767 edges, 18.3 MB
 ```
+
+## Sidecar `<stem>.params.json`
+
+Tool ghi kèm file OFF một sidecar để ảnh `data_viz` và người đọc truy được bản
+xem về đúng scene và tham số:
+
+```json
+{
+  "output": "data/processed/meshes/city.standardized.glb2off.off",
+  "output_sha256": "83690adb…",
+  "scene": "data/processed/scenes/city.standardized.glb",
+  "scene_sha256": "cdd605ee…",
+  "parameters": {"width": 200.0},
+  "result": {"vertices": 204682, "triangles": 301490,
+             "edges": 498767, "bytes": 19232106},
+  "script": "tools/data/glb2off.py",
+  "script_sha256": "…"
+}
+```
+
+Không có dấu thời gian nên chạy lại với cùng scene và `--width` cho ra cùng
+byte. Sidecar được commit cùng OFF.
 
 ## Đặc điểm cần nói khi báo cáo
 

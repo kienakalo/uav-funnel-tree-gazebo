@@ -37,10 +37,80 @@ else:
 import matplotlib.pyplot as plt
 
 from mesh_off import read_off
+from figstamp import save as save_stamped
+from figstamp import sha256
 
 DEFAULT_INPUT = ROOT / 'generated/routes'
 COLOURS = ('#c0392b', '#8e44ad', '#e67e22', '#16a085', '#2c3e50',
            '#7f8c8d', '#2980b9', '#d35400')
+LABELS = {
+    'seconds': ('solve limit', ' s'),
+    'max_nodes': ('max nodes', ''),
+    'clipping': ('clipping', ''),
+    'shown': ('shown', ''),
+    'speed': ('speed', ' m/s'),
+    'max_acceleration': ('accel', ' m/s²'),
+    'dwell': ('dwell', ' s'),
+    'start_delay': ('delay', ' s'),
+    'simplify_tolerance': ('simplify', ' m'),
+    'collision_grid': ('collision grid', ' m'),
+    'flight': ('flight', ''),
+    'planning': ('planning', ''),
+    'routes': ('routes', ''),
+}
+
+
+def flight_settings(mission):
+    """Flight settings of the worlds built for this mission, when uniform."""
+    records = []
+    for path in sorted((ROOT / 'generated/simulate').glob(
+            f'{mission}-*/world_metadata.json')):
+        try:
+            records.append(json.loads(path.read_text(encoding='utf-8')))
+        except ValueError:
+            continue
+    if not records:
+        return {}
+    signatures = {json.dumps([record.get('flight'),
+                              record.get('simplify_tolerance'),
+                              (record.get('collision_stats') or {}).get('cell')],
+                             sort_keys=True) for record in records}
+    if len(signatures) > 1:
+        return {'flight': 'mixed'}
+    record = records[0]
+    flight = record.get('flight') or {}
+    return {
+        'speed': flight.get('speed'),
+        'max_acceleration': flight.get('max_acceleration'),
+        'dwell': flight.get('dwell'),
+        'start_delay': flight.get('start_delay'),
+        'simplify_tolerance': record.get('simplify_tolerance'),
+        'collision_grid': (record.get('collision_stats') or {}).get('cell'),
+    }
+
+
+def stamp_data(path, record, shown, limit):
+    solver = record.get('solver') or {}
+    parameters = {
+        'seconds': solver.get('timeout_seconds'),
+        'max_nodes': solver.get('max_nodes'),
+        'clipping': solver.get('clipping', (record.get('stats') or {}).get('clipping')),
+    }
+    if limit > 0 and len(record['routes']) > limit:
+        parameters['shown'] = shown
+    parameters.update(flight_settings(path.stem))
+    sources = {
+        'mesh_sha256': record.get('mesh_sha256'),
+        'mission_sha256': record.get('mission_sha256'),
+        'module_sha256': solver.get('module_sha256'),
+        'routes_sha256': sha256(path),
+    }
+    facts = {'routes': len(record['routes'])}
+    if record.get('planning_seconds') is not None:
+        facts['planning'] = f'{record["planning_seconds"]:.1f} s'
+    for route in record['routes'][:12]:
+        facts[route['id']] = f'{route["length"]:.1f} m'
+    return parameters, facts, sources
 
 
 def render(path, output, limit, show):
@@ -81,12 +151,15 @@ def render(path, output, limit, show):
         axes.legend(loc='upper left')
     if show:
         plt.show()
-        saved = None
+        saved = None, None
     else:
-        output.parent.mkdir(parents=True, exist_ok=True)
-        figure.savefig(output, dpi=150, bbox_inches='tight')
-        saved = output
-        print(f'Save at: {output}')
+        parameters, facts, sources = stamp_data(path, record, len(routes), limit)
+        image, sidecar = save_stamped(
+            figure, output, parameters=parameters, facts=facts, sources=sources,
+            labels=LABELS, script=__file__, subject=title)
+        saved = image, sidecar
+        print(f'Save at: {image}')
+        print(f'Save at: {sidecar}')
     plt.close(figure)
     return saved
 

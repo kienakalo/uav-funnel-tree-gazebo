@@ -11,11 +11,12 @@ Nguồn nằm ở [`data/raw/`](../raw).
 | `meshes/city.standardized.triangulation.off` | Tam giác phân bề mặt | `tools/data/triangulation.py` |
 | `meshes/city.standardized.triangulation.params.json` | Tham số + SHA đã sinh ra bề mặt | `tools/data/triangulation.py` |
 | `meshes/city.standardized.glb2off.off` | Bản OFF của scene để xem, không phải đầu vào thuật toán | `tools/data/glb2off.py` |
+| `meshes/city.standardized.glb2off.params.json` | `width` + SHA của scene và file OFF | `tools/data/glb2off.py` |
 | `missions/<mesh>.json` | START/GOAL đã chọn | `tools/data/set_start_goal.py` |
 
-Tên file theo quy trình. Bề mặt có sidecar `.params.json` ghi tham số và SHA;
-các file khác ghi tham số trong chính nội dung (mission, route, metadata) hoặc
-chỉ in ra khi chạy tool.
+Tên file theo quy trình. Bề mặt và bản xem thành phố có sidecar `.params.json`
+ghi tham số và SHA; các file khác ghi tham số trong chính nội dung (mission,
+route, metadata) hoặc chỉ in ra khi chạy tool.
 
 ## Vì sao từng bước
 
@@ -113,7 +114,7 @@ thoát. Cần môi trường có giao diện (Ubuntu/WSLg); nếu backend không
 dùng chế độ ghi PNG.
 
 Mesh có `data/expected/<tên>.paths.json` sẽ được vẽ đè các đường tham chiếu
-màu đỏ. `python3 main.py data` render tất cả ở bước 5 của stage `data`.
+màu đỏ. `python3 main.py data` render tất cả ở bước 6 của stage `data`.
 
 ## Chọn START/GOAL
 

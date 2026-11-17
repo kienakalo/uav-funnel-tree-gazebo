@@ -8,6 +8,7 @@ Mỗi tool một file, mô tả dữ liệu vào/ra, cờ dòng lệnh, thuật 
 ```text
 data/raw/scenes/city.glb ──standardize──► data/processed/scenes/city.standardized.glb
                                                   │
+                                                  ├─glb2off───────► city.standardized.glb2off.off (+ .params.json)
                                                   └─triangulation──► city.standardized.triangulation.off
                                                                           │
 data/processed/missions/<mesh>.json ──────────────────────────────────────┤
@@ -30,10 +31,18 @@ generated/routes/*.json ──build_world──► generated/simulate/<mission>-
                                             │
                                 validate ───┴─► validation.json
                                                  tracking.png (map + error)
+
+Mỗi ảnh .png ở trên đều có sidecar .png.json và chân ảnh ghi tham số sinh ra nó
+(lib/figstamp.py); tools/figures.py kiểm tra lại.
+
+main.py --label <tên> ──► results/runs/<tên>/manifest.json + số liệu + ảnh
+                          (không stage nào xoá; compare_runs.py đọc để so sánh)
 ```
 
 Ba stage một chiều: `plan` đọc kết quả `data`; `simulate` đọc route của `plan`.
-Stage `simulate` cần Gazebo nên chạy riêng, không nằm trong `main.py all`.
+Ba stage một chiều: `plan` đọc kết quả `data`, `simulate` đọc route của `plan`.
+Stage `simulate` cần Gazebo nên chạy được riêng (`main.py simulate`), và bare run
+vẫn chạy cả ba theo thứ tự.
 
 ## Mục lục
 
@@ -43,13 +52,15 @@ Stage `simulate` cần Gazebo nên chạy riêng, không nằm trong `main.py al
 | data | Copy fixture | [`copy_meshes.md`](data/copy_meshes.md) |
 | data | Chuẩn hoá scene | [`standardize.md`](data/standardize.md) |
 | data | OFF → GLB | [`off2glb.md`](data/off2glb.md) |
-| data | GLB → OFF | [`glb2off.md`](data/glb2off.md) |
+| data | GLB → OFF (bản xem cho báo cáo) | [`glb2off.md`](data/glb2off.md) |
 | data | Dựng bề mặt | [`triangulation.md`](data/triangulation.md) |
 | data | Ảnh kiểm tra | [`data_viz.md`](data/data_viz.md) |
 | data | Chọn START/GOAL | [`set_start_goal.md`](data/set_start_goal.md) |
 | plan | Lập tuyến | [`run_funnel.md`](plan/run_funnel.md) |
 | plan | Ảnh tuyến | [`route_viz.md`](plan/route_viz.md) |
 | plan | Đối chiếu reference | [`compare.md`](plan/compare.md) |
+| plan | So sánh các lần chạy đã lưu | [`compare_runs.md`](plan/compare_runs.md) |
+| — | Kiểm tra ảnh ↔ tham số | [`figures.md`](figures.md) |
 | simulate | Dựng world + mesh | [`build_world.md`](simulate/build_world.md) |
 | simulate | Plugin bay (trajectory + controller) | [`plugin.md`](simulate/plugin.md) |
 | simulate | Dựng world + bay + backup | [`run_simulate.md`](simulate/run_simulate.md) |

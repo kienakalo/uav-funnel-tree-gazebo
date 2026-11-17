@@ -1,0 +1,21 @@
+{
+  "image": "generated/data_viz/city.standardized.glb2off.png",
+  "image_sha256": "eec3c2125eca5d4e634361c227e55f565223674131e4270332a3dc90bddab70b",
+  "generated_at": "2026-11-17T19:11:08+07:00",
+  "parameters": {
+    "width": 200.0,
+    "expected paths": true
+  },
+  "facts": {
+    "vertices": 204682,
+    "triangles": 301490
+  },
+  "sources": {
+    "mesh_sha256": "83690adb3adb82aac306bc6b88894fc39846c0ba4461bde6b405f90a68fac809",
+    "scene_sha256": "cdd605eedc01011c5c39408ce167fca6244d1a9e0a7527450d13861570a837cb",
+    "output_sha256": "83690adb3adb82aac306bc6b88894fc39846c0ba4461bde6b405f90a68fac809"
+  },
+  "script": "tools/data/data_viz.py",
+  "script_sha256": "a69b5f0a20d641b042d6d1037a07a58631021f7b6c4cb3a3095a057dc9c21721",
+  "command": "tools/data/data_viz.py --all"
+}

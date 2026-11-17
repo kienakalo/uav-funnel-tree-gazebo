@@ -2,7 +2,7 @@
 
 | | |
 | --- | --- |
-| Stage | `data` bước 4 |
+| Stage | `data` bước 5 |
 | Vào | `data/processed/scenes/city.standardized.glb` + START/GOAL |
 | Ra | `data/processed/meshes/city.standardized.triangulation.off` + `…params.json` |
 | Cờ | `--scene`, `--start X Y Z`, `--goal X Y Z`, `--cell` (5), `--clearance` (1,5), `--half-width` (1,6), `--max-slope` (0,5), `--coverage {city,mission}`, `--output`, `--force` |

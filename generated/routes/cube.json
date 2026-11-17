@@ -1,0 +1,209 @@
+{
+  "mission": "data/processed/missions/cube.json",
+  "mission_sha256": "cacb9bace697df122a65d484138f1c9e8da9613d4490b4b090cddfab2cde4c12",
+  "mesh": "data/processed/meshes/cube.off",
+  "mesh_sha256": "6b844f3cd49ee6ba473f01dea6e12caa82363181c557aad5dd89acc9c3db63a0",
+  "source": 0,
+  "solver": {
+    "name": "funnel_tree",
+    "module": "algo/funnel_tree.py",
+    "module_sha256": "42465e58992c985455afddfa62d145febfc96cbbb0597b209c0a1c2ca2947bf2",
+    "timeout_seconds": 300.0,
+    "max_nodes": 200000,
+    "clipping": true
+  },
+  "mode": "all-goals",
+  "routes": [
+    {
+      "id": "v1",
+      "vertex": 1,
+      "length": 1.0,
+      "waypoints": [
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          1.0,
+          1.0
+        ]
+      ]
+    },
+    {
+      "id": "v2",
+      "vertex": 2,
+      "length": 1.414213562,
+      "waypoints": [
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0
+        ]
+      ]
+    },
+    {
+      "id": "v3",
+      "vertex": 3,
+      "length": 1.0,
+      "waypoints": [
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    {
+      "id": "v4",
+      "vertex": 4,
+      "length": 1.0,
+      "waypoints": [
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "id": "v5",
+      "vertex": 5,
+      "length": 1.414213562,
+      "waypoints": [
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.5,
+          0.5
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "id": "v6",
+      "vertex": 6,
+      "length": 2.236067977,
+      "waypoints": [
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.666666667,
+          0.666666667
+        ],
+        [
+          0.0,
+          1.0,
+          0.5
+        ],
+        [
+          0.333333333,
+          1.0,
+          0.333333333
+        ],
+        [
+          1.0,
+          1.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "id": "v7",
+      "vertex": 7,
+      "length": 1.414213562,
+      "waypoints": [
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.5,
+          0.0,
+          0.5
+        ],
+        [
+          1.0,
+          0.0,
+          0.0
+        ]
+      ]
+    }
+  ],
+  "stats": {
+    "sources_considered": 1,
+    "propagations": 1,
+    "clipping": true,
+    "implementation_status": "experimental; validate per mesh",
+    "mode": "combined"
+  },
+  "planning_seconds": 0.002,
+  "environment": {
+    "python": "3.14.8",
+    "numpy": "2.5.4"
+  }
+}

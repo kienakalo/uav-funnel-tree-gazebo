@@ -2,9 +2,9 @@
 
 | | |
 | --- | --- |
-| Stage | `data` bước 5 |
-| Vào | `.off` trong `data/processed/meshes/` (mặc định) |
-| Ra | `generated/data_viz/<tên>.png` hoặc cửa sổ 3D |
+| Stage | `data` bước 6 |
+| Vào | `.off` trong `data/processed/meshes/` (mặc định) + `<mesh>.params.json` nếu có |
+| Ra | `generated/data_viz/<tên>.png` + `<tên>.png.json` (dấu tham số) hoặc cửa sổ 3D |
 | Cờ | `--all`, `--input`, `--output`, `--source N`, `--no-paths`, `--show` |
 | Cần | NumPy, Matplotlib |
 
@@ -40,7 +40,31 @@ Quét `--input` (mặc định `data/processed/meshes`), mỗi `.off` một ản
 | `--show` | Không ghi file |
 
 Ảnh 150 dpi, `bbox_inches='tight'`, nền trắng. Kích thước điển hình
-1000–1200 px, 200–450 KB.
+1000–1200 px, 200–450 KB (cộng thêm dải chân 2–3 dòng).
+
+## Đóng dấu tham số
+
+Mỗi ảnh tự nói nó được sinh từ cấu hình nào (xem
+[`lib/figstamp.py`](../lib.md) và [`figures.py`](../figures.md)):
+
+| Ghi vào | Nội dung |
+| --- | --- |
+| Chân ảnh | tham số của mesh + số đỉnh/mặt + SHA ngắn + thời điểm |
+| Metadata PNG | cùng nội dung, dạng `tEXt` đọc được bằng máy |
+| `<tên>.png.json` | tham số, facts, SHA của mesh/scene/bề mặt/ảnh, tên + SHA script, dòng lệnh |
+
+Tham số hình học đọc từ sidecar `<mesh>.params.json` do `triangulation.py` hoặc
+`glb2off.py` ghi:
+
+- `city.standardized.triangulation.off` → `cell`, `clearance`, `half-width`,
+  `max-slope`, SHA scene;
+- `city.standardized.glb2off.off` → `width` (200 m), SHA scene;
+- fixture (`J17.off`, ...) không có sidecar → chỉ `expected paths` và số
+  đỉnh/mặt, không bịa tham số hình học.
+
+Dòng tham số vẽ thêm khi render cũng được ghi: `expected paths`, `source`. Nhờ
+vậy hai ảnh cùng tên ở hai lần chạy khác cấu hình không thể bị dán nhầm vào báo
+cáo.
 
 ## `--show`
 

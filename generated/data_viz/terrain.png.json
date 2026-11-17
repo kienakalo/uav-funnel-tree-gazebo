@@ -1,0 +1,18 @@
+{
+  "image": "generated/data_viz/terrain.png",
+  "image_sha256": "dbdc471e6a44e5457f36d5bd84b570fde011a44dbf7d7a0665945048697a9037",
+  "generated_at": "2026-11-17T19:11:12+07:00",
+  "parameters": {
+    "expected paths": true
+  },
+  "facts": {
+    "vertices": 49,
+    "triangles": 72
+  },
+  "sources": {
+    "mesh_sha256": "7a6cc43c45bdf57c3fdcd7849cec1a5b8e9a02e72bf5f15e985781fac5f4c3d1"
+  },
+  "script": "tools/data/data_viz.py",
+  "script_sha256": "a69b5f0a20d641b042d6d1037a07a58631021f7b6c4cb3a3095a057dc9c21721",
+  "command": "tools/data/data_viz.py --all"
+}

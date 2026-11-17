@@ -1,6 +1,6 @@
 # `lib/` — thư viện dùng chung
 
-Ba module, không phải package: import theo tên sau khi thêm `lib/` vào
+Bốn module, không phải package: import theo tên sau khi thêm `lib/` vào
 `sys.path`.
 
 ## `mesh_glb.py` — container GLB
@@ -47,6 +47,32 @@ của một mesh; đủ cho file repo tự ghi.
 
 `inspect_mesh` cố tình không ném lỗi để `triangulation` tự quyết định; `Mesh`
 thì ném lỗi vì thuật toán cần mesh hợp lệ.
+
+## `figstamp.py` — đóng dấu tham số vào ảnh
+
+| Hàm | Việc |
+| --- | --- |
+| `save(figure, output, parameters, facts, sources, labels, script, subject, dpi)` | Vẽ chân ảnh, lưu PNG kèm metadata `tEXt`, ghi sidecar `<tên>.png.json`; trả `(ảnh, sidecar)` |
+| `relative(path)`, `sha256(path)`, `now()` | Đường dẫn tương đối theo repo, SHA256, thời điểm có múi giờ |
+| `read_sidecar(image)` | Đọc sidecar của một ảnh, `None` nếu không có |
+
+Ba bản ghi, cùng một lần gọi:
+
+1. **Chân ảnh**: tham số + facts + SHA ngắn + thời điểm, in dưới trục toạ độ;
+   `bbox_inches='tight'` nên chân ảnh nằm trong khung, không bị cắt.
+2. **Metadata PNG**: các khóa `Software`, `Title`, `Description`, `Parameters`
+   (JSON), `Sources` (JSON), `Generated` (ISO 8601).
+3. **Sidecar**: `image`, `image_sha256`, `generated_at`, `parameters`, `facts`,
+   `sources` (SHA của mesh/scene/bề mặt/route/telemetry), `script`,
+   `script_sha256`, `command`.
+
+`labels` đổi tên hiển thị và thêm đơn vị (`{'cell': ('cell', ' m')}`), nhưng
+sidecar vẫn giữ đúng khóa mà tool nguồn ghi. `pairs` bỏ qua giá trị `None`, nên
+tham số không áp dụng (ví dụ tốc độ khi chưa dựng world) không bị ghi thành mặc
+định.
+
+Dùng ở: `tools/data/data_viz.py`, `tools/plan/route_viz.py`,
+`tools/simulate/validate.py`; đọc lại bằng `tools/figures.py`.
 
 ## `plotting.py` — chọn backend
 

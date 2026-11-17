@@ -1,0 +1,205 @@
+{
+  "mesh": "demo_mesh",
+  "mesh_sha256": "363549c6f0f35cddefa2ee73f618966879c836d82bd372097af39e1889462f09",
+  "reference": "data/expected/demo_mesh.paths.json",
+  "source": 1,
+  "tolerance": 0.0001,
+  "vertices": 31,
+  "max_relative_error": 3.596e-07,
+  "mean_relative_error": 8.463064516129033e-08,
+  "failures": [],
+  "stats": {
+    "sources_considered": 20,
+    "propagations": 20,
+    "clipping": true,
+    "implementation_status": "experimental; validate per mesh"
+  },
+  "paths": [
+    {
+      "vertex": 0,
+      "reference_length": 1034.943157576,
+      "funnel_length": 1034.943228909,
+      "relative_error": 6.892e-08
+    },
+    {
+      "vertex": 1,
+      "reference_length": 0.0,
+      "funnel_length": 0.0,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 2,
+      "reference_length": 297.058243379,
+      "funnel_length": 297.058296726,
+      "relative_error": 1.796e-07
+    },
+    {
+      "vertex": 3,
+      "reference_length": 244.829909647,
+      "funnel_length": 244.829900456,
+      "relative_error": 3.754e-08
+    },
+    {
+      "vertex": 4,
+      "reference_length": 910.60267533,
+      "funnel_length": 910.602660725,
+      "relative_error": 1.604e-08
+    },
+    {
+      "vertex": 5,
+      "reference_length": 784.689276031,
+      "funnel_length": 784.689294473,
+      "relative_error": 2.35e-08
+    },
+    {
+      "vertex": 6,
+      "reference_length": 948.794399399,
+      "funnel_length": 948.794456768,
+      "relative_error": 6.047e-08
+    },
+    {
+      "vertex": 7,
+      "reference_length": 953.109784588,
+      "funnel_length": 953.109816201,
+      "relative_error": 3.317e-08
+    },
+    {
+      "vertex": 8,
+      "reference_length": 520.419012063,
+      "funnel_length": 520.4190884,
+      "relative_error": 1.467e-07
+    },
+    {
+      "vertex": 9,
+      "reference_length": 360.060654118,
+      "funnel_length": 360.060707368,
+      "relative_error": 1.479e-07
+    },
+    {
+      "vertex": 10,
+      "reference_length": 157.936346058,
+      "funnel_length": 157.936402852,
+      "relative_error": 3.596e-07
+    },
+    {
+      "vertex": 11,
+      "reference_length": 551.901221541,
+      "funnel_length": 551.901258259,
+      "relative_error": 6.653e-08
+    },
+    {
+      "vertex": 12,
+      "reference_length": 199.175762807,
+      "funnel_length": 199.175806079,
+      "relative_error": 2.173e-07
+    },
+    {
+      "vertex": 13,
+      "reference_length": 270.117760079,
+      "funnel_length": 270.117777529,
+      "relative_error": 6.46e-08
+    },
+    {
+      "vertex": 14,
+      "reference_length": 490.443365746,
+      "funnel_length": 490.443454908,
+      "relative_error": 1.818e-07
+    },
+    {
+      "vertex": 15,
+      "reference_length": 571.083504515,
+      "funnel_length": 571.083589079,
+      "relative_error": 1.481e-07
+    },
+    {
+      "vertex": 16,
+      "reference_length": 832.97171849,
+      "funnel_length": 832.971766418,
+      "relative_error": 5.754e-08
+    },
+    {
+      "vertex": 17,
+      "reference_length": 676.7109707,
+      "funnel_length": 676.711022521,
+      "relative_error": 7.658e-08
+    },
+    {
+      "vertex": 18,
+      "reference_length": 918.638531532,
+      "funnel_length": 918.638646744,
+      "relative_error": 1.254e-07
+    },
+    {
+      "vertex": 19,
+      "reference_length": 786.555925095,
+      "funnel_length": 786.556051447,
+      "relative_error": 1.606e-07
+    },
+    {
+      "vertex": 20,
+      "reference_length": 647.142449202,
+      "funnel_length": 647.142467481,
+      "relative_error": 2.825e-08
+    },
+    {
+      "vertex": 21,
+      "reference_length": 694.154945897,
+      "funnel_length": 694.155024326,
+      "relative_error": 1.13e-07
+    },
+    {
+      "vertex": 22,
+      "reference_length": 844.335889651,
+      "funnel_length": 844.33597639,
+      "relative_error": 1.027e-07
+    },
+    {
+      "vertex": 23,
+      "reference_length": 359.118418703,
+      "funnel_length": 359.118410095,
+      "relative_error": 2.397e-08
+    },
+    {
+      "vertex": 24,
+      "reference_length": 608.114247904,
+      "funnel_length": 608.114236376,
+      "relative_error": 1.896e-08
+    },
+    {
+      "vertex": 25,
+      "reference_length": 867.25731288,
+      "funnel_length": 867.257332253,
+      "relative_error": 2.234e-08
+    },
+    {
+      "vertex": 26,
+      "reference_length": 890.302055176,
+      "funnel_length": 890.302092095,
+      "relative_error": 4.147e-08
+    },
+    {
+      "vertex": 27,
+      "reference_length": 605.912431025,
+      "funnel_length": 605.912463565,
+      "relative_error": 5.37e-08
+    },
+    {
+      "vertex": 28,
+      "reference_length": 677.245592807,
+      "funnel_length": 677.24559022,
+      "relative_error": 3.82e-09
+    },
+    {
+      "vertex": 29,
+      "reference_length": 798.576941948,
+      "funnel_length": 798.576968554,
+      "relative_error": 3.332e-08
+    },
+    {
+      "vertex": 30,
+      "reference_length": 790.696984972,
+      "funnel_length": 790.69699298,
+      "relative_error": 1.013e-08
+    }
+  ]
+}

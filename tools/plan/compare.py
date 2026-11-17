@@ -126,7 +126,10 @@ def main():
               f'{report["mean_relative_error"]:.2e} — {verdict}', flush=True)
         print(f'  Save at: {output}')
 
-    known = {path.stem for path in args.meshes.glob('*.off')}
+    # *.glb2off.off is the whole scene exported for viewing and for the report,
+    # not a navigation mesh: no expected path can exist for it.
+    known = {path.stem for path in args.meshes.glob('*.off')
+             if not path.name.endswith('.glb2off.off')}
     compared = {path.name.replace('.paths.json', '') for path in references}
     skipped = sorted(known - compared)
     summary = {

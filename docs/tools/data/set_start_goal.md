@@ -2,7 +2,7 @@
 
 | | |
 | --- | --- |
-| Stage | `data` bước 6 |
+| Stage | `data` bước 7 |
 | Vào | Một `.off` + lựa chọn của người dùng |
 | Ra | `data/processed/missions/<mesh>.json` |
 | Cờ | `--mesh`, `--mission`, `--output`, `--list-meshes`, `--all-meshes`, `--start`, `--start-vertex`, `--goal`, `--goal-vertex`, `--all-goals`, `--pick`, `--snap`, `--max-snap`, `--force` |
@@ -78,7 +78,7 @@ Save at: data/processed/missions/city.standardized.triangulation.json
   tự dịch mission.
 - `--refresh-changed` không đi cùng `--force` (một bên giữ điểm cũ, một bên
   chọn lại).
-- `main.py` luôn thêm cờ này vào bước 6 của stage `data`.
+- `main.py` luôn thêm cờ này vào bước 7 của stage `data`.
 
 ## Quản lý nhiều mesh
 

@@ -2,7 +2,7 @@
 
 | | |
 | --- | --- |
-| Stage | `data` bước 3 |
+| Stage | `data` bước 4 |
 | Vào | `data/raw/meshes/*.off` |
 | Ra | `data/processed/scenes/meshes/<mesh>.off2glb.glb` |
 | Cờ | `--input`, `--output`, `--mesh` (lặp lại), `--keep-z-up` |

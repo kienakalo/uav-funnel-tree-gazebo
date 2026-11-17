@@ -1,0 +1,18 @@
+{
+  "image": "generated/data_viz/J17.png",
+  "image_sha256": "a6694fef37ad3c2f98a1146119234f8ebfc080204762543764bc05361593dce9",
+  "generated_at": "2026-11-17T19:11:06+07:00",
+  "parameters": {
+    "expected paths": true
+  },
+  "facts": {
+    "vertices": 10,
+    "triangles": 16
+  },
+  "sources": {
+    "mesh_sha256": "9805fe0c3bce1f67e24419d4598695aad3795c1559b53a50d49b811376636e0e"
+  },
+  "script": "tools/data/data_viz.py",
+  "script_sha256": "a69b5f0a20d641b042d6d1037a07a58631021f7b6c4cb3a3095a057dc9c21721",
+  "command": "tools/data/data_viz.py --all"
+}

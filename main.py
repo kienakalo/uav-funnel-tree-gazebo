@@ -6,9 +6,10 @@
 """Run the data pipeline from one entry point.
 
 Stages:
-  data      raw -> processed: copy fixtures, standardize the scene, convert
-            fixtures to GLB, triangulate the navigation surface, render previews,
-            then record a START/GOAL mission
+  data      raw -> processed: copy fixtures, standardize the scene, export the
+            city as OFF for the report, convert fixtures to GLB, triangulate
+            the navigation surface, render previews, then record a START/GOAL
+            mission
   plan      run Funnel for the saved missions, render the routes and compare
             their lengths with data/expected
   simulate  build one Gazebo world, fly the route, then validate the run
@@ -19,7 +20,7 @@ Examples:
   python3 main.py                        # data, then plan, then simulate
   python3 main.py data                   # only the data stage
   python3 main.py flow
-  python3 main.py --fresh                # clear old results, then run everything
+  python3 main.py --fresh                # clear what the stages rebuild, then run
   python3 main.py --no-ask               # keep every default, ask nothing
   python3 main.py data --dry-run
   python3 main.py data --no-all-meshes   # chỉ bề mặt thành phố
@@ -27,15 +28,25 @@ Examples:
   python3 main.py plan                   # lập tuyến + ảnh + đối chiếu
   python3 main.py simulate --goal g2     # dựng world, bay, kiểm kết quả
   python3 main.py simulate --headless    # chạy server, không mở GUI
+  python3 main.py --label cell5          # chạy rồi lưu kết quả để so sánh
+  python3 main.py --archive cell5        # lưu kết quả đang có, không chạy lại
 
 A bare run executes data, plan and simulate in that order. Before the first
-stage it asks whether to clear the old results; at each step that has
+stage it asks whether to clear what the selected stages rebuild; Enter keeps
+the old results, y deletes only those folders, so asking for the data stage
+never removes a route or a flight of an earlier run. At each step that has
 parameters it asks for them, showing the default in brackets, so pressing
 Enter keeps the value the documentation and the report use. Answers are
 remembered for the whole run, and every value is written to
 generated/parameters.json so a result can be traced back to its settings.
 --no-ask skips the questions (a pipe or a cron job does the same
 automatically).
+
+--label NAME copies the numbers and the images of a finished run to
+results/runs/NAME/, which no stage ever clears, so a run with cell 5 and a run
+with cell 4 can be compared after the fact. --archive NAME does the same for
+the results already on disk without running a stage. tools/plan/compare_runs.py
+turns those archives into the table for the report.
 
 The last data step records a START/GOAL mission for every .off in
 data/processed/meshes. --no-all-meshes limits it to the navigation surface,
@@ -51,9 +62,12 @@ data/processed/missions/.
 """
 import argparse
 from dataclasses import dataclass
+from datetime import datetime
+import hashlib
 import json
 import math
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -168,6 +182,8 @@ STAGES = {
     'data': [
         {'run': [PYTHON, 'tools/data/copy_meshes.py', '--write']},
         {'run': [PYTHON, 'tools/data/standardize.py']},
+        {'run': [PYTHON, 'tools/data/glb2off.py', '--force'],
+         'note': 'bản xem thành phố cho báo cáo, không phải đầu vào thuật toán'},
         {'run': [PYTHON, 'tools/data/off2glb.py']},
         {'run': [PYTHON, 'tools/data/triangulation.py', '--force'],
          'params': ['triangulation']},
@@ -201,13 +217,19 @@ DESCRIPTIONS = {
     'simulate': 'one Gazebo world, the flight and its validation',
 }
 
-# Results rebuilt by the pipeline. data/processed/missions/ is not here: a
-# mission records the START/GOAL somebody chose, and it is not reproducible.
-CLEARED = [
-    ROOT / 'generated',
-    ROOT / 'data/processed/meshes',
-    ROOT / 'data/processed/scenes',
-]
+# Results the pipeline rebuilds, per stage. data/processed/missions/ is not
+# here: a mission records the START/GOAL somebody chose, and it is not
+# reproducible. Clearing follows the stages that run, so asking for the data
+# stage does not delete the routes or a flight of an earlier run, and
+# results/runs/ is never touched.
+CLEARED = {
+    'data': [ROOT / 'data/processed/meshes',
+             ROOT / 'data/processed/scenes',
+             ROOT / 'generated/data_viz'],
+    'plan': [ROOT / 'generated/routes',
+             ROOT / 'generated/compare'],
+}
+ARCHIVE = ROOT / 'results/runs'
 
 
 def display(command):
@@ -236,7 +258,26 @@ def mission_goals(mission):
 
 
 def copy_step(step):
-    return {'run': list(step['run']), 'params': list(step.get('params') or [])}
+    return {'run': list(step['run']), 'params': list(step.get('params') or []),
+            'note': step.get('note', '')}
+
+
+def simulate_folders(args):
+    """Run folders of the goals this simulate call will fly."""
+    mission = args.mission or DEFAULT_MISSION
+    goals = [args.goal] if args.goal else mission_goals(mission)
+    return [ROOT / 'generated/simulate' / f'{mission}-{goal}' for goal in goals]
+
+
+def cleared_folders(stages, args):
+    """Folders the selected stages rewrite, and nothing else."""
+    folders = []
+    for stage in stages:
+        if stage == 'simulate':
+            folders += simulate_folders(args)
+        else:
+            folders += CLEARED.get(stage, [])
+    return folders
 
 
 def stage_commands(name, args):
@@ -290,6 +331,8 @@ def show_flow(args):
         print(f'  {name:9s} {description}')
         for step in stage_commands(name, args):
             print('            ' + display(step['run']))
+            if step['note']:
+                print(f'            ({step["note"]})')
             if step['params']:
                 asked = ', '.join(item.key for group in step['params']
                                   for item in PARAM_GROUPS[group])
@@ -477,51 +520,52 @@ def stale_containers():
     return [name for name in shown if name.startswith('funnel-')]
 
 
-def print_manifest():
+def print_manifest(folders, stages):
     files = size = 0
-    for folder in CLEARED:
+    print('\nTrả lời y sẽ xoá và sinh lại (' + ', '.join(stages) + '):',
+          flush=True)
+    for folder in folders:
         count, octets = folder_stats(folder)
         files += count
         size += octets
         print(f'    {short(folder)}/  {count} file · {octets / 1e6:.1f} MB')
     print('    Giữ lại: data/processed/missions/ (START/GOAL), data/raw/, '
-          'data/expected/')
-    containers = stale_containers()
+          'data/expected/, results/runs/ (archive)')
+    containers = [name for name in stale_containers()
+                  if 'simulate' in stages]
     if containers:
         print('    Container Gazebo còn sót: ' + ', '.join(containers))
     return files, size, containers
 
 
-def clear_artifacts(args):
-    """Print what will go, then delete it unless this is a dry run."""
-    print('\nTrả lời y sẽ xoá và sinh lại:', flush=True)
-    files, size, containers = print_manifest()
+def clear_artifacts(args, folders, stages):
+    """Delete the folders the selected stages rewrite; return them."""
+    files, size, containers = print_manifest(folders, stages)
     if args.dry_run:
-        for folder in CLEARED:
+        for folder in folders:
             print(f'    $ rm -rf {short(folder)}')
         if containers:
             print('    $ docker rm -f ' + ' '.join(containers))
-        return False
-    for folder in CLEARED:
+        return []
+    for folder in folders:
         shutil.rmtree(folder, ignore_errors=True)
     for name in containers:
         subprocess.run(['docker', 'rm', '-f', name], capture_output=True)
     print(f'\nĐã xoá {files} file · {size / 1e6:.1f} MB', flush=True)
     print('Khôi phục từ Git nếu cần: git checkout -- generated data', flush=True)
-    return True
+    return list(folders)
 
 
-def ask_fresh(args):
-    """Return True when the old results were cleared."""
+def ask_fresh(args, folders, stages):
+    """Return the folders that were cleared, or an empty list."""
     if args.fresh:
-        return clear_artifacts(args)
+        return clear_artifacts(args, folders, stages)
     if not sys.stdin.isatty() or args.no_ask:
         if not args.no_ask and not args.dry_run:
             print('Không có terminal để hỏi; giữ kết quả cũ '
                   '(dùng --fresh để xoá).', flush=True)
-        return False
-    print('\nTrả lời y sẽ xoá và sinh lại:', flush=True)
-    files, size, containers = print_manifest()
+        return []
+    files, size, containers = print_manifest(folders, stages)
     try:
         answer = input('Chạy lại từ đầu? (y/N): ').strip().lower()
     except EOFError:
@@ -529,14 +573,195 @@ def ask_fresh(args):
         answer = ''
     if answer not in ('y', 'yes', 'c', 'có', 'co'):
         print('Giữ kết quả cũ; chạy tiếp.', flush=True)
-        return False
-    for folder in CLEARED:
+        return []
+    for folder in folders:
         shutil.rmtree(folder, ignore_errors=True)
     for name in containers:
         subprocess.run(['docker', 'rm', '-f', name], capture_output=True)
     print(f'\nĐã xoá {files} file · {size / 1e6:.1f} MB', flush=True)
     print('Khôi phục từ Git nếu cần: git checkout -- generated data', flush=True)
-    return True
+    return list(folders)
+
+
+# --------------------------------------------------------------------------
+# Archives
+
+
+def sha256(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def timestamp():
+    return datetime.now().astimezone().isoformat(timespec='seconds')
+
+
+def commit():
+    try:
+        return subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], cwd=ROOT,
+                              capture_output=True, text=True,
+                              timeout=10).stdout.strip() or None
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+
+def archive_target(label):
+    if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._-]*', label or ''):
+        raise SystemExit(f'main.py: label không hợp lệ: {label!r}; dùng chữ, số, '
+                         'dấu chấm, gạch dưới hoặc gạch ngang')
+    return ARCHIVE / label
+
+
+def archive_files(mission, goals):
+    """Source path -> path inside the archive, for one run."""
+    mapping = [
+        (Path('generated/parameters.json'), Path('parameters.json')),
+        (Path('data/processed/missions') / f'{mission}.json',
+         Path('mission.json')),
+        (Path('data/processed/meshes') / f'{mission}.params.json',
+         Path('surface.params.json')),
+        (Path('generated/routes') / f'{mission}.json', Path('route.json')),
+        (Path('generated/routes') / f'{mission}.png', Path('route.png')),
+        (Path('generated/routes') / f'{mission}.png.json',
+         Path('route.png.json')),
+        (Path('generated/compare') / 'summary.json', Path('plan-summary.json')),
+    ]
+    for goal in goals:
+        folder = Path('generated/simulate') / f'{mission}-{goal}'
+        for name in ('validation.json', 'world_metadata.json', 'route.json',
+                     'tracking.png', 'tracking.png.json',
+                     'telemetry_metadata.json'):
+            mapping.append((folder / name, Path(goal) / name))
+    return mapping
+
+
+def archive_details(mission, goals):
+    """Surface, route lengths and flight results, for the manifest."""
+    surface = {}
+    sidecar = ROOT / 'data/processed/meshes' / f'{mission}.params.json'
+    if sidecar.is_file():
+        record = json.loads(sidecar.read_text(encoding='utf-8'))
+        surface = {
+            'file': record.get('output'),
+            'sha256': record.get('output_sha256'),
+            'scene_sha256': record.get('scene_sha256'),
+            'parameters': record.get('parameters'),
+        }
+    routes = {}
+    route_file = ROOT / 'generated/routes' / f'{mission}.json'
+    if route_file.is_file():
+        try:
+            record = json.loads(route_file.read_text(encoding='utf-8'))
+        except ValueError:
+            record = {}
+        for route in record.get('routes') or []:
+            routes[route.get('id')] = {
+                'length': route.get('length'),
+                'waypoints': len(route.get('waypoints') or []),
+            }
+        if record.get('planning_seconds') is not None:
+            routes['planning_seconds'] = record['planning_seconds']
+        routes['sha256'] = sha256(route_file)
+        routes['solver'] = record.get('solver')
+    flight = {}
+    for goal in goals:
+        path = (ROOT / 'generated/simulate' / f'{mission}-{goal}'
+                / 'validation.json')
+        if not path.is_file():
+            continue
+        record = json.loads(path.read_text(encoding='utf-8'))
+        flight[goal] = {key: record.get(key) for key in
+                        ('duration', 'max_error', 'mean_error', 'max_speed',
+                         'passed', 'route_sha256')}
+    flight_parameters, simplify = {}, None
+    for goal in goals:
+        path = (ROOT / 'generated/simulate' / f'{mission}-{goal}'
+                / 'world_metadata.json')
+        if path.is_file():
+            record = json.loads(path.read_text(encoding='utf-8'))
+            flight_parameters = record.get('flight') or {}
+            simplify = record.get('simplify_tolerance')
+            break
+    return surface, routes, flight, flight_parameters, simplify
+
+
+def retarget_sidecars(target):
+    """Point the copied image sidecars at the copy, not at generated/.
+
+    figures.py compares the recorded path with the file it just read, and an
+    archive renames the picture (route.png instead of the mission name), so the
+    sidecar has to say where its image lives now. The SHA is untouched: the
+    bytes are the same bytes.
+    """
+    for sidecar in sorted(Path(target).rglob('*.png.json')):
+        image = sidecar.with_name(sidecar.name[:-len('.json')])
+        if not image.is_file():
+            continue
+        try:
+            record = json.loads(sidecar.read_text(encoding='utf-8'))
+        except ValueError:
+            continue
+        record['image'] = short(image)
+        sidecar.write_text(json.dumps(record, indent=2, ensure_ascii=False)
+                           + '\n', encoding='utf-8')
+
+
+def archive_run(label, stages, cleared, state, args):
+    """Copy the numbers and images of a run to results/runs/<label>/."""
+    target = archive_target(label)
+    if target.exists():
+        raise SystemExit(f'main.py: {short(target)} đã có; chọn label khác hoặc '
+                         'xoá archive cũ trước khi lưu lại')
+    mission = args.mission or DEFAULT_MISSION
+    goals = [args.goal] if args.goal else mission_goals(mission)
+    target.mkdir(parents=True)
+    files, missing = [], []
+    for source, destination in archive_files(mission, goals):
+        path = ROOT / source
+        if not path.is_file():
+            missing.append(str(source))
+            continue
+        copied = target / destination
+        copied.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(path, copied)
+        files.append({'path': str(destination), 'source': str(source),
+                      'sha256': sha256(copied)})
+
+    parameters, sources = state.get('values') or {}, state.get('sources') or {}
+    if not parameters:
+        recorded = ROOT / 'generated/parameters.json'
+        if recorded.is_file():
+            payload = json.loads(recorded.read_text(encoding='utf-8'))
+            parameters = payload.get('parameters') or {}
+            sources = payload.get('sources') or {}
+    surface, routes, flight, flight_parameters, simplify = archive_details(
+        mission, goals)
+    path = target / 'manifest.json'
+    path.write_text(json.dumps({
+        'label': label,
+        'created_at': timestamp(),
+        'commit': commit(),
+        'command': ' '.join([short(Path(sys.argv[0]))] + sys.argv[1:]),
+        'stages': stages,
+        'cleared': [short(folder) for folder in cleared],
+        'mission': mission,
+        'goals': goals,
+        'parameters': parameters,
+        'sources': sources,
+        'surface': surface,
+        'routes': routes,
+        'flight_parameters': flight_parameters,
+        'simplify_tolerance': simplify,
+        'flight': flight,
+        'files': files,
+        'missing': missing,
+    }, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+    retarget_sidecars(target)
+    print(f'\nArchive {label}: {len(files)} file'
+          + (f', thiếu {len(missing)}' if missing else ''), flush=True)
+    for item in missing:
+        print(f'    thiếu: {item}', flush=True)
+    print(f'Save at: {short(path)}', flush=True)
+    return path
 
 
 # --------------------------------------------------------------------------
@@ -553,8 +778,9 @@ def run_stage(name, args, index, total, state):
     started = time.monotonic()
     for step_number, entry in enumerate(commands, 1):
         command = list(entry['run'])
+        note = f' — {entry["note"]}' if entry.get('note') else ''
         print(f'\n[{name} {step_number}/{len(commands)}] '
-              f'{step_label(command)}', flush=True)
+              f'{step_label(command)}{note}', flush=True)
         asked = False
         for group in entry['params']:
             choose_group(group, args, state)
@@ -578,20 +804,15 @@ def run_stage(name, args, index, total, state):
 def write_parameters(args, stages, state, cleared, started):
     """Record every value the run used, next to the results it produced."""
     path = ROOT / 'generated/parameters.json'
-    try:
-        commit = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'],
-                                cwd=ROOT, capture_output=True, text=True,
-                                timeout=10).stdout.strip() or None
-    except (OSError, subprocess.SubprocessError):
-        commit = None
     record = {
         'command': ' '.join([short(Path(sys.argv[0]))] + sys.argv[1:]),
         'stages': stages,
-        'cleared': cleared,
+        'label': args.label,
+        'cleared': [short(folder) for folder in cleared],
         'interactive': state['mode'] == 'ask',
         'parameters': state['values'],
         'sources': state['sources'],
-        'commit': commit,
+        'commit': commit(),
         'seconds': round(time.monotonic() - started, 3),
     }
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -610,10 +831,16 @@ def main():
     parser.add_argument('--quiet', action='store_true',
                         help='Hide tool output unless a step fails')
     parser.add_argument('--fresh', action='store_true',
-                        help='Clear the old results without asking, then run '
-                             'data, plan and simulate')
+                        help='Xoá những gì các stage được chọn sẽ sinh lại, '
+                             'không hỏi')
     parser.add_argument('--no-ask', action='store_true',
                         help='Ask nothing: keep every parameter default')
+    parser.add_argument('--label', metavar='NAME',
+                        help='Sau khi chạy xong, lưu kết quả vào '
+                             'results/runs/<NAME>/ để so sánh giữa các lần chạy')
+    parser.add_argument('--archive', metavar='NAME',
+                        help='Chỉ lưu kết quả đang có vào results/runs/<NAME>/; '
+                             'không chạy stage nào')
     parser.add_argument('--all-meshes', action=argparse.BooleanOptionalAction,
                         default=True,
                         help='Bước mission: chọn START/GOAL cho mọi mesh .off '
@@ -652,9 +879,17 @@ def main():
     parser.add_argument('--pull', action='store_true',
                         help='simulate: docker pull the Gazebo image first')
     args = parser.parse_args()
-    if args.fresh and args.stages:
-        parser.error('--fresh chỉ dùng khi chạy cả data, plan và simulate; '
-                     'chạy một stage thì không xoá gì')
+    if args.label and args.archive:
+        parser.error('--label chạy rồi lưu; --archive chỉ lưu, nên không dùng '
+                     'cả hai cùng lúc')
+    if args.archive and args.stages:
+        parser.error('--archive chỉ lưu kết quả đang có; đừng ghi stage nào')
+    if args.archive and args.fresh:
+        parser.error('--archive không chạy gì nên không cần --fresh')
+    if args.archive:
+        archive_target(args.archive)
+    if args.label:
+        archive_target(args.label)
     if args.force_missions and not args.all_meshes:
         parser.error('--force-missions needs --all-meshes; for one mesh run '
                      'tools/data/set_start_goal.py --force')
@@ -669,7 +904,7 @@ def main():
                      '--keep-open/--pull only apply to the simulate stage')
     if args.max_error is not None and not (args.max_error > 0):
         parser.error('--max-error must be positive')
-    stages = args.stages or list(DEFAULT_STAGES)
+    stages = [] if args.archive else (args.stages or list(DEFAULT_STAGES))
     if 'flow' in stages:
         show_flow(args)
         stages = [stage for stage in stages if stage != 'flow']
@@ -681,13 +916,13 @@ def main():
              'mode': ('dry' if args.dry_run else
                       'ask' if (sys.stdin.isatty() and not args.no_ask)
                       else 'default')}
-    full_run = stages == DEFAULT_STAGES
-    cleared = False
-    if full_run and not args.dry_run:
-        cleared = ask_fresh(args)
-    elif full_run:
+    folders = cleared_folders(stages, args)
+    cleared = []
+    if folders and not args.dry_run:
+        cleared = ask_fresh(args, folders, stages)
+    elif folders:
         print('\nChạy lại từ đầu? (y/N): N — dry run, không xoá', flush=True)
-        print_manifest()
+        print_manifest(folders, stages)
 
     started = time.monotonic()
     try:
@@ -696,6 +931,16 @@ def main():
     finally:
         if not args.dry_run and state['values']:
             write_parameters(args, stages, state, cleared, started)
+    if args.dry_run and args.label:
+        print(f'\n    (dry run: sẽ lưu kết quả vào '
+              f'results/runs/{args.label}/)', flush=True)
+    if args.dry_run and args.archive:
+        print(f'\n    (dry run: sẽ lưu kết quả hiện có vào '
+              f'results/runs/{args.archive}/)', flush=True)
+    if args.label and not args.dry_run:
+        archive_run(args.label, stages, cleared, state, args)
+    if args.archive and not args.dry_run:
+        archive_run(args.archive, [], [], state, args)
     if len(stages) > 1 and not args.dry_run:
         print(f'\nAll {len(stages)} stages finished in '
               f'{time.monotonic() - started:.1f} s')

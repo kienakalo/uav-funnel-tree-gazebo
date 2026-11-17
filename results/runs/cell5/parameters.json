@@ -1,0 +1,27 @@
+{
+  "command": "main.py data --label smoke --no-ask",
+  "stages": [
+    "data"
+  ],
+  "label": "smoke",
+  "cleared": [],
+  "interactive": false,
+  "parameters": {
+    "triangulation": {
+      "cell": 5.0,
+      "clearance": 1.5,
+      "half_width": 1.6,
+      "max_slope": 0.5
+    }
+  },
+  "sources": {
+    "triangulation": {
+      "cell": "default",
+      "clearance": "default",
+      "half_width": "default",
+      "max_slope": "default"
+    }
+  },
+  "commit": "587f71f",
+  "seconds": 13.156
+}

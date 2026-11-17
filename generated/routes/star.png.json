@@ -1,0 +1,35 @@
+{
+  "image": "generated/routes/star.png",
+  "image_sha256": "084756b75d69a9ff8f4edd189e51b874adc65449e4babc6fefa7ff245b25dacd",
+  "generated_at": "2026-11-17T18:28:21+07:00",
+  "parameters": {
+    "seconds": 300.0,
+    "max_nodes": 200000,
+    "clipping": true
+  },
+  "facts": {
+    "routes": 15,
+    "planning": "0.1 s",
+    "v1": "1.4 m",
+    "v2": "3.7 m",
+    "v3": "3.2 m",
+    "v4": "4.0 m",
+    "v5": "3.2 m",
+    "v6": "1.4 m",
+    "v7": "3.7 m",
+    "v8": "4.0 m",
+    "v9": "4.2 m",
+    "v10": "5.4 m",
+    "v11": "6.2 m",
+    "v12": "7.4 m"
+  },
+  "sources": {
+    "mesh_sha256": "6cdb241372a64d4b5e6c76f9356e4b129ec9cbeb89b511b2c6eabf063134f078",
+    "mission_sha256": "dd68a94f0498d55d39266acc6ad89839bf7c6c03bb8b3e0765de46a80d73fd9b",
+    "module_sha256": "42465e58992c985455afddfa62d145febfc96cbbb0597b209c0a1c2ca2947bf2",
+    "routes_sha256": "b0e3e26cecf9f51c748faec613e5e28513a6f65bc4c4392e6ee7f908738e0ed2"
+  },
+  "script": "tools/plan/route_viz.py",
+  "script_sha256": "4537bbe023004615732f9fd9f7bde99f9ed3c237b23aaee37f0ff0e50339b56b",
+  "command": "tools/plan/route_viz.py"
+}

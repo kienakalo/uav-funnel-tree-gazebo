@@ -1,0 +1,17 @@
+{
+  "output": "data/processed/meshes/city.standardized.glb2off.off",
+  "output_sha256": "83690adb3adb82aac306bc6b88894fc39846c0ba4461bde6b405f90a68fac809",
+  "scene": "data/processed/scenes/city.standardized.glb",
+  "scene_sha256": "cdd605eedc01011c5c39408ce167fca6244d1a9e0a7527450d13861570a837cb",
+  "parameters": {
+    "width": 200.0
+  },
+  "result": {
+    "vertices": 204682,
+    "triangles": 301490,
+    "edges": 498767,
+    "bytes": 18272261
+  },
+  "script": "tools/data/glb2off.py",
+  "script_sha256": "aa3d16f398e634b2c9d4817ed8360ececeef99a02fd5b5accbf1595972644b85"
+}

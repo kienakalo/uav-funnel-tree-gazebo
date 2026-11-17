@@ -1,0 +1,115 @@
+{
+  "mesh": "star",
+  "mesh_sha256": "6cdb241372a64d4b5e6c76f9356e4b129ec9cbeb89b511b2c6eabf063134f078",
+  "reference": "data/expected/star.paths.json",
+  "source": 0,
+  "tolerance": 0.0001,
+  "vertices": 16,
+  "max_relative_error": 6.661e-06,
+  "mean_relative_error": 8.327119493880813e-07,
+  "failures": [],
+  "stats": {
+    "sources_considered": 9,
+    "propagations": 9,
+    "clipping": true,
+    "implementation_status": "experimental; validate per mesh"
+  },
+  "paths": [
+    {
+      "vertex": 0,
+      "reference_length": 0.0,
+      "funnel_length": 0.0,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 1,
+      "reference_length": 1.414213562,
+      "funnel_length": 1.414213562,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 2,
+      "reference_length": 3.65028154,
+      "funnel_length": 3.65028154,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 3,
+      "reference_length": 3.162277661,
+      "funnel_length": 3.16227766,
+      "relative_error": 2.25e-10
+    },
+    {
+      "vertex": 4,
+      "reference_length": 4.0,
+      "funnel_length": 4.0,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 5,
+      "reference_length": 3.162277662,
+      "funnel_length": 3.16227766,
+      "relative_error": 4.5e-10
+    },
+    {
+      "vertex": 6,
+      "reference_length": 1.414213562,
+      "funnel_length": 1.414213562,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 7,
+      "reference_length": 3.65028154,
+      "funnel_length": 3.65028154,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 8,
+      "reference_length": 4.0,
+      "funnel_length": 4.0,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 9,
+      "reference_length": 4.242640687,
+      "funnel_length": 4.242640687,
+      "relative_error": 0.0
+    },
+    {
+      "vertex": 10,
+      "reference_length": 5.41521517,
+      "funnel_length": 5.415215168,
+      "relative_error": 2.82e-10
+    },
+    {
+      "vertex": 11,
+      "reference_length": 6.23218579,
+      "funnel_length": 6.232227305,
+      "relative_error": 6.661e-06
+    },
+    {
+      "vertex": 12,
+      "reference_length": 7.404918348,
+      "funnel_length": 7.404918347,
+      "relative_error": 9.609e-11
+    },
+    {
+      "vertex": 13,
+      "reference_length": 6.232185791,
+      "funnel_length": 6.232227305,
+      "relative_error": 6.661e-06
+    },
+    {
+      "vertex": 14,
+      "reference_length": 5.41521517,
+      "funnel_length": 5.415215168,
+      "relative_error": 3.381e-10
+    },
+    {
+      "vertex": 15,
+      "reference_length": 4.242640687,
+      "funnel_length": 4.242640687,
+      "relative_error": 2.093e-16
+    }
+  ]
+}

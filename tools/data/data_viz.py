@@ -35,10 +35,35 @@ if '--show' in sys.argv:
 else:
     matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from figstamp import save as save_stamped
+from figstamp import sha256
 from mesh_off import read_off
 
 DEFAULT_INPUT = ROOT / 'data/processed/meshes'
 DEFAULT_OUTPUT = ROOT / 'generated/data_viz'
+LABELS = {
+    'cell': ('cell', ' m'),
+    'vertical_clearance': ('clearance', ' m'),
+    'horizontal_half_width': ('half-width', ' m'),
+    'max_axis_slope': ('max-slope', ' m/m'),
+    'coverage': ('coverage', ''),
+    'width': ('width', ' m'),
+    'expected paths': ('expected paths', ''),
+    'source': ('source', ''),
+    'vertices': ('vertices', ''),
+    'triangles': ('triangles', ''),
+}
+
+
+def read_sidecar(path):
+    """Parameters of the mesh itself, written by triangulation or glb2off."""
+    sidecar = Path(path).with_suffix('.params.json')
+    if not sidecar.is_file():
+        return {}
+    try:
+        return json.loads(sidecar.read_text(encoding='utf-8'))
+    except ValueError:
+        return {}
 
 
 def read_paths(path):
@@ -55,6 +80,21 @@ def read_paths(path):
             raise SystemExit(f'{path}: invalid coordinates at entry {number}')
         routes.append(route)
     return routes
+
+
+def stamp_data(path, points, faces, show_paths, source):
+    """What the picture must carry: the mesh settings and the render options."""
+    record = read_sidecar(path)
+    parameters = dict(record.get('parameters') or {})
+    parameters['expected paths'] = show_paths
+    if source is not None:
+        parameters['source'] = source
+    sources = {'mesh_sha256': sha256(path)}
+    for key in ('scene_sha256', 'output_sha256'):
+        if record.get(key):
+            sources[key] = record[key]
+    facts = {'vertices': int(len(points)), 'triangles': int(len(faces))}
+    return parameters, facts, sources
 
 
 def render(path, output, show_paths, source, show):
@@ -91,11 +131,15 @@ def render(path, output, show_paths, source, show):
 
     if show:
         plt.show()
-        return None
-    output.parent.mkdir(parents=True, exist_ok=True)
-    figure.savefig(output, dpi=150, bbox_inches='tight')
+        return None, None
+    parameters, facts, sources = stamp_data(path, points, faces, show_paths,
+                                            source)
+    image, sidecar = save_stamped(
+        figure, output, parameters=parameters, facts=facts, sources=sources,
+        labels=LABELS, script=__file__,
+        subject=f'{path.name} — {len(points)} vertices, {len(faces)} triangles')
     plt.close(figure)
-    return output
+    return image, sidecar
 
 
 def main():
@@ -130,9 +174,11 @@ def main():
 
     for path in paths:
         output = args.output / f'{path.stem}.png'
-        saved = render(path, output, not args.no_paths, args.source, args.show)
-        if saved is not None:
-            print(f'Save at: {saved}')
+        image, sidecar = render(path, output, not args.no_paths, args.source,
+                                args.show)
+        if image is not None:
+            print(f'Save at: {image}')
+            print(f'Save at: {sidecar}')
     if not args.show:
         print(f'Rendered {len(paths)} mesh(es) to {args.output}')
 
