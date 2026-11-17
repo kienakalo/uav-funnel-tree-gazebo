@@ -88,15 +88,41 @@ def analyse(rows, max_error):
 def render(rows, folder, title, limit):
     times = [float(row['sim_time']) for row in rows]
     errors = [float(row['error']) for row in rows]
-    figure, axes = plt.subplots(figsize=(10, 4.5))
-    axes.plot(times, errors, color='#c0392b', linewidth=1.4, label='position error')
-    axes.axhline(limit, color='#2c3e50', linestyle='--', linewidth=1.,
-                 label=f'limit {limit:g} m')
-    axes.set_xlabel('simulated time (s)')
-    axes.set_ylabel('error (m)')
-    axes.set_title(title)
-    axes.grid(alpha=.3)
-    axes.legend(loc='upper right')
+    xs = [float(row['x']) for row in rows]
+    ys = [float(row['y']) for row in rows]
+    route_path = folder / 'route.json'
+    waypoints = []
+    if route_path.is_file():
+        waypoints = json.loads(route_path.read_text(encoding='utf-8')).get('waypoints') or []
+
+    figure, (map_axes, error_axes) = plt.subplots(
+        2, 1, figsize=(10, 9.5), gridspec_kw={'height_ratios': [1.25, 1]})
+    if waypoints:
+        px = [float(point[0]) for point in waypoints]
+        py = [float(point[1]) for point in waypoints]
+        map_axes.plot(px, py, color='#e67e22', linewidth=2.2, label='planned route')
+        map_axes.scatter(px[1:-1], py[1:-1], color='#f1c40f', s=14, zorder=4,
+                         label='waypoints')
+        map_axes.scatter(px[0], py[0], color='#27ae60', s=70, zorder=5, label='start')
+        map_axes.scatter(px[-1], py[-1], color='#e91e63', s=70, zorder=5, label='goal')
+    map_axes.plot(xs, ys, color='#8e44ad', linewidth=1.6, label='flown path')
+    map_axes.set_aspect('equal', adjustable='datalim')
+    map_axes.set_xlabel('x (m)')
+    map_axes.set_ylabel('y (m)')
+    map_axes.set_title('planned route and flown path, top view')
+    map_axes.grid(alpha=.3)
+    map_axes.legend(loc='best', fontsize=9)
+
+    error_axes.plot(times, errors, color='#c0392b', linewidth=1.4,
+                    label='position error')
+    error_axes.axhline(limit, color='#2c3e50', linestyle='--', linewidth=1.,
+                       label=f'limit {limit:g} m')
+    error_axes.set_xlabel('simulated time (s)')
+    error_axes.set_ylabel('error (m)')
+    error_axes.set_title(title)
+    error_axes.grid(alpha=.3)
+    error_axes.legend(loc='upper right')
+
     figure.tight_layout()
     output = folder / 'tracking.png'
     figure.savefig(output, dpi=150)

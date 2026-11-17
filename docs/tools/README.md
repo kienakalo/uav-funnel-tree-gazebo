@@ -23,6 +23,13 @@ data/raw/meshes/*.off ──copy_meshes──► data/processed/meshes/*.off
 generated/routes/*.json ──build_world──► generated/simulate/<mission>-<goal>/
                                           (city.sim.glb, collision.stl,
                                            funnel_physics.sdf, route.json)
+                                            │
+                               run_simulate ─┴─► physics_telemetry.csv
+                                                 telemetry_metadata.json
+                                                 gazebo.log + screenshot_*.png
+                                            │
+                                validate ───┴─► validation.json
+                                                 tracking.png (map + error)
 ```
 
 Ba stage một chiều: `plan` đọc kết quả `data`; `simulate` đọc route của `plan`.
@@ -46,6 +53,9 @@ Stage `simulate` cần Gazebo nên chạy riêng, không nằm trong `main.py al
 | simulate | Dựng world + mesh | [`build_world.md`](simulate/build_world.md) |
 | simulate | Plugin bay (trajectory + controller) | [`plugin.md`](simulate/plugin.md) |
 | simulate | Dựng world + bay + backup | [`run_simulate.md`](simulate/run_simulate.md) |
+| simulate | Camera + MarkerManager cho GUI | [`gui_config.md`](simulate/gui_config.md) |
+| simulate | Chụp cửa sổ + metadata | [`screenshot.md`](simulate/screenshot.md) |
+| simulate | Kiểm GLB bằng Assimp | [`check_glb.md`](simulate/check_glb.md) |
 | simulate | Chấm kết quả | [`validate.md`](simulate/validate.md) |
 | — | Thuật toán | [`funnel_tree.md`](funnel_tree.md) |
 | — | Thư viện dùng chung | [`lib.md`](lib.md) |
@@ -63,6 +73,8 @@ Stage `simulate` cần Gazebo nên chạy riêng, không nằm trong `main.py al
 | Sai số so sánh | Độ dài: tương đối `1e-6` (nội bộ), `1e-4` (reference, do làm tròn 4 chữ số) |
 | Hash | SHA256 của mesh, mission, module thuật toán được ghi trong kết quả |
 | Ảnh | 150 dpi, `bbox_inches='tight'`, backend `Agg` trừ khi có `--show` |
-| World Gazebo | Z-up, tên `funnel_sim_<mission>_<goal>`; visual GLB, collision STL |
+| World Gazebo | Z-up, tên `funnel_sim_<mission>_<goal>`; visual GLB (có NORMAL), collision STL; URI tương đối |
+| Runtime | Container `ghcr.io/openrobotics/gazebo:jetty-full`, GPU NVIDIA qua CDI hoặc Intel qua `/dev/dri` |
+| Ảnh Gazebo | Chụp cửa sổ GUI theo thời gian mô phỏng; metadata ghi cách chụp, không phải đầu ra đo |
 
 Định dạng file: [`../data-format.md`](../data-format.md).

@@ -52,7 +52,7 @@ DEFAULT_SCENE = ROOT / 'data/processed/scenes/city.standardized.glb'
 SPEED = 5.
 MAX_ACCELERATION = 3.
 START_DELAY = 2.
-DWELL = 1.5
+DWELL = 0.0  # no stop at waypoints; the reference stays smooth
 
 
 def fail(message):
@@ -218,7 +218,7 @@ def build_meshes(scene, surface, out, collision_cell, full_collision,
                   extras={'frame': 'Z-up, width 200 m', 'source_sha256': sha256(scene),
                           'vertices': int(len(vertices)), 'triangles': int(len(faces)),
                           'policy': 'visual only; collision uses a separate STL'},
-                  generator='uav-funnel-tree-gazebo build_world')
+                  generator='uav-funnel-tree-gazebo build_world', normals=True)
         visual_triangles = len(faces)
     else:
         visual_triangles = write_stl(visual, vertices, faces)
@@ -242,7 +242,23 @@ def build_meshes(scene, surface, out, collision_cell, full_collision,
 
     return {'visual': visual, 'visual_triangles': int(visual_triangles),
             'collision': collision, 'collision_stats': collision_stats,
-            'surface_stl': surface_stl}
+            'surface_stl': surface_stl,
+            'center': (vertices.min(axis=0) + vertices.max(axis=0)) / 2,
+            'extent': float((vertices.max(axis=0) - vertices.min(axis=0)).max())}
+
+
+def camera_pose(waypoints):
+    """Camera on the south-west side, framing the whole route (degrees)."""
+    points = np.asarray(waypoints, dtype=float)
+    low, high = points.min(axis=0), points.max(axis=0)
+    center = (low + high) / 2
+    distance = max(45.0, float((high - low).max()) * 0.5)
+    height = distance * 0.5
+    position = [float(center[0] - distance), float(center[1] - distance),
+                float(center[2] + height)]
+    # Gazebo's camera_pose pitch is positive downwards.
+    pitch = math.degrees(math.atan2(height, distance * math.sqrt(2.0)))
+    return [round(value, 3) for value in (*position, 0.0, pitch, 45.0)]
 
 
 def build_route(record, goal, vertex, waypoints, world):
@@ -269,6 +285,56 @@ def mesh_element(parent, uri, scale=None):
     return mesh
 
 
+def add_route_line(world_element, waypoints, radius=0.15):
+    """Draw the route like the earlier preview: thin tube, dot at every waypoint.
+
+    The start dot is green, the goal dot pink and the intermediate dots orange,
+    matching the figures produced before the data-only cleanup.
+    """
+    model = ET.SubElement(world_element, 'model', name='planned_route')
+    ET.SubElement(model, 'static').text = 'true'
+    link = ET.SubElement(model, 'link', name='link')
+    for index, (start, end) in enumerate(zip(waypoints, waypoints[1:])):
+        ax, ay, az = (float(value) for value in start)
+        bx, by, bz = (float(value) for value in end)
+        dx, dy, dz = bx - ax, by - ay, bz - az
+        length = math.sqrt(dx * dx + dy * dy + dz * dz)
+        if length < 1e-6:
+            continue
+        # With roll zero the cylinder's axis is
+        # (cos(yaw) sin(pitch), sin(yaw) sin(pitch), cos(pitch)).
+        pitch = math.acos(max(-1.0, min(1.0, dz / length)))
+        yaw = math.atan2(dy, dx) if abs(math.sin(pitch)) > 1e-9 else 0.0
+        visual = ET.SubElement(link, 'visual', name=f'segment_{index}')
+        ET.SubElement(visual, 'pose').text = (
+            f'{(ax + bx) / 2:.3f} {(ay + by) / 2:.3f} {(az + bz) / 2:.3f} '
+            f'0 {pitch:.6f} {yaw:.6f}')
+        cylinder = ET.SubElement(ET.SubElement(visual, 'geometry'), 'cylinder')
+        ET.SubElement(cylinder, 'radius').text = f'{radius:g}'
+        ET.SubElement(cylinder, 'length').text = f'{length:.6f}'
+        material = ET.SubElement(visual, 'material')
+        ET.SubElement(material, 'ambient').text = '1 0.5 0.03 1'
+        ET.SubElement(material, 'diffuse').text = '1 0.5 0.03 1'
+        ET.SubElement(material, 'emissive').text = '0.5 0.2 0.0 1'
+
+    for index, point in enumerate(waypoints):
+        if index == 0:
+            color = '0.1 1 0.2 1'
+        elif index == len(waypoints) - 1:
+            color = '1 0.05 0.3 1'
+        else:
+            color = '1 0.65 0.05 1'
+        visual = ET.SubElement(link, 'visual', name=f'point_{index}')
+        ET.SubElement(visual, 'pose').text = (
+            f'{float(point[0]):.3f} {float(point[1]):.3f} {float(point[2]):.3f} 0 0 0')
+        sphere = ET.SubElement(ET.SubElement(visual, 'geometry'), 'sphere')
+        ET.SubElement(sphere, 'radius').text = '0.45' if 0 < index < len(waypoints) - 1 else '0.7'
+        material = ET.SubElement(visual, 'material')
+        ET.SubElement(material, 'ambient').text = color
+        ET.SubElement(material, 'diffuse').text = color
+        ET.SubElement(material, 'emissive').text = color
+
+
 def build_sdf(out, world, route, meshes, surface_stl):
     root = ET.Element('sdf', version='1.9')
     world_element = ET.SubElement(root, 'world', name=world)
@@ -282,30 +348,41 @@ def build_sdf(out, world, route, meshes, surface_stl):
     ET.SubElement(world_element, 'plugin', filename='gz-sim-scene-broadcaster-system',
                   name='gz::sim::systems::SceneBroadcaster')
     scene = ET.SubElement(world_element, 'scene')
-    ET.SubElement(scene, 'ambient').text = '0.6 0.6 0.6 1'
+    ET.SubElement(scene, 'ambient').text = '0.7 0.7 0.7 1'
     ET.SubElement(scene, 'background').text = '0.72 0.81 0.9 1'
     ET.SubElement(scene, 'shadows').text = 'true'
+
+    sun = ET.SubElement(world_element, 'light', type='directional', name='sun')
+    ET.SubElement(sun, 'cast_shadows').text = 'true'
+    ET.SubElement(sun, 'pose').text = '0 0 300 0 0 0'
+    ET.SubElement(sun, 'diffuse').text = '0.9 0.9 0.9 1'
+    ET.SubElement(sun, 'specular').text = '0.2 0.2 0.2 1'
+    ET.SubElement(sun, 'direction').text = '-0.3 -0.5 -1'
+
+
 
     city = ET.SubElement(world_element, 'model', name='city')
     ET.SubElement(city, 'static').text = 'true'
     link = ET.SubElement(city, 'link', name='link')
     collision = ET.SubElement(link, 'collision', name='collision')
-    mesh_element(collision, meshes['collision'].as_uri())
+    mesh_element(collision, meshes['collision'].name)
     visual = ET.SubElement(link, 'visual', name='visual')
-    mesh_element(visual, meshes['visual'].as_uri())
+    mesh_element(visual, meshes['visual'].name)
     material = ET.SubElement(visual, 'material')
-    ET.SubElement(material, 'ambient').text = '0.55 0.58 0.6 1'
-    ET.SubElement(material, 'diffuse').text = '0.62 0.65 0.66 1'
+    ET.SubElement(material, 'ambient').text = '0.45 0.65 0.78 1'
+    ET.SubElement(material, 'diffuse').text = '0.45 0.65 0.78 1'
 
     if surface_stl is not None:
         envelope = ET.SubElement(world_element, 'model', name='navigation_surface')
         ET.SubElement(envelope, 'static').text = 'true'
         envelope_link = ET.SubElement(envelope, 'link', name='link')
         envelope_visual = ET.SubElement(envelope_link, 'visual', name='visual')
-        mesh_element(envelope_visual, surface_stl.as_uri())
+        mesh_element(envelope_visual, surface_stl.name)
         envelope_material = ET.SubElement(envelope_visual, 'material')
         ET.SubElement(envelope_material, 'ambient').text = '0.2 0.7 0.4 0.35'
         ET.SubElement(envelope_material, 'diffuse').text = '0.2 0.7 0.4 0.35'
+
+    add_route_line(world_element, route['waypoints'])
 
     start = route['waypoints'][0]
     drone = ET.SubElement(world_element, 'model', name='drone')
@@ -324,19 +401,32 @@ def build_sdf(out, world, route, meshes, surface_stl):
     body_collision = ET.SubElement(body, 'collision', name='body_collision')
     box = ET.SubElement(ET.SubElement(body_collision, 'geometry'), 'box')
     ET.SubElement(box, 'size').text = '0.9 0.6 0.25'
-    body_visual = ET.SubElement(body, 'visual', name='body_visual')
-    box = ET.SubElement(ET.SubElement(body_visual, 'geometry'), 'box')
-    ET.SubElement(box, 'size').text = '0.9 0.6 0.25'
-    body_material = ET.SubElement(body_visual, 'material')
-    ET.SubElement(body_material, 'ambient').text = '0.85 0.15 0.15 1'
-    ET.SubElement(body_material, 'diffuse').text = '0.9 0.2 0.2 1'
+    def drone_visual(name, geometry, color, pose=None, emissive=None):
+        element = ET.SubElement(body, 'visual', name=name)
+        if pose is not None:
+            ET.SubElement(element, 'pose').text = pose
+        shape = ET.SubElement(ET.SubElement(element, 'geometry'),
+                              geometry[0])
+        if geometry[0] == 'box':
+            ET.SubElement(shape, 'size').text = geometry[1]
+        else:
+            ET.SubElement(shape, 'radius').text = geometry[1]
+            ET.SubElement(shape, 'length').text = geometry[2]
+        material_element = ET.SubElement(element, 'material')
+        ET.SubElement(material_element, 'ambient').text = color
+        ET.SubElement(material_element, 'diffuse').text = color
+        if emissive:
+            ET.SubElement(material_element, 'emissive').text = emissive
 
-    locator = ET.SubElement(body, 'visual', name='locator')
-    ET.SubElement(locator, 'pose').text = '0 0 2.1 0 0 0'
-    sphere = ET.SubElement(ET.SubElement(locator, 'geometry'), 'sphere')
-    ET.SubElement(sphere, 'radius').text = '0.5'
-    locator_material = ET.SubElement(locator, 'material')
-    ET.SubElement(locator_material, 'emissive').text = '0.8 0.02 0.6 1'
+    # Quadcopter look from the earlier preview world: body, two arms, four
+    # rotors. Only the box body has a collision, so the dynamics stay point-mass.
+    drone_visual('body_visual', ('box', '0.9 0.6 0.25'), '1 0.2 0.05 1')
+    drone_visual('arm_x', ('box', '1.8 0.09 0.09'), '0.1 0.1 0.1 1')
+    drone_visual('arm_y', ('box', '0.09 1.8 0.09'), '0.1 0.1 0.1 1')
+    for index, (rx, ry) in enumerate(((0.9, 0.0), (-0.9, 0.0),
+                                      (0.0, 0.9), (0.0, -0.9))):
+        drone_visual(f'rotor_{index}', ('cylinder', '0.3', '0.05'),
+                     '0.1 0.9 0.9 1', pose=f'{rx} {ry} 0.1 0 0 0')
 
     plugin = ET.SubElement(drone, 'plugin',
                            filename='gz-sim-python-system-loader-system',
@@ -367,9 +457,11 @@ def check_world(out, route_record, meshes):
     if not uris:
         fail('SDF has no mesh URI')
     for uri in uris:
-        if not uri.startswith('file://'):
-            fail(f'SDF mesh URI is not absolute: {uri}')
-        mesh_path = Path(uri[len('file://'):])
+        # URIs name a file next to the SDF, so the run directory can be
+        # mounted at any path (host, VM or the Gazebo container).
+        if '://' in uri or Path(uri).is_absolute() or '/' in uri:
+            fail(f'SDF mesh URI is not a local file name: {uri}')
+        mesh_path = out / uri
         if not mesh_path.is_file():
             fail(f'SDF mesh does not exist: {mesh_path}')
     route_path = out / 'route.json'
@@ -475,6 +567,9 @@ def main():
         'scene_sha256': sha256(args.scene),
         'world': world,
         'visual_format': args.visual,
+        'visual_normals': args.visual == 'glb',
+        'camera_pose': camera_pose(waypoints),
+        'lighting': 'directional sun with shadows; visual-only ground plane',
         'collision_mode': args.collision,
         'collision_stats': meshes['collision_stats'],
         'waypoints': len(waypoints),

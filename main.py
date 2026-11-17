@@ -107,6 +107,22 @@ def stage_commands(name, args):
             commands[1].append('--headless')
         if args.software:
             commands[1].append('--software')
+        if args.container is True:
+            commands[1].append('--container')
+        elif args.container is False:
+            commands[1].append('--native')
+        if args.image:
+            commands[1] += ['--image', args.image]
+        if args.gpu:
+            commands[1] += ['--gpu', args.gpu]
+        if args.screenshot is True:
+            commands[1].append('--screenshot')
+        elif args.screenshot is False:
+            commands[1].append('--no-screenshot')
+        if args.keep_open:
+            commands[1].append('--keep-open')
+        if args.pull:
+            commands[1].append('--pull')
         if args.max_error is not None:
             commands[2][commands[2].index('--max-error') + 1] = f'{args.max_error:g}'
         if args.no_png:
@@ -171,16 +187,38 @@ def main():
                         help='simulate: largest allowed tracking error (default: 1.0 m)')
     parser.add_argument('--no-png', action='store_true',
                         help='simulate: skip tracking.png')
+    parser.add_argument('--container', action=argparse.BooleanOptionalAction,
+                        default=None,
+                        help='simulate: fly in the Gazebo container (default) or, '
+                             'with --no-container, with the gz on PATH')
+    parser.add_argument('--image', default=None,
+                        help='simulate: Gazebo container image '
+                             '(default: ghcr.io/openrobotics/gazebo:jetty-full)')
+    parser.add_argument('--gpu', choices=('auto', 'nvidia', 'intel', 'software'),
+                        default=None,
+                        help='simulate: GPU for the GUI (default: auto)')
+    parser.add_argument('--screenshot', action=argparse.BooleanOptionalAction,
+                        default=None,
+                        help='simulate: capture the Gazebo window at 10/60/120 s '
+                             'and at completion (default: on in the GUI)')
+    parser.add_argument('--keep-open', action='store_true',
+                        help='simulate: leave the window open after the route, '
+                             'instead of closing it at completion')
+    parser.add_argument('--pull', action='store_true',
+                        help='simulate: docker pull the Gazebo image first')
     args = parser.parse_args()
     if args.force_missions and not args.all_meshes:
         parser.error('--force-missions needs --all-meshes; for one mesh run '
                      'tools/data/set_start_goal.py --force')
     simulate_flags = (args.mission or args.goal or args.headless or args.software
                       or args.show_surface or args.max_error is not None
-                      or args.no_png)
+                      or args.no_png or args.container is not None or args.image
+                      or args.gpu or args.screenshot is not None
+                      or args.keep_open or args.pull)
     if simulate_flags and 'simulate' not in (args.stages or DEFAULT_STAGES):
         parser.error('--mission/--goal/--headless/--software/--show-surface/'
-                     '--max-error/--no-png only apply to the simulate stage')
+                     '--max-error/--no-png/--container/--image/--gpu/'
+                     '--screenshot/--keep-open/--pull only apply to the simulate stage')
     if args.max_error is not None and not (args.max_error > 0):
         parser.error('--max-error must be positive')
     stages = args.stages or list(DEFAULT_STAGES)

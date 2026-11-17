@@ -9,6 +9,8 @@ __pycache__/
 .env.*
 !.env.example
 *.log
+# The Gazebo log of a committed run is evidence, not a stray log.
+!generated/simulate/*/gazebo.log
 *.pid
 .DS_Store
 Thumbs.db

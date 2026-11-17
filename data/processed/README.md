@@ -258,7 +258,9 @@ việc cùng đợt dọn repo; lấy lại ở tag `pre-data-only-cleanup` nế
 
 ## Lưu trong Git
 
-- `scenes/city.standardized.glb`: **không commit** (khoảng 6 MB, sinh lại
-  được từ `data/raw/scenes/city.glb`).
+- `scenes/city.standardized.glb`: commit (6,1 MB) để máy khác mở được ngay;
+  sinh lại bằng `tools/data/standardize.py` từ `data/raw/scenes/city.glb`.
+  SHA hiện tại: `cdd605eedc01011c5c39408ce167fca6244d1a9e0a7527450d13861570a837cb`
+  (đổi so với bản cũ vì sửa `byteLength` của bufferView và thêm `NORMAL`).
 - `scenes/meshes/*.off2glb.glb`: commit, mỗi file vài KB.
 - `meshes/city.standardized.triangulation.off`: commit, đây là đầu vào thuật toán.

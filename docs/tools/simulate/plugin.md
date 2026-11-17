@@ -26,22 +26,37 @@ Thiếu biến bắt buộc → `ValueError` ngay trong `configure`; Gazebo ghi 
 
 ## `trajectory.py`
 
-Chia polyline thành từng đoạn, mỗi đoạn bay từ **đứng yên → đứng yên**:
+Bay **một mạch** qua toàn bộ tuyến, không dừng ở từng waypoint:
+
+1. Lấy mẫu **Catmull-Rom** qua các waypoint (tangent sai phân trung tâm), bước
+   0,2 m → polyline dày đặc, hướng tiếp tuyến liên tục ở các góc.
+2. Đo **độ dài cung** của polyline đó.
+3. Một biên dạng tốc độ **hình thang** cho cả tuyến: tăng tốc `a`, chạy đều
+   `v_max`, giảm tốc `a` về 0 đúng điểm cuối.
 
 ```
-s(u)   = 10u³ − 15u⁴ + 6u⁵            (quintic smoothstep)
-u      = (t − t_đoạn) / thời_lượng_đoạn
-thời lượng = max(1, 1.875·d/v_max, sqrt((10/√3)·d/a_max))
-nghỉ giữa đoạn = dwell (1,5 s)
+s(t) = ½at²                                  (t < t_ramp)
+     = s_ramp + v_peak·(t − t_ramp)           (t ≤ t_ramp + t_cruise)
+     = L − ½a·(T − t)²                       (giảm tốc)
+T    = 2·t_ramp + t_cruise
 ```
 
 `state(t)` trả `(vị trí, vận tốc, gia tốc, chỉ số đoạn, pha)` với pha ∈
-`waiting | moving | dwell | descending | complete`. Đoạn hạ cánh (nếu có) dùng
-`descent_speed` và phải thẳng đứng.
+`waiting | moving | dwell | complete`. `dwell` chỉ còn là thời gian giữ ở điểm
+cuối trước khi `complete`; `build_world` đặt **0** nên drone không dừng giữa
+tuyến. Nếu có `descent_speed` và waypoint cuối nằm thẳng dưới waypoint trước,
+tốc độ bị giới hạn thêm cho đoạn hạ cánh.
 
-Hệ quả: drone **dừng lại ở mỗi waypoint**; vì vậy route được rút gọn bằng
-Douglas–Peucker ở `build_world` (`--simplify 0.1` m) thay vì dùng 72–156 điểm
-cắt cạnh thô.
+Thời lượng (dwell 0, sau khi làm mượt):
+
+| Goal | Waypoint | Độ dài cung | Thời lượng |
+| --- | --- | --- | --- |
+| g1 | 18 | 134,9 m | 28,7 s + 2 s chờ |
+| g2 | 47 | 286,8 m | 59,0 s + 2 s chờ |
+| g3 | 34 | 142,4 m | 30,1 s + 2 s chờ |
+
+Vì tốc độ/hướng liên tục, quỹ đạo mượt nhưng có thể **bo góc** khác polyline
+gốc vài decimet; `--simplify 0.1` giữ waypoint sát hình học nên độ lệch nhỏ.
 
 ## Điều khiển
 
@@ -78,6 +93,17 @@ autopilot.
 | `nominal_duration` | `trajectory.duration + start_delay` |
 | `world`, `mission`, `goal` | Phiên chạy thuộc world/nhiệm vụ/đích nào |
 | `run_id` | `<timestamp>-<pid>` (giữ theo quyết định; mỗi phiên làm file dirty) |
+| `trail` | `true` nếu plugin publish vệt bay lên `/marker` |
+
+## Vệt bay trên Gazebo
+
+Khi `FUNNEL_TRAIL` khác `0` (mặc định), plugin advertise `/marker`
+(`gz.msgs.Marker`, `LINE_STRIP`, màu hồng) và mỗi 0,25 s thêm điểm vị trí thật
+rồi publish lại. GUI có `MarkerManager` (xem `gui_config.py`) nên vệt hiện dần
+trên bản đồ — bằng chứng trực quan drone đã đi qua đâu.
+
+Nếu image thiếu `gz.transport` hoặc `FUNNEL_TRAIL=0`, plugin vẫn bay bình thường
+và ghi `trail: false` vào metadata.
 
 ## Kiểm chứng
 
@@ -88,13 +114,7 @@ autopilot.
 | Tại đây | `Trajectory` trên 3 route | `state(0)`/`state(cuối)` khớp endpoint; v ≤ 5 m/s; a ≤ 3 m/s² |
 | Máy ảo | `run_simulate.sh --check` import plugin | chờ chạy |
 
-Thời lượng danh nghĩa sau khi rút gọn (dwell 1,5 s):
-
-| Goal | Waypoint | Thời gian |
-| --- | --- | --- |
-| g1 | 18 | 92,1 s |
-| g2 | 47 | 224,1 s |
-| g3 | 34 | 140,0 s |
+Thời lượng danh nghĩa được tính lại từ tuyến đã làm mượt (bảng ở trên).
 
 ## Giới hạn
 

@@ -1,0 +1,37 @@
+{
+  "image": "screenshot_t006.png",
+  "sha256": "013fd973540a865c9b76439bc8b225985eeebf5f18d96a9db6dd227cf0031962",
+  "bytes": 222367,
+  "captured_at": "2026-11-17T14:40:29+07:00",
+  "run_id": "20261117_144018-144862",
+  "sim_time": 6.086,
+  "phase": "moving",
+  "display": {
+    "DISPLAY": ":0",
+    "WAYLAND_DISPLAY": "wayland-1"
+  },
+  "capture": {
+    "tool": "grim",
+    "command": [
+      "grim",
+      "-g",
+      "966,21 933x1038",
+      "<output>"
+    ],
+    "window": {
+      "class": "Gazebo GUI",
+      "title": "Gazebo Sim",
+      "at": [
+        966,
+        21
+      ],
+      "size": [
+        933,
+        1038
+      ]
+    }
+  },
+  "ignored_windows": [],
+  "gazebo_log": "generated/simulate/city.standardized.triangulation-g3/gazebo.log",
+  "note": "Screenshot of the Gazebo window; measured results are in physics_telemetry.csv and validation.json."
+}

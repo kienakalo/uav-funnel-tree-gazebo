@@ -4,7 +4,7 @@
 | --- | --- |
 | Stage | `simulate` (bước cuối) |
 | Vào | `generated/simulate/<mission>-<goal>/physics_telemetry.csv` + `telemetry_metadata.json` |
-| Ra | `validation.json`, `tracking.png` trong cùng thư mục |
+| Ra | `validation.json`, `tracking.png` (bản đồ + sai số) trong cùng thư mục |
 | Cờ | `--run DIR`, `--root DIR`, `--mission`, `--goal`, `--max-error M`, `--no-png` |
 
 ## Chỉ số
@@ -26,24 +26,35 @@ passed = completed AND max_error <= --max-error (mặc định 1,0 m)
 
 Không đạt thì ghi file xong **thoát mã 1**, để `main.py simulate` dừng ở bước này.
 
+## `tracking.png`
+
+Hai panel:
+
+1. **Nhìn từ trên**: tuyến kế hoạch (cam, chấm vàng ở waypoint, xanh ở start,
+   hồng ở goal) và **đường đã bay** (tím) lấy từ cột `x, y` của telemetry.
+2. **Sai số theo thời gian** kèm đường giới hạn `--max-error`.
+
+Panel 1 trả lời câu "drone có đi đúng tuyến không"; panel 2 trả lời "bám sát
+đến mức nào". Ảnh là hình vẽ từ CSV, không phải screenshot GUI.
+
 ## `validation.json`
 
 ```json
 {
-  "rows": 920,
+  "rows": 341,
   "completed": true,
-  "duration": 91.8,
-  "max_error": 0.42,
-  "mean_error": 0.11,
-  "max_speed": 5.0,
-  "max_acceleration": 3.0,
+  "duration": 34.2,
+  "max_error": 0.82,
+  "mean_error": 0.05,
+  "max_speed": 5.02,
+  "max_acceleration": 7.92,
   "max_error_limit": 1.0,
   "mission": "data/processed/missions/....json",
   "goal": "g1",
   "world": "funnel_sim_..._g1",
   "route_sha256": "…",
   "run_id": "20261116_193000-1234",
-  "nominal_duration": 94.1,
+  "nominal_duration": 30.6,
   "telemetry": "generated/simulate/.../physics_telemetry.csv",
   "telemetry_sha256": "…",
   "passed": true

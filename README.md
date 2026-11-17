@@ -74,9 +74,11 @@ python3 main.py data --force-missions      # chọn lại cả mesh đã có
 
 python3 main.py plan        # lập tuyến, vẽ ảnh, đối chiếu reference
 
-# cần Gazebo Jetty; mỗi lần một goal (bare main.py chạy g1)
-python3 main.py simulate --goal g1
-python3 main.py simulate --goal g2 --headless
+# stage simulate: mặc định bay trong container Gazebo, có GUI
+bash tools/simulate/run_simulate.sh --check    # kiểm Docker/image/plugin/SDF
+python3 main.py simulate --goal g1             # bay, chụp ảnh, chấm điểm
+python3 main.py simulate --goal g2 --gpu nvidia
+python3 main.py simulate --goal g3 --headless  # không mở cửa sổ
 ```
 
 Sáu bước, dừng ngay khi một bước lỗi:
@@ -97,6 +99,14 @@ Stage `plan` có ba bước:
 | 1 | `tools/plan/run_funnel.py` | missions + `.off` → `generated/routes/*.json` |
 | 2 | `tools/plan/route_viz.py` | routes JSON → `generated/routes/*.png` |
 | 3 | `tools/plan/compare.py` | routes + `data/expected` → `generated/compare/*.json` |
+
+Stage `simulate` có ba bước: `build_world.py` dựng world, `run_simulate.sh` bay
+trong Gazebo, `validate.py` chấm telemetry. Mặc định Gazebo chạy trong container
+`ghcr.io/openrobotics/gazebo:jetty-full` (Jetty 10.5.0) nên máy chỉ cần Docker;
+`--native` dùng `gz` cài trên máy. Khi có GUI, script chụp cửa sổ ở 20/50/80 %
+thời lượng và lúc hoàn thành, mỗi ảnh kèm JSON ghi `run_id`, `sim_time`, cách
+chụp và SHA256. Chi tiết:
+[`docs/tools/simulate/run_simulate.md`](docs/tools/simulate/run_simulate.md).
 
 Bước 4 cần `--force` vì tệp đích đã tồn tại; nếu không, tool dừng để tránh ghi
 đè ngoài ý muốn. Bước 6 dùng lại lựa chọn START/GOAL đã lưu; lần đầu chưa có
@@ -207,8 +217,11 @@ tools/plan/
 tools/simulate/
   build_world.py         # dựng world Gazebo + mesh từ một route
   validate.py            # chấm telemetry: sai số bám, tốc độ, hoàn thành
-  run_simulate.sh        # dựng world, bay, chờ kết thúc
-  gazebo_system_python.sh  # chạy gz bằng Python hệ thống
+  run_simulate.sh        # bay trong container (hoặc native), chờ kết thúc
+  gazebo_system_python.sh  # chạy gz native bằng Python hệ thống
+  gui_config.py          # camera + MarkerManager cho phiên GUI
+  screenshot.py          # chụp cửa sổ Gazebo + metadata
+  check_glb.py           # Assimp (Gazebo) có đọc được GLB không
   plugin/                # trajectory + bộ điều khiển chạy trong Gazebo
 algo/
   funnel_tree.py         # lan truyền, dựng lại tuyến, tìm source

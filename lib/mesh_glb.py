@@ -30,8 +30,27 @@ def indexed_from_triangles(triangles):
     return vertices.astype(np.float32), faces
 
 
-def write_glb(path, meshes, extras=None, generator='uav-funnel-tree-gazebo'):
-    """Write meshes as a GLB. Each mesh is {name, vertices, faces, extras?}."""
+def _vertex_normals(vertices, faces):
+    """Area-weighted vertex normals for lighting."""
+    corners = vertices[faces]
+    face_normals = np.cross(corners[:, 1] - corners[:, 0],
+                            corners[:, 2] - corners[:, 0])
+    normals = np.zeros((len(vertices), 3), dtype=np.float64)
+    for axis in range(3):
+        normals[:, axis] = np.bincount(faces.ravel(),
+                                       weights=np.repeat(face_normals[:, axis], 3),
+                                       minlength=len(vertices))
+    length = np.linalg.norm(normals, axis=1, keepdims=True)
+    length[length == 0] = 1.0
+    return (normals / length).astype(np.float32)
+
+
+def write_glb(path, meshes, extras=None, generator='uav-funnel-tree-gazebo', normals=False):
+    """Write meshes as a GLB. Each mesh is {name, vertices, faces, extras?}.
+
+    ``normals=True`` also writes area-weighted vertex normals. Gazebo's Ogre2
+    renderer needs them to shade a visual: a POSITION-only mesh shows up black.
+    """
     binary = bytearray()
     buffer_views = []
     accessors = []
@@ -47,30 +66,44 @@ def write_glb(path, meshes, extras=None, generator='uav-funnel-tree-gazebo'):
         if faces.min() < 0 or faces.max() >= len(vertices):
             raise ValueError(f'Mesh {index}: face index outside vertex array')
 
-        while len(binary) % 4:
-            binary.append(0)
-        position_offset = len(binary)
-        binary.extend(vertices.astype('<f4').tobytes())
-        while len(binary) % 4:
-            binary.append(0)
-        index_offset = len(binary)
-        binary.extend(faces.astype('<u4').tobytes())
+        positions = vertices.astype('<f4')
+        indices = faces.astype('<u4')
 
-        buffer_views.append({'buffer': 0, 'byteOffset': position_offset,
-                             'byteLength': vertices.nbytes, 'target': 34962})
-        buffer_views.append({'buffer': 0, 'byteOffset': index_offset,
-                             'byteLength': faces.nbytes, 'target': 34963})
+        while len(binary) % 4:
+            binary.append(0)
+        buffer_views.append({'buffer': 0, 'byteOffset': len(binary),
+                             'byteLength': positions.nbytes, 'target': 34962})
+        binary.extend(positions.tobytes())
         accessors.append({
-            'bufferView': len(buffer_views) - 2, 'componentType': 5126,
+            'bufferView': len(buffer_views) - 1, 'componentType': 5126,
             'count': int(len(vertices)), 'type': 'VEC3',
             'min': [float(v) for v in vertices.min(axis=0)],
             'max': [float(v) for v in vertices.max(axis=0)],
         })
+        attributes = {'POSITION': len(accessors) - 1}
+
+        if normals:
+            shaded = _vertex_normals(vertices, faces)
+            while len(binary) % 4:
+                binary.append(0)
+            buffer_views.append({'buffer': 0, 'byteOffset': len(binary),
+                                 'byteLength': shaded.nbytes, 'target': 34962})
+            binary.extend(shaded.tobytes())
+            accessors.append({'bufferView': len(buffer_views) - 1,
+                              'componentType': 5126, 'count': int(len(vertices)),
+                              'type': 'VEC3'})
+            attributes['NORMAL'] = len(accessors) - 1
+
+        while len(binary) % 4:
+            binary.append(0)
+        buffer_views.append({'buffer': 0, 'byteOffset': len(binary),
+                             'byteLength': indices.nbytes, 'target': 34963})
+        binary.extend(indices.tobytes())
         accessors.append({
             'bufferView': len(buffer_views) - 1, 'componentType': 5125,
             'count': int(faces.size), 'type': 'SCALAR',
         })
-        primitives.append({'attributes': {'POSITION': len(accessors) - 2},
+        primitives.append({'attributes': attributes,
                            'indices': len(accessors) - 1, 'mode': 4})
         entry = {'name': mesh.get('name', f'mesh_{index}'), 'mesh': index}
         if mesh.get('extras'):
@@ -88,6 +121,10 @@ def write_glb(path, meshes, extras=None, generator='uav-funnel-tree-gazebo'):
         'bufferViews': buffer_views,
         'buffers': [{'byteLength': len(binary)}],
     }
+    for view in buffer_views:
+        end = view.get('byteOffset', 0) + view['byteLength']
+        if end > len(binary):
+            raise ValueError(f'bufferView ends at {end}, past the {len(binary)}-byte buffer')
     text = _pad(json.dumps(document, separators=(',', ':')).encode('utf-8'), b' ')
     body = _pad(bytes(binary))
     total = 12 + 8 + len(text) + 8 + len(body)

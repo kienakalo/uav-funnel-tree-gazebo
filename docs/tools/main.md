@@ -52,6 +52,12 @@ Thứ tự trong `data` có chủ đích:
 | `--show-surface` | `simulate`: `build_world --surface` |
 | `--max-error M` | `simulate`: ngưỡng cho `validate` (mặc định 1,0 m) |
 | `--no-png` | `simulate`: bỏ `tracking.png` |
+| `--container` / `--no-container` | `simulate`: bay trong container (mặc định) hay dùng `gz` trên máy |
+| `--image NAME` | `simulate`: image Gazebo (mặc định `ghcr.io/openrobotics/gazebo:jetty-full`) |
+| `--gpu auto\|nvidia\|intel\|software` | `simulate`: đường render cho GUI |
+| `--screenshot` / `--no-screenshot` | `simulate`: chụp cửa sổ ở 20/50/80 % thời lượng (mặc định bật khi GUI) |
+| `--keep-open` | `simulate`: không tự đóng cửa sổ khi route xong |
+| `--pull` | `simulate`: `docker pull` image trước khi chạy |
 
 `--force-missions` không đi cùng `--no-all-meshes` (báo lỗi), vì chọn lại một
 mesh nên gọi trực tiếp `set_start_goal.py --force`.

@@ -178,5 +178,5 @@
   "speed": 5.0,
   "max_acceleration": 3.0,
   "start_delay": 2.0,
-  "dwell": 1.5
+  "dwell": 0.0
 }

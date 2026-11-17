@@ -19,13 +19,16 @@ Mỗi kết quả phải trả lời được: **dữ liệu nào, mã nào, tha
 | `data/processed/meshes/*.off` | Có | Copy byte-identical từ `raw/` |
 | `data/processed/meshes/city.standardized.triangulation.off` | Có | Phụ thuộc scene + START/GOAL + hằng số |
 | `data/processed/scenes/meshes/*.off2glb.glb` | Có | |
-| `data/processed/scenes/city.standardized.glb` | Có | Không commit |
+| `data/processed/scenes/city.standardized.glb` | Có | Có commit; SHA dưới đây |
 | `data/processed/missions/*.json` | Có | Không có timestamp |
 | `generated/routes/*.json` | **Không** | `planning_seconds` đổi mỗi lần chạy |
 | `generated/compare/*.json` | Có | Không chứa thời gian |
 | `generated/simulate/*/physics_telemetry.csv` | Không | Phụ thuộc physics Gazebo |
 | `generated/simulate/*/telemetry_metadata.json` | Không | Có `run_id` của phiên |
 | `generated/simulate/*/validation.json` | Không | Có `run_id` và số đo phiên |
+| `generated/simulate/*/tracking.png` | Không | Vẽ từ telemetry của phiên |
+| `generated/simulate/*/screenshot_*.png` | Không | Ảnh cửa sổ GUI; metadata có timestamp + SHA256 |
+| `generated/simulate/*/gazebo.log` | Không | Log phiên; chứa đường dẫn tuyệt đối của máy chạy |
 
 Vì `planning_seconds` là số đo thật, chạy lại `main.py plan` sẽ làm route JSON
 dirty trong Git. Đó là lựa chọn có chủ đích: báo cáo cần thời gian chạy.
@@ -64,10 +67,38 @@ commit.
 - Python 3.14.8, NumPy 2.5.4, Matplotlib 3.11.2, Shapely 2.2.0, Pillow 13.0.0
   (pin trong `requirements.txt`).
 - Phiên bản Python và NumPy của lần chạy được ghi trong từng route JSON.
-- Gói hệ thống cho cửa sổ 3D: `libzstd1 libxkbcommon0 libgl1` (Debian/Ubuntu); NixOS dùng `steam-run`
-- Mô phỏng: Ubuntu 24.04, Gazebo Jetty (gz-sim 10.6.0), binding `gz.sim10`; kết quả
-  telemetry chỉ có nghĩa với đúng môi trường này
-  hoặc symlink `_tkinter` (xem [`../../README.md`](../../README.md)).
+- Gói hệ thống cho cửa sổ 3D trên host: `libzstd1 libxkbcommon0 libgl1`
+  (Debian/Ubuntu); NixOS dùng `steam-run` hoặc symlink `_tkinter`.
+
+### Mô phỏng
+
+| Hạng mục | Giá trị của các lần chạy trong repo |
+| --- | --- |
+| Runtime | container `ghcr.io/openrobotics/gazebo:jetty-full` |
+| Digest image | `sha256:452ff649281065121a524ef92354091ac069f2c9b0f73f61fd4c77c61bab08c7` |
+| Gazebo | Jetty `gz sim 10.5.0`, bindings `gz.sim`/`gz.math` (không hậu tố) |
+| Assimp | 5.3.1 (`libassimp5` trong image) |
+| GPU | NVIDIA GeForce MX150 qua CDI (`--device nvidia.com/gpu=all`), Xwayland, `__NV_PRIME_RENDER_OFFLOAD=1` |
+| Docker | 29.9.1 trên NixOS 26.11 |
+| Vật lý | DART, bước 1 ms, RTF 1 |
+
+Telemetry chỉ có nghĩa với đúng tổ hợp này; đổi GPU không đổi số đo (vật lý chạy
+CPU), nhưng đổi phiên bản Gazebo/DART thì có. Mỗi `telemetry_metadata.json` ghi
+`run_id` và `trail`; GPU đã dùng nằm trong biến `FUNNEL_GPU` mà script truyền
+(nếu cần lưu vĩnh viễn, chép vào ghi chú phiên).
+
+Chạy lại:
+
+```bash
+bash tools/simulate/run_simulate.sh --check
+python3 main.py simulate --goal g1     # ~1 phút gồm dựng world + bay + chấm
+```
+
+Ảnh trong `generated/simulate/*/screenshot_*.png` là **chụp cửa sổ Gazebo** ở
+20/50/80 % thời lượng; file `.json` cạnh đó ghi `run_id`, `sim_time`, hình học
+cửa sổ, lệnh `grim` và SHA256. Ảnh phụ thuộc kích thước cửa sổ và theme GUI,
+không phải đầu ra đo; số đo nằm trong `physics_telemetry.csv` và
+`validation.json`.
 
 ## Số liệu để trích dẫn
 
@@ -75,7 +106,10 @@ commit.
 | --- | --- |
 | Bề mặt thành phố | 2.295 đỉnh / 4.400 tam giác / 6.694 cạnh |
 | SHA256 bề mặt | `f6e01c6d421f71aec828ae2f71593e7b2d0460604453459eb5e86b2ea47b28df` |
-| Route city | 133,71 m · 284,08 m · 140,57 m |
+| SHA256 `city.standardized.glb` | `cdd605eedc01011c5c39408ce167fca6244d1a9e0a7527450d13861570a837cb` (sau khi sửa bufferView + thêm NORMAL) |
+| Route city (polyline) | 133,70 m · 284,06 m · 140,54 m |
+| Cung spline | 134,9 m · 286,8 m · 142,4 m |
+| Bay g1 / g2 / g3 | 34,2 s / 65,1 s / 36,3 s; sai số lớn nhất 0,820 / 0,989 / 0,971 m |
 | Thời gian `main.py plan` | ~3 phút 20 giây |
 | Đối chiếu reference | 5/5 fixture, sai lệch lớn nhất 1,7e-5 |
 | Trạng thái thuật toán | experimental, chưa chứng nhận tối ưu |
@@ -85,7 +119,8 @@ commit.
 Nói rõ khi báo cáo:
 
 1. Tuyến **chưa** được kiểm tra độc lập là nằm trên mặt (chỉ có tự kiểm độ dài
-   và đối chiếu reference cho 5 fixture).
+   và đối chiếu reference cho 5 fixture). Quỹ đạo Catmull-Rom trong mô phỏng có
+   thể bo góc khác polyline vài decimet.
 2. City và 4 mesh còn lại **không có reference**, nên không có đối chiếu ngoài.
 3. Funnel Tree chưa được chứng minh tối ưu trên mặt không lồi.
 4. Bề mặt là envelope an toàn, không phải địa hình thật.

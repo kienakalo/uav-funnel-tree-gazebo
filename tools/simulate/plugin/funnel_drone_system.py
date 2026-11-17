@@ -31,6 +31,12 @@ try:  # Debian/Ubuntu packages install the bindings without a version suffix
 except ModuleNotFoundError:  # source builds expose gz.math9 and gz.sim10
     from gz.math9 import Vector3d
     from gz.sim10 import Model, Link
+try:  # The trail needs gz-transport; the flight itself does not.
+    from gz.msgs.marker_pb2 import Marker
+    from gz.transport import Node as TransportNode
+    TRAIL_AVAILABLE = True
+except ModuleNotFoundError:
+    TRAIL_AVAILABLE = False
 from trajectory import Trajectory, control_acceleration
 
 COLUMNS = ['sim_time', 'x', 'y', 'z', 'target_x', 'target_y', 'target_z', 'error',
@@ -74,6 +80,33 @@ class FunnelDroneSystem:
         self.start_time = None
         self.completed = False
         self.last_progress = -math.inf
+        self.marker_period = 0.25
+        self.last_marker = -math.inf
+        self.trail = None
+        self.trail_publisher = None
+        self.node = None
+        if TRAIL_AVAILABLE and os.environ.get('FUNNEL_TRAIL', '1') != '0':
+            self.node = TransportNode()
+            self.trail_publisher = self.node.advertise('/marker', Marker)
+            trail = Marker()
+            trail.ns = 'funnel_trail'
+            trail.id = 1
+            trail.type = Marker.LINE_STRIP
+            trail.action = Marker.ADD_MODIFY
+            trail.visibility = Marker.GUI
+            trail.scale.x = 0.8
+            # Magenta: distinct from the orange planned route and the blue city.
+            trail.material.ambient.r = 1.0
+            trail.material.ambient.g = 0.05
+            trail.material.ambient.b = 0.75
+            trail.material.ambient.a = 1.0
+            trail.material.diffuse.r = 1.0
+            trail.material.diffuse.g = 0.1
+            trail.material.diffuse.b = 0.8
+            trail.material.diffuse.a = 1.0
+            self.trail = trail
+        else:
+            self.trail_publisher = None
 
         metadata = {
             'route_sha256': hashlib.sha256(route_path.read_bytes()).hexdigest(),
@@ -83,6 +116,7 @@ class FunnelDroneSystem:
             'mission': data.get('mission'),
             'goal': data.get('goal'),
             'run_id': self.run_id,
+            'trail': self.trail_publisher is not None,
         }
         (output_dir / 'telemetry_metadata.json').write_text(
             json.dumps(metadata, indent=2) + '\n', encoding='utf-8')
@@ -113,6 +147,12 @@ class FunnelDroneSystem:
                                   segment, phase])
             self.log.flush()
             self.last_log = t
+        if self.trail is not None and t - self.last_marker >= self.marker_period:
+            self.last_marker = t
+            point = self.trail.point.add()
+            point.x, point.y, point.z = position
+            if len(self.trail.point) >= 2:
+                self.trail_publisher.publish(self.trail)
         if phase == 'complete' and not self.completed:
             print(f'[{self.label}] Route complete; holding final position.',
                   flush=True)

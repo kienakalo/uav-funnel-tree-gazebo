@@ -8,7 +8,7 @@ Ba module, không phải package: import theo tên sau khi thêm `lib/` vào
 | Hàm | Việc |
 | --- | --- |
 | `read_glb(path)` | Đọc file **do repo ghi**: mỗi node có đúng một mesh, một primitive, không transform; trả `[(tên, vertices, faces)]` |
-| `write_glb(path, meshes, extras, generator)` | Ghi GLB 2: header, chunk JSON, chunk BIN, mỗi mesh một node, accessor `VEC3`+`SCALAR`, `mode` tam giác |
+| `write_glb(path, meshes, extras, generator, normals=False)` | Ghi GLB 2: header, chunk JSON, chunk BIN, mỗi mesh một node, accessor `POSITION` (`VEC3`), chỉ số (`SCALAR`), `mode` tam giác; `normals=True` thêm accessor `NORMAL` |
 | `indexed_from_triangles(soup)` | Gộp tam giác rời thành lưới có chỉ số (đỉnh trùng theo giá trị float) |
 
 Chi tiết định dạng:
@@ -17,6 +17,13 @@ Chi tiết định dạng:
 - Chunk JSON (`0x4E4F534A`) + chunk BIN (`0x004E4942`), pad 4 byte.
 - `write_glb` kiểm `vertices` là `N×3`, `faces` là `M×3`, chỉ số trong phạm vi.
 - Toạ độ ghi **float32**; chỉ số `u4`.
+- `byteLength` của mỗi bufferView là số byte **thực ghi** (`float32` cho
+  `POSITION`/`NORMAL`, `uint32` cho chỉ số). Lấy nhầm từ mảng `int64` sẽ làm
+  Assimp/Gazebo từ chối file (`Buffer view ... is out of range`), dù trình đọc
+  nội bộ vẫn đọc được.
+- Trước khi ghi, `write_glb` kiểm `byteOffset + byteLength ≤ len(buffer)`.
+- `normals=True` tính normal đỉnh trung bình có trọng số diện tích; Gazebo cần
+  trường này để tô sáng visual. GLB xem trên web không cần.
 
 `read_glb` không xử lý scene graph, không áp transform — đó là việc của
 `tools/data/glb2off.py: iter_scene_meshes`. Nó cũng không đọc primitive thứ hai

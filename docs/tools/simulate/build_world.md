@@ -4,7 +4,7 @@
 | --- | --- |
 | Stage | `simulate` bước 1 |
 | Vào | `generated/routes/<mission>.json`, bề mặt trong `route.mesh`, scene chuẩn hoá |
-| Ra | `generated/simulate/<mission>-<goal>/` (6 file) |
+| Ra | `generated/simulate/<mission>-<goal>/` — 6 file |
 | Cờ | `--mission`, `--route`, `--goal`, `--list-goals`, `--scene`, `--output`, `--collision-grid`, `--collision {decimated,full}`, `--visual {glb,stl}`, `--simplify M`, `--surface`, `--check` |
 
 ## Input
@@ -33,28 +33,44 @@ Lý do: một phiên Gazebo bay một tuyến; đoán hộ sẽ tốn vài phút
 
 ```
 generated/simulate/city.standardized.triangulation-g1/
-├── city.sim.glb               5,8 MB   301.482 tam giác (visual, Z-up)
+├── city.sim.glb               8,5 MB   301.482 tam giác, có NORMAL (visual, Z-up)
 ├── city.sim.collision.stl     1,3 MB    26.296 tam giác (collision, decimate 1 m)
 ├── surface.stl                220 KB    chỉ khi --surface
-├── funnel_physics.sdf         2,9 KB
+├── funnel_physics.sdf          20 KB    world + route + drone
 ├── route.json                 1,5 KB    18 waypoint (đã rút gọn)
-└── world_metadata.json        1,1 KB
+└── world_metadata.json        1,3 KB
 ```
 
 ## Xử lý
 
 ### 1. Đọc scene và bỏ tam giác suy biến
 
-`read_glb_scene(scene, 200.)` trả 204.682 đỉnh / 301.490 tam giác ở Z-up, rộng 200 m.
-Scene gốc có **8 tam giác diện tích 0**; chúng bị bỏ một lần cho cả visual và
-collision, còn **301.482** tam giác.
+`read_glb_scene(scene, 200.)` trả 204.682 đỉnh / 301.490 tam giác ở Z-up, rộng
+200 m. Scene gốc có **8 tam giác diện tích 0**; chúng bị bỏ một lần cho cả visual
+và collision, còn **301.482** tam giác.
 
-### 2. Visual: GLB Z-up
+### 2. Visual: GLB Z-up có normals
 
-`write_glb` ghi một mesh duy nhất (float32) với `extras`: frame, hash scene, số
-đỉnh/mặt. Vì Gazebo **không** xoay glTF từ Y-up, phải dùng bản Z-up này thay
-cho scene chuẩn hoá. `--visual stl` ghi `city.sim.stl` nếu assimp của Gazebo
-không đọc được `.glb`.
+`write_glb(..., normals=True)` ghi một mesh duy nhất (float32) gồm `POSITION`,
+`NORMAL` (trung bình có trọng số diện tích) và chỉ số `uint32`.
+
+Hai chi tiết quyết định việc thành phố có hiện trong Gazebo hay không:
+
+1. **Normals**: Ogre2 không tô sáng một mesh chỉ có `POSITION`; thành phố sẽ đen.
+2. **`byteLength` của bufferView**: phải là số byte **thực ghi** (chỉ số `uint32`).
+   Trước đây trường này lấy từ mảng `int64`, gấp đôi độ dài thật, và Assimp từ
+   chối cả file:
+
+   ```
+   GLTF: Buffer view with offset/length (2456184/7235568) is out of range.
+   ```
+
+   Gazebo vẫn tạo entity `city` nhưng bỏ geometry, nên cửa sổ trống. `write_glb`
+   giờ tự kiểm `offset + byteLength ≤ len(buffer)` trước khi ghi.
+
+URI trong SDF là **tên file tương đối** (`city.sim.glb`), nên thư mục run mount ở
+đâu cũng chạy: host, máy ảo hay `/work` trong container. `--visual stl` ghi
+`city.sim.stl` (≈15 MB) làm đường lui.
 
 ### 3. Collision: STL, decimate bằng vertex clustering
 
@@ -71,9 +87,8 @@ Với `cell = 1 m`: 301.482 → **26.296 tam giác**, 204.682 → **12.402 đỉ
 chấp nhận: `cell`). `--collision full` giữ đủ 301.482 tam giác
 (STL 15.074.184 byte ≈ 15 MB) khi cần hình dạng chính xác.
 
-`write_stl` ghi STL nhị phân: header 80 byte, `uint32` số tam giác, mỗi tam
-giác 50 byte (normal 3×f4, 3 đỉnh 9×f4, attribute u2). Hàm **từ chối** tam
-giác suy biến và toạ độ không hữu hạn.
+`write_stl` ghi STL nhị phân: header 80 byte, `uint32` số tam giác, mỗi tam giác
+50 byte. Hàm **từ chối** tam giác suy biến và toạ độ không hữu hạn.
 
 ### 4. Route cho plugin
 
@@ -86,49 +101,54 @@ Chọn goal, ghi `route.json`:
   "world": "funnel_sim_city_standardized_triangulation_g1",
   "waypoints": [[x, y, z], …],
   "speed": 5.0, "max_acceleration": 3.0,
-  "start_delay": 2.0, "dwell": 1.5
+  "start_delay": 2.0, "dwell": 0.0
 }
 ```
 
 Waypoint lấy từ route của stage `plan`, sau đó **rút gọn Douglas–Peucker** với
-`--simplify` (mặc định **0,1 m**); `--simplify 0` tắt. Nhờ vậy `route.json` chỉ
-còn các điểm cần thiết thay vì mọi điểm cắt cạnh:
+`--simplify` (mặc định **0,1 m**); `--simplify 0` tắt.
 
-| Goal | Trước | Sau | Độ dài | Thời gian bay (dwell 1,5 s) |
-| --- | --- | --- | --- | --- |
-| g1 | 72 | **18** | 133,70 m | 92,1 s |
-| g2 | 156 | **47** | 284,06 m | 224,1 s |
-| g3 | 82 | **34** | 140,54 m | 140,0 s |
+| Goal | Trước | Sau | Độ dài polyline | Cung spline | Thời gian bay |
+| --- | --- | --- | --- | --- | --- |
+| g1 | 72 | **18** | 133,70 m | 134,9 m | 28,7 s |
+| g2 | 156 | **47** | 284,06 m | 286,8 m | 59,0 s |
+| g3 | 82 | **34** | 140,54 m | 142,4 m | 30,1 s |
 
-Sai lệch hình học do rút gọn ≤ 0,1 m trên lưới ô 5 m; độ dài gần như không đổi
-(133,71 → 133,70 m). `dwell` giữ **1,5 s**: plugin cho drone dừng hẳn tại mỗi
-waypoint (mỗi đoạn là quintic smoothstep 0 → 0), nên rút gọn làm giảm hẳn số lần
-dừng–đi lại. Nếu không rút gọn, g1 mất 234,6 s với 72 lần dừng.
+`dwell = 0`: plugin bay liên tục, chỉ dừng ở điểm cuối (xem `plugin.md`). Trước
+khi làm mượt quỹ đạo, mỗi đoạn là quintic 0 → 0 nên drone dừng ở từng waypoint
+và chuyến g1 mất 92 s.
 
 ### 5. SDF
-
-World gồm:
 
 | Thành phần | Chi tiết |
 | --- | --- |
 | Physics | `max_step_size 0.001`, RTF 1, plugin `gz-sim-physics-system` |
 | Hệ thống | `user-commands`, `scene-broadcaster` |
-| `city` (static) | collision = `city.sim.collision.stl`, visual = `city.sim.glb`, URI `file://` tuyệt đối |
+| Ánh sáng | `sun` directional, `cast_shadows`, diffuse 0.9, hướng `-0.3 -0.5 -1` |
+| Scene | ambient 0.7, nền sáng, bật shadow |
+| `city` (static) | collision = `city.sim.collision.stl`, visual = `city.sim.glb`, URI tương đối, material xanh `.45 .65 .78` |
 | `navigation_surface` (tuỳ chọn) | visual-only, `surface.stl` |
-| `drone` | pose = waypoint đầu; link `body`: khối lượng 1 kg, quán tính 0,01; collision box `0.9×0.6×0.25`; locator cầu phát sáng ở `z+2,1` |
+| `planned_route` (static) | ống 0,15 m màu cam giữa các waypoint + cầu 0,45 m (0,7 m ở start/goal); start xanh, goal hồng, giữa vàng cam |
+| `drone` | pose = waypoint đầu; link `body`: 1 kg, quán tính 0,1; collision box `0.9×0.6×0.25`; visual quadcopter: thân, 2 cánh tay, 4 rotor cyan |
 | Plugin | `gz-sim-python-system-loader-system`, `module_name = funnel_drone_system` |
+
+Không có ground plane: bề mặt đường của city mesh nằm quanh `z ≈ 2,9 m`, nên một
+mặt phẳng ở `z = 0` sẽ tạo cảm giác thành phố bị kê cao. Lưới nền của Gazebo vẫn
+giúp định hướng.
 
 ### 6. `world_metadata.json`
 
 Hash của route/surface/scene, goal, world name, chế độ collision + thống kê
-decimate, số waypoint và độ dài. Không chứa timestamp → chạy lại cho đúng byte.
+decimate, số waypoint, độ dài, `visual_normals`, `lighting`, và `camera_pose`
+(6 số, **độ**; `gui_config.py` đổi 3 góc sang radian khi ghi `gui.config`).
+Không chứa timestamp → chạy lại cho đúng byte.
 
 ## `--check`
 
 Không ghi gì, chỉ kiểm:
 
 1. SDF parse được, có `world`, model `city` và `drone`, plugin đúng tên.
-2. Mọi `<uri>` là `file://` tuyệt đối và file tồn tại.
+2. Mọi `<uri>` là **tên file tương đối** và tồn tại cạnh SDF.
 3. `route.json` có ≥2 waypoint, `world` khớp tên world trong SDF, `mission`
    khớp route gốc.
 4. Kích thước STL khớp số tam giác trong header (`84 + 50·F`).
@@ -138,11 +158,13 @@ Không ghi gì, chỉ kiểm:
 | Kiểm | Kết quả |
 | --- | --- |
 | GLB đọc lại | 204.682 đỉnh / 301.482 tam giác |
+| Assimp 5.3 (trong image Gazebo) đọc `city.sim.glb` | `ok: 1 mesh`, không lỗi bufferView |
+| `gz sdf -k` | 3/3 world hợp lệ |
+| GUI Gazebo Jetty 10.5.0 | thành phố hiện, có nắng/đổ bóng, route và drone đúng |
 | STL đọc lại | 26.296 tam giác, kích thước khớp header, 0 suy biến |
 | Bounds STL vs GLB | lệch ≤ 0,221 m (cell 1 m) |
-| Rút gọn Douglas–Peucker 0,1 m | 72→18, 156→47, 82→34 điểm; độ dài lệch ≤ 0,02 m |
-| Waypoint sau rút gọn nằm trên route gốc | đúng thứ tự, giữ điểm đầu/cuối |
-| Chạy lại 2 lần | 5/5 file cùng SHA256 |
+| Rút gọn Douglas–Peucker 0,1 m | 72→18, 156→47, 82→34 điểm |
+| Chạy lại 2 lần | 6/6 file cùng SHA256 (trừ `camera_pose` khi đổi tham số) |
 | `--collision full` | 15.074.184 byte, `--check` pass |
 | `--visual stl` | 15.074.184 byte, `--check` pass |
 | `--surface` | `surface.stl` 220.084 byte |
@@ -151,12 +173,12 @@ Không ghi gì, chỉ kiểm:
 
 ## Giới hạn
 
-- **Chưa chạy Gazebo**: máy hiện tại không có `gz`, nên SDF/GLB mới chỉ được
-  kiểm bằng parse và đọc lại, chưa được Gazebo nạp thử.
-- Phụ thuộc assimp của Gazebo Jetty có đọc `.glb`; nếu không, dùng `--visual stl`.
-- Vertex clustering có thể tạo lỗ nhỏ trên vỏ công trình; `--collision full`
-  là đường lui.
-- Plugin `funnel_drone_system` nằm ở `tools/simulate/plugin/` (bước 2); `run_simulate.sh`
-  phải đưa thư mục đó vào `PYTHONPATH` để Gazebo import được.
-- `dwell 1,5 s` khiến chuyến bay g2 dài 224 s; nếu cần nhanh, giảm `dwell` trong
-  `build_world.py` (hằng số `DWELL`).
+- Assimp của Gazebo **không** đọc GLB thiếu normals/ sai `byteLength`; dùng
+  `check_glb.py` trước khi bay.
+- Bề mặt thành phố và lưới nền Gazebo không cùng độ cao (mesh thấp nhất 0 m,
+  đường phố ≈ 2,9 m) nên không thêm ground plane.
+- Vertex clustering có thể tạo lỗ nhỏ trên vỏ công trình; `--collision full` là
+  đường lui.
+- Quỹ đạo làm mượt (Catmull-Rom) có thể bo góc khác polyline vài decimet; nếu
+  cần bám tuyệt đối, giảm `speed` hoặc dùng `--simplify 0`.
+- `camera_pose` chỉ là góc nhìn ban đầu; người xem vẫn xoay/zoom được trong GUI.
