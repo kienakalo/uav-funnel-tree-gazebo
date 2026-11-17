@@ -8,7 +8,7 @@
 # Usage:
 #   bash tools/simulate/run_simulate.sh [--mission STEM] [--goal ID] [--headless]
 #                                       [--software] [--show-surface] [--timeout S]
-#   bash tools/simulate/run_simulate.sh --check
+#   bash tools/simulate/run_simulate.sh --check | --no-build
 #
 # --check verifies the environment (gz, gz.sim10 bindings, plugin import), the
 # world files and the SDF without opening Gazebo. The default mission is
@@ -21,7 +21,7 @@ Build one world, fly it in Gazebo and leave the telemetry on disk.
 Usage:
   bash tools/simulate/run_simulate.sh [--mission STEM] [--goal ID] [--headless]
                                       [--software] [--show-surface] [--timeout S]
-  bash tools/simulate/run_simulate.sh --check
+  bash tools/simulate/run_simulate.sh --check | --no-build
 
 --check verifies gz, the gz.sim10 bindings, the plugin import, the world files
 and the SDF without opening Gazebo.
@@ -36,6 +36,7 @@ headless=false
 software=false
 show_surface=false
 check_only=false
+no_build=false
 timeout_s=900
 
 while [[ $# -gt 0 ]]; do
@@ -46,6 +47,7 @@ while [[ $# -gt 0 ]]; do
     --software) software=true; shift ;;
     --show-surface) show_surface=true; shift ;;
     --check) check_only=true; shift ;;
+    --no-build) no_build=true; shift ;;
     --timeout) timeout_s="$2"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "run_simulate: unknown argument $1" >&2; exit 2 ;;
@@ -91,9 +93,11 @@ if [[ "$check_only" == true ]]; then
   exit 0
 fi
 
-build_options=(--mission "$mission" --goal "$goal")
-[[ "$show_surface" == true ]] && build_options+=(--surface)
-"$planner" tools/simulate/build_world.py "${build_options[@]}"
+if [[ "$no_build" != true ]]; then
+  build_options=(--mission "$mission" --goal "$goal")
+  [[ "$show_surface" == true ]] && build_options+=(--surface)
+  "$planner" tools/simulate/build_world.py "${build_options[@]}"
+fi
 check_environment
 check_files
 

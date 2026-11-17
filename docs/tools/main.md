@@ -3,7 +3,7 @@
 | | |
 | --- | --- |
 | Vai trò | Chạy một hoặc nhiều stage bằng subprocess |
-| Vào | Tên stage (`data`, `plan`, `flow`) + cờ |
+| Vào | Tên stage (`data`, `plan`, `simulate`, `flow`) + cờ |
 | Ra | Không có file riêng; chạy các tool và dừng ở lỗi đầu tiên |
 
 ## Cách chọn interpreter
@@ -17,12 +17,16 @@ Mọi lệnh trong `STAGES` dùng `PYTHON` này, nên venv được áp dụng c
 `python3 main.py`. Trên Windows, `main.py` không thấy `.venv/bin/python` và rơi
 về `sys.executable` — khi đó phải activate venv trước.
 
-## Hai stage
+## Ba stage
 
 | Stage | Số bước | Nội dung |
 | --- | --- | --- |
 | `data` | 6 | copy fixtures → standardize → off2glb → triangulation → data_viz → set_start_goal |
 | `plan` | 3 | run_funnel → route_viz → compare |
+| `simulate` | 3 | build_world → run_simulate `--no-build` → validate |
+
+Không ghi stage nào thì chạy **cả ba theo thứ tự data → plan → simulate**. Muốn
+một stage thì ghi tên: `python3 main.py plan`.
 
 Thứ tự trong `data` có chủ đích:
 
@@ -41,6 +45,13 @@ Thứ tự trong `data` có chủ đích:
 | `--dry-run` | In lệnh, không chạy |
 | `--all-meshes` / `--no-all-meshes` | Bước 6 chọn cho mọi mesh (mặc định) hay chỉ bề mặt |
 | `--force-missions` | Chỉ với `--all-meshes`: chọn lại cả mesh đã có mission |
+| `--mission STEM` | `simulate`: route stem (mặc định `city.standardized.triangulation`) |
+| `--goal ID` | `simulate`: goal id (mặc định `g1`) |
+| `--headless` | `simulate`: `gz sim -s -r`, không GUI |
+| `--software` | `simulate`: ép software rendering |
+| `--show-surface` | `simulate`: `build_world --surface` |
+| `--max-error M` | `simulate`: ngưỡng cho `validate` (mặc định 1,0 m) |
+| `--no-png` | `simulate`: bỏ `tracking.png` |
 
 `--force-missions` không đi cùng `--no-all-meshes` (báo lỗi), vì chọn lại một
 mesh nên gọi trực tiếp `set_start_goal.py --force`.
@@ -61,10 +72,11 @@ hoặc gọi tool trực tiếp.
 ## Ví dụ
 
 ```bash
-python3 main.py                     # = data
+python3 main.py                     # data -> plan -> simulate
 python3 main.py flow                # xem lệnh
 python3 main.py data --dry-run
 python3 main.py plan
+python3 main.py simulate --goal g2 --headless
 python3 main.py data --no-all-meshes
 python3 main.py data --force-missions
 ```

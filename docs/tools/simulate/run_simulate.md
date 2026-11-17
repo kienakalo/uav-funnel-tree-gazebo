@@ -5,12 +5,12 @@
 | Stage | `simulate` (bước chạy) |
 | Vào | `generated/routes/<mission>.json` (qua `build_world.py`) |
 | Ra | `generated/simulate/<mission>-<goal>/` — world, telemetry, metadata, log |
-| Cờ | `--mission`, `--goal`, `--headless`, `--software`, `--show-surface`, `--timeout S`, `--check` |
+| Cờ | `--mission`, `--goal`, `--headless`, `--software`, `--show-surface`, `--timeout S`, `--check`, `--no-build` |
 
 ## Việc nó làm
 
 ```
-1. build_world.py --mission --goal [--surface]
+1. build_world.py --mission --goal [--surface]   (bỏ qua khi --no-build)
 2. kiểm môi trường: gz, gz.sim10, import plugin
 3. backup physics_telemetry.csv + telemetry_metadata.json cũ (cùng timestamp)
 4. export FUNNEL_ROUTE, FUNNEL_OUTPUT_DIR, FUNNEL_RUN_ID
@@ -32,6 +32,7 @@
 | `--show-surface` | tắt | Vẽ thêm bề mặt envelope (`surface.stl`) |
 | `--timeout S` | 900 | Giới hạn chờ ở chế độ headless |
 | `--check` | tắt | Chỉ kiểm môi trường + file, không mở Gazebo |
+| `--no-build` | tắt | Không gọi `build_world.py`; dùng world đã có |
 
 ## `--check`
 
@@ -73,7 +74,8 @@ python3 main.py simulate --goal g2
 python3 main.py simulate --goal g1 --headless --software
 ```
 
-Stage gồm 2 bước: `run_simulate.sh` (tự dựng world) rồi `validate.py`.
+Stage gồm 3 bước: `build_world.py`, `run_simulate.sh --no-build`, `validate.py`.
+Chạy script trực tiếp thì nó tự dựng world (trừ khi thêm `--no-build`).
 
 ## Lỗi thường gặp
 

@@ -48,6 +48,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 VENV = ROOT / '.venv/bin/python'
 PYTHON = str(VENV) if VENV.is_file() else sys.executable
+DEFAULT_MISSION = 'city.standardized.triangulation'
+DEFAULT_GOAL = 'g1'
 
 STAGES = {
     'data': [
@@ -63,8 +65,15 @@ STAGES = {
         [PYTHON, 'tools/plan/route_viz.py'],
         [PYTHON, 'tools/plan/compare.py'],
     ],
-    # Built by stage_commands because it takes a mission and a goal.
-    'simulate': [],
+    'simulate': [
+        [PYTHON, 'tools/simulate/build_world.py',
+         '--mission', DEFAULT_MISSION, '--goal', DEFAULT_GOAL],
+        ['bash', 'tools/simulate/run_simulate.sh',
+         '--mission', DEFAULT_MISSION, '--goal', DEFAULT_GOAL, '--no-build'],
+        [PYTHON, 'tools/simulate/validate.py',
+         '--mission', DEFAULT_MISSION, '--goal', DEFAULT_GOAL,
+         '--max-error', '1'],
+    ],
 }
 
 DEFAULT_STAGES = ['data', 'plan', 'simulate']
@@ -84,27 +93,25 @@ def display(command):
 
 
 def stage_commands(name, args):
-    """Stage commands; the simulate stage is built from the mission and goal."""
-    if name == 'simulate':
-        mission = args.mission or 'city.standardized.triangulation'
-        goal = args.goal or 'g1'
-        # run_simulate.sh builds the world itself, so the stage only calls it
-        # once and then validates the telemetry it leaves behind.
-        run = ['bash', 'tools/simulate/run_simulate.sh',
-               '--mission', mission, '--goal', goal]
-        if args.headless:
-            run.append('--headless')
-        if args.software:
-            run.append('--software')
-        if args.show_surface:
-            run.append('--show-surface')
-        validate = [PYTHON, 'tools/simulate/validate.py',
-                    '--mission', mission, '--goal', goal,
-                    '--max-error', f'{args.max_error or 1.0:g}']
-        if args.no_png:
-            validate.append('--no-png')
-        return [run, validate]
+    """Stage commands, with the simulate mission and goal applied."""
     commands = [list(command) for command in STAGES[name]]
+    if name == 'simulate':
+        mission = args.mission or DEFAULT_MISSION
+        goal = args.goal or DEFAULT_GOAL
+        for command in commands:
+            command[command.index('--mission') + 1] = mission
+            command[command.index('--goal') + 1] = goal
+        if args.show_surface:
+            commands[0].append('--surface')
+        if args.headless:
+            commands[1].append('--headless')
+        if args.software:
+            commands[1].append('--software')
+        if args.max_error is not None:
+            commands[2][commands[2].index('--max-error') + 1] = f'{args.max_error:g}'
+        if args.no_png:
+            commands[2].append('--no-png')
+        return commands
     if name == 'data':
         if args.all_meshes:
             commands[-1].append('--all-meshes')
