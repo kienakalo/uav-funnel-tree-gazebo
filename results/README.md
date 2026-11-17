@@ -24,13 +24,19 @@ Quy ước:
   đã sinh ra kết quả nằm trong `parameters.json` của chính archive (`command`,
   `stages`, tham số, nguồn).
 - `--label`/`--archive` **không ghi đè**: label đã tồn tại thì tool dừng.
-- `commit` trong `manifest.json` là `HEAD` **lúc lưu**, không phải lúc bay. Hai
-  archive hiện có đều lưu sau khi bay: `cell5b` bay ở `587f71f` nhưng lưu ở
-  `1a270fd`; `city792` bay ở `a478578`, còn `valid`/`passed` được tính bằng
-  `validate.py` của working tree lúc đó (vào Git ở `9487a5a`) — số đo
-  `max_error`/`mean_error` không đổi. Đừng suy commit sinh ra số liệu từ trường
-  này; dùng `route_sha256`/`telemetry_sha256` trong `validation.json`.
+- `commit` trong `manifest.json` là `HEAD` **lúc lưu**, không phải lúc bay. Cả ba
+  archive đều lưu sau khi bay: `cell5b` bay ở `587f71f` nhưng lưu ở `1a270fd`;
+  `city792` bay ở `a478578`, còn `valid`/`passed` được tính bằng `validate.py`
+  của working tree lúc đó (vào Git ở `9487a5a`); `city792b` bay bằng mã của
+  `9487a5a` và lưu ở `0e010a4` (commit đó chỉ sửa tài liệu). Số đo
+  `max_error`/`mean_error` không phụ thuộc mấy khác biệt này. Đừng suy commit
+  sinh ra số liệu từ trường `commit`; dùng `route_sha256`/`telemetry_sha256`
+  trong `validation.json`.
 - `--fresh` và mọi stage đều không xoá `results/`.
+- Bản backup telemetry của lần bay trước (`physics_telemetry_<timestamp>.csv`,
+  `telemetry_metadata_<timestamp>.json`) chỉ nằm trên máy và đã ignore; bằng
+  chứng của lần đang dùng là file không timestamp và bản trong archive.
+  `comparison/` cũng ignore vì sinh lại được.
 - `gN/` **không** chứa `physics_telemetry.csv` và `gazebo.log`; archive chỉ giữ
   `telemetry_sha256` trong `validation.json`. Hai file gốc nằm ở
   `generated/simulate/<mission>-<goal>/` (đã commit) và sẽ bị ghi đè hoặc xoá ở
@@ -45,6 +51,7 @@ Quy ước:
 | `cell5` | START 182 (−100, −95) → g1 1275, g2 2112, g3 1147 | bay 34,2 s / 64,6 s / 35,6 s; `max_error` 0,820 / 0,989 / 0,971 m |
 | `cell5b` | như trên, chạy lại `main.py --force` | bay 34,5 s / 64,3 s / 35,4 s; cùng sai số — dùng để nói độ lặp lại |
 | `city792` | START 792 (−38,75, 22,10) → g1 1810, g2 1910, g3 1518 | bay 35,4 s / 33,2 s / 24,6 s; `max_error` 0,365 / 1,022 / 0,851 m; cả ba `valid`, g2 trượt mốc 1 m 2 % tại một góc cua |
+| `city792b` | như trên, chạy lại `main.py` cả ba stage (máy đang tải khác) | bay 36,4 s / 33,0 s / 24,3 s; `max_error` 0,365 / 1,026 / 0,852 m; `mean_error` 0,066 / 0,111 / 0,092 m; cùng kết luận — dùng để nói độ lặp lại |
 
 Mission hiện tại của thành phố là START 792 → 1810 / 1910 / 1518 (xem
 [`../docs/tools/data/set_start_goal.md`](../docs/tools/data/set_start_goal.md));

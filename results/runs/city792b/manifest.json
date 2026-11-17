@@ -1,0 +1,275 @@
+{
+  "label": "city792b",
+  "created_at": "2026-11-17T22:23:18+07:00",
+  "commit": "0e010a4",
+  "command": "main.py --archive city792b",
+  "stages": [],
+  "cleared": [],
+  "mission": "city.standardized.triangulation",
+  "goals": [
+    "g1",
+    "g2",
+    "g3"
+  ],
+  "parameters": {
+    "triangulation": {
+      "cell": 5.0,
+      "clearance": 1.5,
+      "half_width": 1.6,
+      "max_slope": 0.5
+    },
+    "solver": {
+      "seconds": 300.0,
+      "max_nodes": 200000,
+      "clipping": true
+    },
+    "world": {
+      "simplify": 0.1,
+      "collision_grid": 1.0
+    },
+    "flight": {
+      "speed": 5.0,
+      "max_accel": 3.0,
+      "dwell": 0.0,
+      "start_delay": 2.0
+    },
+    "gazebo": {
+      "timeout": 900.0
+    },
+    "validate": {
+      "max_error": 1.0
+    }
+  },
+  "sources": {
+    "triangulation": {
+      "cell": "default",
+      "clearance": "default",
+      "half_width": "default",
+      "max_slope": "default"
+    },
+    "solver": {
+      "seconds": "default",
+      "max_nodes": "default",
+      "clipping": "default"
+    },
+    "world": {
+      "simplify": "default",
+      "collision_grid": "default"
+    },
+    "flight": {
+      "speed": "default",
+      "max_accel": "default",
+      "dwell": "default",
+      "start_delay": "default"
+    },
+    "gazebo": {
+      "timeout": "default"
+    },
+    "validate": {
+      "max_error": "default"
+    }
+  },
+  "surface": {
+    "file": "data/processed/meshes/city.standardized.triangulation.off",
+    "sha256": "f6e01c6d421f71aec828ae2f71593e7b2d0460604453459eb5e86b2ea47b28df",
+    "scene_sha256": "cdd605eedc01011c5c39408ce167fca6244d1a9e0a7527450d13861570a837cb",
+    "parameters": {
+      "cell": 5.0,
+      "coverage": "city",
+      "vertical_clearance": 1.5,
+      "horizontal_half_width": 1.6,
+      "max_axis_slope": 0.5
+    }
+  },
+  "routes": {
+    "g1": {
+      "length": 142.418722068,
+      "waypoints": 41
+    },
+    "g2": {
+      "length": 125.63633307,
+      "waypoints": 46
+    },
+    "g3": {
+      "length": 86.152327752,
+      "waypoints": 40
+    },
+    "planning_seconds": 56.03,
+    "sha256": "df13c8d652cba199a2256ad8303d57238a278c31d1ca3b406367d3ae3d88c3a7",
+    "solver": {
+      "name": "funnel_tree",
+      "module": "algo/funnel_tree.py",
+      "module_sha256": "42465e58992c985455afddfa62d145febfc96cbbb0597b209c0a1c2ca2947bf2",
+      "timeout_seconds": 300.0,
+      "max_nodes": 200000,
+      "clipping": true
+    }
+  },
+  "flight_parameters": {
+    "speed": 5.0,
+    "max_acceleration": 3.0,
+    "dwell": 0.0,
+    "start_delay": 2.0
+  },
+  "simplify_tolerance": 0.1,
+  "flight": {
+    "g1": {
+      "duration": 36.369,
+      "max_error": 0.3649,
+      "mean_error": 0.0657,
+      "max_speed": 5.1027,
+      "final_error": 0.0002,
+      "valid": true,
+      "passed": true,
+      "route_sha256": "358ef7df7b18dbaa61e993149306687800a0c36ea7aa20a7bbff5d7e1b4d11cd"
+    },
+    "g2": {
+      "duration": 33.041,
+      "max_error": 1.0259,
+      "mean_error": 0.1108,
+      "max_speed": 5.0411,
+      "final_error": 0.0,
+      "valid": true,
+      "passed": false,
+      "route_sha256": "59f7500fe0d278d6c49a82961497c1baa4a888d331f8ba977dccd906c7203279"
+    },
+    "g3": {
+      "duration": 24.292,
+      "max_error": 0.8519,
+      "mean_error": 0.0918,
+      "max_speed": 5.1538,
+      "final_error": 0.0015,
+      "valid": true,
+      "passed": true,
+      "route_sha256": "c75a2307d58eae595522c9ef78a199b4f4d62dceb0e2a4dbe42a0430eaafb936"
+    }
+  },
+  "files": [
+    {
+      "path": "parameters.json",
+      "source": "generated/parameters.json",
+      "sha256": "d9d8ceb0a1975021a7339fa592d6422a24738404bbba8dc335472f3dc06c9fbf"
+    },
+    {
+      "path": "mission.json",
+      "source": "data/processed/missions/city.standardized.triangulation.json",
+      "sha256": "dde689e14da82f550b4ac3d3a1c4b5d0f8e79cb30da7ae955a4007f2dd0add0a"
+    },
+    {
+      "path": "surface.params.json",
+      "source": "data/processed/meshes/city.standardized.triangulation.params.json",
+      "sha256": "56513da27ad8bc2db569d57d4c745463502c83c881fa53f05dae348608836e91"
+    },
+    {
+      "path": "route.json",
+      "source": "generated/routes/city.standardized.triangulation.json",
+      "sha256": "df13c8d652cba199a2256ad8303d57238a278c31d1ca3b406367d3ae3d88c3a7"
+    },
+    {
+      "path": "route.png",
+      "source": "generated/routes/city.standardized.triangulation.png",
+      "sha256": "d6480ccaebb5d7c950be4b49487a8c27738e215b559f8d1031e5412cc17d79c6"
+    },
+    {
+      "path": "route.png.json",
+      "source": "generated/routes/city.standardized.triangulation.png.json",
+      "sha256": "3973ef982501b0acc237e8e80cee9f9f7bb4fd889afac6b5a6c0a9c6425c8ca2"
+    },
+    {
+      "path": "plan-summary.json",
+      "source": "generated/compare/summary.json",
+      "sha256": "5d8263ed8121383dd3867aa84b674925204d988661a5907258c3797dfbf829a0"
+    },
+    {
+      "path": "g1/validation.json",
+      "source": "generated/simulate/city.standardized.triangulation-g1/validation.json",
+      "sha256": "244fe229d2a4c875a81c3b23298dccd81f81b0072699dbbb23b17a993dc12c71"
+    },
+    {
+      "path": "g1/world_metadata.json",
+      "source": "generated/simulate/city.standardized.triangulation-g1/world_metadata.json",
+      "sha256": "d645b687158bfa964911354e1063a4b9add71d4bbabf853fc6fe6c7d09299878"
+    },
+    {
+      "path": "g1/route.json",
+      "source": "generated/simulate/city.standardized.triangulation-g1/route.json",
+      "sha256": "358ef7df7b18dbaa61e993149306687800a0c36ea7aa20a7bbff5d7e1b4d11cd"
+    },
+    {
+      "path": "g1/tracking.png",
+      "source": "generated/simulate/city.standardized.triangulation-g1/tracking.png",
+      "sha256": "7d82bf0cfad1f06ca1f6b503b1d435b62f158426da3ac26694aaac0337011344"
+    },
+    {
+      "path": "g1/tracking.png.json",
+      "source": "generated/simulate/city.standardized.triangulation-g1/tracking.png.json",
+      "sha256": "383c3656ec6d5380edb52d8f96f970f6d96da9d50688057a6dcb7fb49b25dfa5"
+    },
+    {
+      "path": "g1/telemetry_metadata.json",
+      "source": "generated/simulate/city.standardized.triangulation-g1/telemetry_metadata.json",
+      "sha256": "02080509665ab3b011b7b7a0e667a22d473486bff0777a265529458492bda940"
+    },
+    {
+      "path": "g2/validation.json",
+      "source": "generated/simulate/city.standardized.triangulation-g2/validation.json",
+      "sha256": "53e53328f99852675c2ec5c23171bd4b2ad3555114219d2a0cf6a6f44a286ce0"
+    },
+    {
+      "path": "g2/world_metadata.json",
+      "source": "generated/simulate/city.standardized.triangulation-g2/world_metadata.json",
+      "sha256": "3c96bd7a7c7684542844d21b2f95703934f1b4a28a713a438063f1a2241335f5"
+    },
+    {
+      "path": "g2/route.json",
+      "source": "generated/simulate/city.standardized.triangulation-g2/route.json",
+      "sha256": "59f7500fe0d278d6c49a82961497c1baa4a888d331f8ba977dccd906c7203279"
+    },
+    {
+      "path": "g2/tracking.png",
+      "source": "generated/simulate/city.standardized.triangulation-g2/tracking.png",
+      "sha256": "4ce3a102df5b08a34b20f07003d1e8d26a427e3a26b10971f856c84fecb094fc"
+    },
+    {
+      "path": "g2/tracking.png.json",
+      "source": "generated/simulate/city.standardized.triangulation-g2/tracking.png.json",
+      "sha256": "b3fa1b7fd15cba0d2b649bc1a7fbe90f184253aa39c71a14227d1fcd05db2b21"
+    },
+    {
+      "path": "g2/telemetry_metadata.json",
+      "source": "generated/simulate/city.standardized.triangulation-g2/telemetry_metadata.json",
+      "sha256": "3b01675aa2c725190b0c0be99a5931ed1a388640f545ad150d3d8a3f91da00a1"
+    },
+    {
+      "path": "g3/validation.json",
+      "source": "generated/simulate/city.standardized.triangulation-g3/validation.json",
+      "sha256": "a1997bac03d123271721981497d271f340c8a7847c2a46c3fcdc3a3014b9baca"
+    },
+    {
+      "path": "g3/world_metadata.json",
+      "source": "generated/simulate/city.standardized.triangulation-g3/world_metadata.json",
+      "sha256": "a0e181aeb12ab769c0d70cb4a711bf93d028082fdc208d66956fa1ce9edc1e0c"
+    },
+    {
+      "path": "g3/route.json",
+      "source": "generated/simulate/city.standardized.triangulation-g3/route.json",
+      "sha256": "c75a2307d58eae595522c9ef78a199b4f4d62dceb0e2a4dbe42a0430eaafb936"
+    },
+    {
+      "path": "g3/tracking.png",
+      "source": "generated/simulate/city.standardized.triangulation-g3/tracking.png",
+      "sha256": "8977fc1651afc25799ca172608a7e73f0ebfbf2b08de86f2f9e25bf1005a672e"
+    },
+    {
+      "path": "g3/tracking.png.json",
+      "source": "generated/simulate/city.standardized.triangulation-g3/tracking.png.json",
+      "sha256": "6a63f4a0ff3ce85461cc1563bc62eade5a1aca68aad34fd026b5991dcbfa4c30"
+    },
+    {
+      "path": "g3/telemetry_metadata.json",
+      "source": "generated/simulate/city.standardized.triangulation-g3/telemetry_metadata.json",
+      "sha256": "2fe84484761f9eebc70c221ac285425e32af0c115dc5bd8cb8007194e0650302"
+    }
+  ],
+  "missing": []
+}

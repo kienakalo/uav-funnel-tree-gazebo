@@ -1,7 +1,7 @@
 {
   "image": "generated/routes/cliff.png",
-  "image_sha256": "6133bc87804d2e40a911aac465b02e60dba8cc084374c35a0a9285c2d449b418",
-  "generated_at": "2026-11-17T21:33:59+07:00",
+  "image_sha256": "a262e233142e011811ce4c776d7ace002d0a2714d4a47939bb68c0f515900794",
+  "generated_at": "2026-11-17T22:12:51+07:00",
   "parameters": {
     "seconds": 300.0,
     "max_nodes": 200000,
@@ -21,7 +21,7 @@
     "mesh_sha256": "d4c9c65ad0fd6c64b4e5ae3e70a034d4761d093d02f431159fabf345fb914f75",
     "mission_sha256": "280cc8b0b9e43fe4d5bb4844154af7b7366dc3a1db4a280f5ce1192d8c1ca6d1",
     "module_sha256": "42465e58992c985455afddfa62d145febfc96cbbb0597b209c0a1c2ca2947bf2",
-    "routes_sha256": "4c2e080b4ac18d0b2da2324033ad6709d1c4135c635d444a09a642b863405470"
+    "routes_sha256": "395f678b01b3a8a8947cb5cf0a3f96e85f5dc3ac38f680f07c990cc2c1436721"
   },
   "script": "tools/plan/route_viz.py",
   "script_sha256": "292ab19b420b4c975e4f43914d00668248902560318b1d9b93ed633468126da7",

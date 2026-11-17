@@ -11,6 +11,11 @@ __pycache__/
 *.log
 # The Gazebo log of a committed run is evidence, not a stray log.
 !generated/simulate/*/gazebo.log
+# A re-flight copies the previous telemetry aside before overwriting it. Those
+# timestamped copies are local scratch; the evidence of the current run is the
+# file without a timestamp, and the archive keeps the numbers.
+generated/simulate/*/physics_telemetry_*.csv
+generated/simulate/*/telemetry_metadata_*.json
 *.pid
 .DS_Store
 Thumbs.db
@@ -18,3 +23,5 @@ Thumbs.db
 AGENTS.md
 # Per-run parameter log written by main.py; every run overwrites it.
 generated/parameters.json
+# Rebuilt from results/runs/ by tools/plan/compare_runs.py, so never committed.
+results/comparison/

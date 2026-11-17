@@ -1,0 +1,32 @@
+{
+  "image": "results/runs/city792b/route.png",
+  "image_sha256": "d6480ccaebb5d7c950be4b49487a8c27738e215b559f8d1031e5412cc17d79c6",
+  "generated_at": "2026-11-17T22:12:51+07:00",
+  "parameters": {
+    "seconds": 300.0,
+    "max_nodes": 200000,
+    "clipping": true,
+    "speed": 5.0,
+    "max_acceleration": 3.0,
+    "dwell": 0.0,
+    "start_delay": 2.0,
+    "simplify_tolerance": 0.1,
+    "collision_grid": 1.0
+  },
+  "facts": {
+    "routes": 3,
+    "planning": "56.0 s",
+    "g1": "142.4 m",
+    "g2": "125.6 m",
+    "g3": "86.2 m"
+  },
+  "sources": {
+    "mesh_sha256": "f6e01c6d421f71aec828ae2f71593e7b2d0460604453459eb5e86b2ea47b28df",
+    "mission_sha256": "dde689e14da82f550b4ac3d3a1c4b5d0f8e79cb30da7ae955a4007f2dd0add0a",
+    "module_sha256": "42465e58992c985455afddfa62d145febfc96cbbb0597b209c0a1c2ca2947bf2",
+    "routes_sha256": "df13c8d652cba199a2256ad8303d57238a278c31d1ca3b406367d3ae3d88c3a7"
+  },
+  "script": "tools/plan/route_viz.py",
+  "script_sha256": "292ab19b420b4c975e4f43914d00668248902560318b1d9b93ed633468126da7",
+  "command": "tools/plan/route_viz.py"
+}

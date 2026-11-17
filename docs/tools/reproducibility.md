@@ -159,6 +159,7 @@ ghi nguồn và phiên chạy khi chèn vào báo cáo. Số đo nằm trong
 | Route city (polyline) | 142,42 m · 125,64 m · 86,15 m (mission START 792 → 1810 / 1910 / 1518) |
 | Cung spline | không được ghi lại: `world_metadata.json` chỉ có độ dài polyline đã rút gọn (142,42 · 125,63 · 86,14 m). Số cung spline của mission cũ (134,9 · 286,8 · 142,4 m) đo tay, không có script tái lập — đừng trích như số chính thức |
 | Bay g1 / g2 / g3 | 35,4 s / 33,2 s / 24,6 s; `max_error` 0,365 / 1,022 / 0,851 m, `mean_error` 0,068 / 0,110 / 0,091 m (mission START 792, lưu ở `results/runs/city792`) |
+| Lặp lại cùng mission | `results/runs/city792b`: 36,4 s / 33,0 s / 24,3 s; `max_error` 0,365 / 1,026 / 0,852 m, `mean_error` 0,066 / 0,111 / 0,092 m — g2 lặp lại ở 1,02–1,03 m, không phải nhiễu |
 | Mốc chất lượng bám tuyến | 1,0 m — cả ba lần bay đều `valid`; g2 vượt mốc 2 % tại một góc cua (xem `simulate/validate.md`) |
 | Thời gian `main.py plan` | 70–90 s cho cả 10 mission, riêng city 62–78 s; phụ thuộc tải máy nên chỉ ghi khoảng |
 | Đối chiếu reference | 5/5 fixture, sai lệch lớn nhất 1,7e-5 |
