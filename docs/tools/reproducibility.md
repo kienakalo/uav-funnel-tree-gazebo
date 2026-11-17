@@ -151,8 +151,9 @@ ghi nguồn và phiên chạy khi chèn vào báo cáo. Số đo nằm trong
 | SHA256 `city.standardized.glb` | `cdd605eedc01011c5c39408ce167fca6244d1a9e0a7527450d13861570a837cb` (sau khi sửa bufferView + thêm NORMAL) |
 | Route city (polyline) | 142,42 m · 125,64 m · 86,15 m (mission START 792 → 1810 / 1910 / 1518) |
 | Cung spline | chưa đo cho mission hiện tại; lần bay cũ (START 182): 134,9 m · 286,8 m · 142,4 m |
-| Bay g1 / g2 / g3 | chưa bay lại cho mission hiện tại. Lần đã lưu `results/runs/cell5` (START 182): 34,2 s / 64,6 s / 35,6 s, sai số 0,820 / 0,989 / 0,971 m; lặp lại ở `cell5b`: 34,5 s / 64,3 s / 35,4 s, cùng sai số |
-| Thời gian `main.py plan` | 85,7 s cho cả 10 mission (city 77,2 s); lần khác 89,4 s — phụ thuộc tải máy |
+| Bay g1 / g2 / g3 | 35,4 s / 33,2 s / 24,6 s; `max_error` 0,365 / 1,022 / 0,851 m, `mean_error` 0,068 / 0,110 / 0,091 m (mission START 792, lưu ở `results/runs/city792`) |
+| Mốc chất lượng bám tuyến | 1,0 m — cả ba lần bay đều `valid`; g2 vượt mốc 2 % tại một góc cua (xem `simulate/validate.md`) |
+| Thời gian `main.py plan` | 70–90 s cho cả 10 mission, riêng city 62–78 s; phụ thuộc tải máy nên chỉ ghi khoảng |
 | Đối chiếu reference | 5/5 fixture, sai lệch lớn nhất 1,7e-5 |
 | Trạng thái thuật toán | experimental, chưa chứng nhận tối ưu |
 

@@ -106,17 +106,18 @@ Nếu đường thẳng ra ngoài dải mặt (`r` ngoài `[0,1]`) → `ValueErr
 
 | Goal | Số lần lan truyền | Thời gian | Độ dài |
 | --- | --- | --- | --- |
-| 1810 | 49 | 39,3 s | 142,42 m |
-| 1910 | 34 | 23,6 s | 125,64 m |
-| 1518 | 21 | 14,3 s | 86,15 m |
+| 1810 | 49 | 27,5 s | 142,42 m |
+| 1910 | 34 | 20,2 s | 125,64 m |
+| 1518 | 21 | 14,5 s | 86,15 m |
 
-Số đọc từ `generated/routes/city.standardized.triangulation.json`: tổng 104 lần
-lan truyền, 646 source, cả ba goal 77,2 s.
+Số đọc từ `results/runs/city792/route.json` (bản sao của
+`generated/routes/city.standardized.triangulation.json` lúc lưu): tổng 104 lần
+lan truyền, 646 source, cả ba goal 62,3 s.
 
 Thời gian phụ thuộc tải máy, không phải chỉ số của thuật toán: cùng mission này
-lần khác đo 88,9 s; mission cũ dài hơn đo 188 s (`cell5`) và 295 s (`cell5b`).
-Kết luận về thuật toán dựa vào **số lần lan truyền và độ dài**, không dựa vào
-giây.
+lần khác đo 77,2 s và 88,9 s, từng goal lệch tới 40 % (g1: 27,5 s và 39,3 s);
+mission cũ dài hơn đo 188 s (`cell5`) và 295 s (`cell5b`). Kết luận về thuật
+toán dựa vào **số lần lan truyền và độ dài**, không dựa vào giây.
 
 ## Kiểm chứng
 

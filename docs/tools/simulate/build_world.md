@@ -124,18 +124,22 @@ Chọn goal, ghi `route.json`:
 Waypoint lấy từ route của stage `plan`, sau đó **rút gọn Douglas–Peucker** với
 `--simplify` (mặc định **0,1 m**); `--simplify 0` tắt.
 
-Số dưới đây của lần bay đã lưu (`results/runs/cell5`, mission cũ START 182);
-mission hiện tại (START 792 → 1810 / 1910 / 1518) chưa dựng world.
+Số của mission hiện tại (START 792 → 1810 / 1910 / 1518), đọc từ
+`world_metadata.json` và `validation.json` của ba lần bay đã lưu ở
+`results/runs/city792`:
 
-| Goal | Trước | Sau | Độ dài polyline | Cung spline | Thời gian bay |
-| --- | --- | --- | --- | --- | --- |
-| g1 | 72 | **18** | 133,70 m | 134,9 m | 28,7 s |
-| g2 | 156 | **47** | 284,06 m | 286,8 m | 59,0 s |
-| g3 | 82 | **34** | 140,54 m | 142,4 m | 30,1 s |
+| Goal | Trước | Sau | Độ dài polyline (đã rút gọn) | Thời gian bay |
+| --- | --- | --- | --- | --- |
+| g1 | 41 | **27** | 142,42 m | 35,4 s |
+| g2 | 46 | **25** | 125,63 m | 33,2 s |
+| g3 | 40 | **24** | 86,14 m | 24,6 s |
+
+(`world_metadata.json` không ghi độ dài cung spline, nên cột đó đã bỏ thay vì
+chép lại số của mission cũ.)
 
 `dwell = 0`: plugin bay liên tục, chỉ dừng ở điểm cuối (xem `plugin.md`). Trước
-khi làm mượt quỹ đạo, mỗi đoạn là quintic 0 → 0 nên drone dừng ở từng waypoint
-và chuyến g1 mất 92 s.
+khi làm mượt quỹ đạo, mỗi đoạn là quintic 0 → 0 nên drone dừng ở từng waypoint;
+với mission cũ, chuyến g1 khi đó mất 92 s.
 
 ### 5. SDF
 
@@ -182,7 +186,7 @@ Không ghi gì, chỉ kiểm:
 | GUI Gazebo Jetty 10.5.0 | thành phố hiện, có nắng/đổ bóng, route và drone đúng |
 | STL đọc lại | 26.296 tam giác, kích thước khớp header, 0 suy biến |
 | Bounds STL vs GLB | lệch ≤ 0,221 m (cell 1 m) |
-| Rút gọn Douglas–Peucker 0,1 m | 72→18, 156→47, 82→34 điểm |
+| Rút gọn Douglas–Peucker 0,1 m | 41→27, 46→25, 40→24 điểm |
 | Chạy lại 2 lần | 6/6 file cùng SHA256 (trừ `camera_pose` khi đổi tham số) |
 | `--collision full` | 15.074.184 byte, `--check` pass |
 | `--visual stl` | 15.074.184 byte, `--check` pass |

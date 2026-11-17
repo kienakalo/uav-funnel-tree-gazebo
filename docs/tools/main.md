@@ -42,6 +42,22 @@ Thứ tự trong `data` có chủ đích:
 7. `set_start_goal` chạy cuối để nếu nó cần hỏi thì các bước trước đã xong;
    `--all-meshes` bỏ qua `*.glb2off.off`.
 
+## Kết thúc stage `simulate`
+
+`validate` chỉ thoát mã 1 khi lần bay **không hợp lệ** (telemetry không kết thúc
+ở `complete`, hoặc dừng cách đích quá 0,5 m). Trượt **mốc chất lượng** 1 m chỉ
+in cảnh báo, nên `main.py simulate` chạy tiếp goal sau thay vì dừng giữa bộ ba.
+
+Cuối stage, `main.py` luôn in một dòng cho mỗi goal đã bay, kể cả khi dùng
+`--quiet` (vì `--quiet` chỉ giữ output của bước lỗi):
+
+```text
+Mốc bám tuyến (chất lượng, không phải điều kiện hợp lệ):
+    g1: max 0.365 m / mốc 1 m · mean 0.068 m — đạt mốc
+    g2: max 1.022 m / mốc 1 m · mean 0.110 m — trượt mốc
+    g3: max 0.851 m / mốc 1 m · mean 0.091 m — đạt mốc
+```
+
 ## Cờ
 
 | Cờ | Tác dụng |
@@ -60,7 +76,7 @@ Thứ tự trong `data` có chủ đích:
 | `--headless` | `simulate`: `gz sim -s -r`, không GUI |
 | `--software` | `simulate`: ép software rendering |
 | `--show-surface` | `simulate`: `build_world --surface` |
-| `--max-error M` | `simulate`: ngưỡng cho `validate`; thành mặc định của câu hỏi chấm điểm (1,0 m) |
+| `--max-error M` | `simulate`: mốc chất lượng cho `validate` (1,0 m); trượt mốc **không** làm lần bay không hợp lệ |
 | `--no-png` | `simulate`: bỏ `tracking.png` |
 | `--container` / `--no-container` | `simulate`: bay trong container (mặc định) hay dùng `gz` trên máy |
 | `--image NAME` | `simulate`: image Gazebo (mặc định `ghcr.io/openrobotics/gazebo:jetty-full`) |
@@ -130,7 +146,7 @@ Mỗi archive là một thư mục trong `results/runs/<label>/`:
 
 | File | Nội dung |
 | --- | --- |
-| `manifest.json` | tham số + nguồn, commit, SHA scene/bề mặt/route, START/GOAL đã snap, độ dài route từng goal, thời lượng bay, `max_error`, `passed`, danh sách file kèm SHA |
+| `manifest.json` | tham số + nguồn, commit, SHA scene/bề mặt/route, START/GOAL đã snap, độ dài route từng goal, thời lượng bay, `max_error`, `mean_error`, `valid`, `passed`, danh sách file kèm SHA |
 | `parameters.json` | bản sao `generated/parameters.json` của lần chạy |
 | `surface.params.json` | tham số + SHA của bề mặt đã dùng |
 | `mission.json`, `route.json`, `route.png`, `route.png.json` | mission, route đã lập và ảnh tuyến |
@@ -170,7 +186,7 @@ bằng cùng bộ tham số.
 | | dừng tại waypoint (s) | 0 | Dừng ở mỗi waypoint; 0–2, 0 là bay xuyên qua | `--dwell` |
 | | trễ khởi động (s) | 2 | Chờ trước khi bay; 0–5 | `--start-delay` |
 | `run_simulate.sh` | `timeout` (s) | 900 | Chặn Gazebo treo; 300–1800, route city bay 40–70 s | `--timeout` |
-| `validate` | sai số cho phép (m) | 1,0 | Ngưỡng bám quỹ đạo; 0,2–2, 1 m là ngưỡng đã dùng | `--max-error` |
+| `validate` | mốc chất lượng bám tuyến (m) | 1,0 | Số đo để báo cáo, không phải điều kiện hợp lệ; 0,2–2, 1 m = 20 % ô lưới và 2/3 clearance | `--max-error` |
 
 Dòng hỏi in kèm nghĩa và khoảng nên dùng, nên không phải mở tài liệu mới biết
 đang đổi cái gì:

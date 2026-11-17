@@ -128,7 +128,10 @@ def rows_of(manifest):
             (f'waypoints {goal}', route.get('waypoints')),
             (f'flight {goal} (s)', result.get('duration')),
             (f'max error {goal} (m)', result.get('max_error')),
-            (f'đạt {goal}', None if result.get('passed') is None
+            (f'mean error {goal} (m)', result.get('mean_error')),
+            # The target is a quality mark, not a condition for the flight to
+            # count: a run can be valid and still miss it at one corner.
+            (f'mốc bám {goal}', None if result.get('passed') is None
              else ('đạt' if result['passed'] else 'trượt')),
         ]
     return rows

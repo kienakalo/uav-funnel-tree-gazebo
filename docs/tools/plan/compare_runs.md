@@ -48,10 +48,16 @@ python3 tools/plan/compare_runs.py cell5 cell4 --output results/cell-grid
 | Hình học | `cell`, `clearance`, `half-width`, `max-slope`, `SHA bề mặt` |
 | Solver | `solver (s)`, `max nodes`, `clipping`, `planning (s)` |
 | Bay | `speed`, `max accel`, `dwell`, `start delay`, `simplify`, `collision grid` |
-| Từng goal | `route gN (m)`, `waypoints gN`, `flight gN (s)`, `max error gN (m)`, `đạt gN` |
+| Từng goal | `route gN (m)`, `waypoints gN`, `flight gN (s)`, `max error gN (m)`, `mean error gN (m)`, `mốc bám gN` |
 
 Mỗi cột là một label. File Markdown dùng đúng bảng đó để chép vào báo cáo; JSON
 giữ cùng số liệu cho script khác.
+
+`mốc bám gN` là `passed` trong `validation.json`, tức lần bay có nằm trong mốc
+chất lượng 1 m hay không — **không** phải điều kiện lần bay hợp lệ. Một lần bay
+có thể `mốc bám = trượt` mà vẫn hợp lệ (hết tuyến, dừng đúng đích), và khi đó
+cột `max error` / `mean error` mới là số cần trích; xem
+[`../simulate/validate.md`](../simulate/validate.md).
 
 ## Nguồn từng dòng
 

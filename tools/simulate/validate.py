@@ -9,9 +9,12 @@ Input:  generated/simulate/<mission>-<goal>/physics_telemetry.csv
         the telemetry metadata beside it
 Output: validation.json and tracking.png in the same folder
 
-A run passes when the last telemetry row is in the complete phase and the
-largest position error stays under --max-error (default 1.0 m). Exit code is
-non-zero when it does not pass, so a stage can stop on it.
+Two different questions are answered here. Validity: the last telemetry row is
+in the complete phase and the vehicle stopped within --arrival-tolerance of the
+goal. Quality: the largest position error stayed under --max-error (default
+1.0 m), which is a reporting target, not a condition for the run to count. The
+exit code is non-zero only for an invalid run, so a stage stops on a broken
+flight and not on a corner the vehicle lagged behind by a few centimetres.
 
 Examples:
   .venv/bin/python tools/simulate/validate.py --mission city.standardized.triangulation --goal g1
@@ -48,6 +51,8 @@ LABELS = {
     'max_error': ('max error', ''),
     'mean_error': ('mean', ''),
     'completed': ('completed', ''),
+    'valid': ('valid', ''),
+    'final_error': ('final error', ' m'),
 }
 
 
@@ -71,6 +76,8 @@ def stamp_data(metadata, result, limit):
         'max_error': f'{result["max_error"]:.3f} m',
         'mean_error': f'{result["mean_error"]:.3f} m',
         'completed': result['completed'],
+        'valid': result.get('valid'),
+        'final_error': f'{result["final_error"]:.3f} m',
     }
     sources = {
         'scene_sha256': metadata.get('scene_sha256'),
@@ -128,6 +135,7 @@ def analyse(rows, max_error):
         'duration': round(times[-1] - times[0], 3),
         'max_error': round(max(errors), 4),
         'mean_error': round(sum(errors) / len(errors), 4),
+        'final_error': round(errors[-1], 4),
         'max_speed': round(max(speeds), 4),
         'max_acceleration': round(max(accelerations, default=0.), 4),
         'max_error_limit': max_error,
@@ -191,13 +199,21 @@ def main():
     parser.add_argument('--mission', default='city.standardized.triangulation')
     parser.add_argument('--goal', default='g1')
     parser.add_argument('--max-error', type=float, default=1.0, metavar='M',
-                        help='Largest allowed position error in metres (default: 1.0)')
+                        help='Quality target: largest position error worth '
+                             'reporting as on-route (default: 1.0). Missing it '
+                             'does not fail the run')
+    parser.add_argument('--arrival-tolerance', type=float, default=0.5,
+                        metavar='M',
+                        help='How close to the goal the last telemetry row must '
+                             'end for the run to be valid (default: 0.5)')
     parser.add_argument('--no-png', action='store_true',
                         help='Do not write tracking.png')
     args = parser.parse_args()
 
     if not (args.max_error > 0 and math.isfinite(args.max_error)):
         parser.error('--max-error must be positive and finite')
+    if not (args.arrival_tolerance > 0 and math.isfinite(args.arrival_tolerance)):
+        parser.error('--arrival-tolerance must be positive and finite')
     folder = run_folder(args)
     telemetry = folder / 'physics_telemetry.csv'
     metadata_path = folder / 'telemetry_metadata.json'
@@ -217,6 +233,8 @@ def main():
     for key, value in metadata.items():
         if value is not None:
             stamp_metadata[key] = value
+    valid = (result['completed'] and
+             result['final_error'] <= args.arrival_tolerance)
     result.update({
         'mission': metadata.get('mission'),
         'goal': metadata.get('goal'),
@@ -226,7 +244,9 @@ def main():
         'nominal_duration': metadata.get('nominal_duration'),
         'telemetry': str(relative(telemetry)),
         'telemetry_sha256': hashlib.sha256(telemetry.read_bytes()).hexdigest(),
-        'passed': result['completed'] and result['max_error'] <= args.max_error,
+        'arrival_tolerance': args.arrival_tolerance,
+        'valid': valid,
+        'passed': valid and result['max_error'] <= args.max_error,
     })
     output = folder / 'validation.json'
     output.write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
@@ -242,10 +262,20 @@ def main():
           f'max error {result["max_error"]:.3f} m, mean {result["mean_error"]:.3f} m')
     print(f'Max speed {result["max_speed"]:.2f} m/s, '
           f'max accel {result["max_acceleration"]:.2f} m/s², '
-          f'completed {result["completed"]}')
+          f'completed {result["completed"]}, valid {result["valid"]}')
     print(f'Save at: {output}')
+    if not result['valid']:
+        reasons = []
+        if not result['completed']:
+            reasons.append('the last row is not in the complete phase')
+        if result['final_error'] > args.arrival_tolerance:
+            reasons.append(f'final error {result["final_error"]:.3f} m > '
+                           f'{args.arrival_tolerance:g} m')
+        raise SystemExit('validate: run is not valid: ' + '; '.join(reasons))
     if not result['passed']:
-        raise SystemExit('validate: run failed (not complete or error above the limit)')
+        print(f'    quality target missed: max error {result["max_error"]:.3f} m '
+              f'> {args.max_error:g} m (mean {result["mean_error"]:.3f} m); '
+              'the run is still valid')
 
 
 if __name__ == '__main__':

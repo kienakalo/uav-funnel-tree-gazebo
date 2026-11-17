@@ -10,7 +10,7 @@
 ## Vì sao tách khỏi `run_funnel`
 
 Vẽ lại không cần chạy lại Funnel: trên bề mặt thành phố, lập tuyến mất khoảng
-80 s cho 3 goal (mission hiện tại), còn vẽ chỉ vài giây. Tách ra cũng giúp `run_funnel` không phụ thuộc Matplotlib
+60–80 s cho 3 goal (mission hiện tại), còn vẽ chỉ vài giây. Tách ra cũng giúp `run_funnel` không phụ thuộc Matplotlib
 và chạy được trên máy không có cửa sổ.
 
 ## Nội dung ảnh

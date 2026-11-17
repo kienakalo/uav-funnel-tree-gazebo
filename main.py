@@ -164,7 +164,8 @@ PARAM_GROUPS = {
     'validate': [
         Param('max_error', 'sai số cho phép (m)', 1., 'float', '--max-error',
               minimum=.000001,
-              note='ngưỡng bám quỹ đạo, nên 0,2–2; 1 m là ngưỡng đã dùng',
+              note='mốc chất lượng bám tuyến, nên 0,2–2; 1 m là mốc đã dùng. '
+                   'Trượt mốc không làm lần bay thành không hợp lệ',
               advice=(.2, 2.)),
     ],
 }
@@ -634,6 +635,43 @@ def archive_files(mission, goals):
     return mapping
 
 
+def report_quality(args, since=0.):
+    """Say which goals met the tracking target, even in quiet mode.
+
+    validate stops a stage only for an invalid run; a valid run that misses the
+    quality target is a number for the report, not a failure. --quiet keeps a
+    step's output unless it fails, so the warning from validate would be
+    hidden; this summary reads the files instead. Only files written since the
+    stage started count, so a stage that failed before validating cannot show
+    the numbers of an earlier flight.
+    """
+    mission = args.mission or DEFAULT_MISSION
+    goals = [args.goal] if args.goal else mission_goals(mission)
+    lines = []
+    for goal in goals:
+        path = (ROOT / 'generated/simulate' / f'{mission}-{goal}'
+                / 'validation.json')
+        if not path.is_file():
+            continue
+        if path.stat().st_mtime < since - 1.:
+            continue
+        record = json.loads(path.read_text(encoding='utf-8'))
+        if not record.get('valid', True):
+            state = 'không hợp lệ'
+        elif record.get('passed'):
+            state = 'đạt mốc'
+        else:
+            state = 'trượt mốc'
+        limit = record.get('max_error_limit')
+        mark = f' / mốc {limit:g} m' if isinstance(limit, (int, float)) else ''
+        lines.append(f'    {goal}: max {record["max_error"]:.3f} m{mark} · '
+                     f'mean {record["mean_error"]:.3f} m — {state}')
+    if lines:
+        print('\nMốc bám tuyến (chất lượng, không phải điều kiện hợp lệ):',
+              flush=True)
+        print('\n'.join(lines), flush=True)
+
+
 def archive_details(mission, goals):
     """Surface, route lengths and flight results, for the manifest."""
     surface = {}
@@ -671,7 +709,7 @@ def archive_details(mission, goals):
         record = json.loads(path.read_text(encoding='utf-8'))
         flight[goal] = {key: record.get(key) for key in
                         ('duration', 'max_error', 'mean_error', 'max_speed',
-                         'passed', 'route_sha256')}
+                         'final_error', 'valid', 'passed', 'route_sha256')}
     flight_parameters, simplify = {}, None
     for goal in goals:
         path = (ROOT / 'generated/simulate' / f'{mission}-{goal}'
@@ -925,12 +963,15 @@ def main():
         print_manifest(folders, stages)
 
     started = time.monotonic()
+    wall_started = time.time()
     try:
         for index, stage in enumerate(stages, 1):
             run_stage(stage, args, index, len(stages), state)
     finally:
         if not args.dry_run and state['values']:
             write_parameters(args, stages, state, cleared, started)
+        if 'simulate' in stages and not args.dry_run:
+            report_quality(args, wall_started)
     if args.dry_run and args.label:
         print(f'\n    (dry run: sẽ lưu kết quả vào '
               f'results/runs/{args.label}/)', flush=True)

@@ -20,6 +20,9 @@ Quy ước:
 - Archive chụp **toàn bộ kết quả đang có** tại thời điểm lưu, không chỉ phần
   stage vừa chạy: `manifest.json` ghi `stages` của lần chạy và liệt kê `missing`
   nếu thiếu file. Muốn bảng so sánh đầy đủ thì chạy cả ba stage trước khi lưu.
+- Tạo bằng `--archive` (không chạy gì) thì `stages` trong manifest rỗng; lần chạy
+  đã sinh ra kết quả nằm trong `parameters.json` của chính archive (`command`,
+  `stages`, tham số, nguồn).
 - `--label`/`--archive` **không ghi đè**: label đã tồn tại thì tool dừng.
 - `--fresh` và mọi stage đều không xoá `results/`.
 - `comparison/` sinh lại được từ `runs/`, nên có thể bỏ và tạo lại bất cứ lúc nào.
@@ -30,10 +33,11 @@ Quy ước:
 | --- | --- | --- |
 | `cell5` | START 182 (−100, −95) → g1 1275, g2 2112, g3 1147 | bay 34,2 s / 64,6 s / 35,6 s; `max_error` 0,820 / 0,989 / 0,971 m |
 | `cell5b` | như trên, chạy lại `main.py --force` | bay 34,5 s / 64,3 s / 35,4 s; cùng sai số — dùng để nói độ lặp lại |
+| `city792` | START 792 (−38,75, 22,10) → g1 1810, g2 1910, g3 1518 | bay 35,4 s / 33,2 s / 24,6 s; `max_error` 0,365 / 1,022 / 0,851 m; cả ba `valid`, g2 trượt mốc 1 m 2 % tại một góc cua |
 
-Mission hiện tại của thành phố đã đổi sang START 792 → 1810 / 1910 / 1518 (xem
-[`../docs/tools/data/set_start_goal.md`](../docs/tools/data/set_start_goal.md)),
-nên **chưa** có archive cho nó: bay lại rồi `--archive <label>` mới có.
+Mission hiện tại của thành phố là START 792 → 1810 / 1910 / 1518 (xem
+[`../docs/tools/data/set_start_goal.md`](../docs/tools/data/set_start_goal.md));
+`city792` là archive của nó.
 
 Đọc và so sánh:
 

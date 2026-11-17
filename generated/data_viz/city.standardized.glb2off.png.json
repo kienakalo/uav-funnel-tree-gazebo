@@ -1,7 +1,7 @@
 {
   "image": "generated/data_viz/city.standardized.glb2off.png",
-  "image_sha256": "d1659f6df44ac675aa6d4a7791204de7c8f5b0f5de0034e81b3b9a65012a2e71",
-  "generated_at": "2026-11-17T21:02:45+07:00",
+  "image_sha256": "ab3ae64828e4c43c0f03b0a3038696d55e0fe68b86b7d2003566598de6679e7f",
+  "generated_at": "2026-11-17T21:32:35+07:00",
   "parameters": {
     "width": 200.0,
     "expected paths": true

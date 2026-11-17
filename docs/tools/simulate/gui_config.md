@@ -63,10 +63,10 @@ pitch = atan2(h, d·√2)             # dương = nhìn xuống
 sang radian, còn `x, y, z` giữ nguyên mét (đổi cả 6 sẽ đưa camera về gần gốc toạ
 độ — lỗi đã gặp và sửa).
 
-Ví dụ g1 của lần bay đã lưu (`results/runs/cell5`, mission cũ START 182 tại
-−100, −95): `[-100, -122.5, 39.519, 0, 19.471, 45]` → camera ở góc tây nam, cao
-39,5 m, nhìn xuống 19,5°, thấy trọn tuyến 134 m. Đổi START/GOAL thì camera phải
-tính lại từ `world_metadata.json` của mission mới.
+Ví dụ g1 của mission hiện tại (START 792): `[-38.752, -73.371, 40.5, 0,
+19.471, 45]` → camera lùi về phía nam, cao 40,5 m, nhìn xuống 19,5°, thấy trọn
+tuyến 142 m. Đổi START/GOAL thì camera phải tính lại từ `world_metadata.json`
+của mission mới.
 
 ## Chạy tay
 
