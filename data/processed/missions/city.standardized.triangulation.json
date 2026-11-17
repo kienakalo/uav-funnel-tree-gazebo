@@ -1,44 +1,62 @@
 {
   "mesh": "data/processed/meshes/city.standardized.triangulation.off",
-  "mesh_sha256": "f6e01c6d421f71aec828ae2f71593e7b2d0460604453459eb5e86b2ea47b28df",
-  "mesh_vertices": 2295,
-  "mesh_faces": 4400,
-  "boundary_edges": 188,
-  "vertex_spacing": 5.0,
+  "mesh_sha256": "052917dbbcecc908a8cfac026cee11f3591a21733e87063edbe439230a3f2ae1",
+  "mesh_vertices": 3355,
+  "mesh_faces": 6480,
+  "boundary_edges": 228,
+  "vertex_spacing": 4.0,
   "snap_mode": "xy",
   "max_snap": 3.535534,
   "mode": "explicit",
   "selected_by": "cli",
   "start": {
-    "vertex": 182,
+    "vertex": 222,
     "xyz": [
+      -100.0,
+      -96.0,
+      1.5
+    ],
+    "input": [
       -100.0,
       -95.0,
       1.5
-    ]
+    ],
+    "snap": 1.0
   },
   "goals": [
     {
       "id": "g1",
-      "vertex": 1275,
+      "vertex": 1888,
       "xyz": [
+        16.0,
+        -36.0,
+        20.037016
+      ],
+      "input": [
         15.0,
         -35.0,
         20.037016
-      ]
+      ],
+      "snap": 1.414214
     },
     {
       "id": "g2",
-      "vertex": 2112,
+      "vertex": 3132,
       "xyz": [
+        100.0,
+        96.0,
+        1.5
+      ],
+      "input": [
         100.0,
         95.0,
         1.5
-      ]
+      ],
+      "snap": 1.0
     },
     {
       "id": "g3",
-      "vertex": 1147,
+      "vertex": 1677,
       "xyz": [
         0.0,
         0.0,

@@ -77,50 +77,81 @@ class Param:
     kind: str                 # 'float', 'int' or 'bool'
     flag: str = ''            # appended with the value (numbers and true bools)
     false_flag: str = ''      # appended when a bool is false
-    minimum: float = None
-    maximum: float = None
+    minimum: float = None     # rejected below this
+    maximum: float = None     # rejected above this
+    note: str = ''            # what it does, and the range worth using
+    advice: tuple = None      # (low, high) that is warned about, not rejected
 
 
 PARAM_GROUPS = {
     'triangulation': [
-        Param('cell', 'cell (m)', 5., 'float', '--cell', minimum=.05),
+        Param('cell', 'cell (m)', 5., 'float', '--cell', minimum=.05,
+              note='cạnh ô lưới, nên 3–10; dưới 5 thì plan rất chậm',
+              advice=(3., 10.)),
         Param('clearance', 'clearance (m)', 1.5, 'float', '--clearance',
-              minimum=0.),
+              minimum=0.,
+              note='khe hở dọc trên nóc công trình, nên 0,5–3',
+              advice=(.5, 3.)),
         Param('half_width', 'half-width (m)', 1.6, 'float', '--half-width',
-              minimum=0.),
+              minimum=0.,
+              note='nới ngang khi truy vấn, nên 0,2–1,6; nhỏ = bám footprint',
+              advice=(.2, 1.6)),
         Param('max_slope', 'max-slope (m/m)', .5, 'float', '--max-slope',
-              minimum=.001),
+              minimum=.001,
+              note='độ dốc ramp, nên 0,5–2; lớn thì lên/xuống dốc hơn',
+              advice=(.5, 2.)),
     ],
     'solver': [
         Param('seconds', 'thời gian tối đa mỗi goal (s)', 300., 'float',
-              '--seconds', minimum=1.),
+              '--seconds', minimum=1.,
+              note='chặn tìm kiếm, nên 60–900; city g2 cần khoảng 190',
+              advice=(60., 900.)),
         Param('max_nodes', 'số node tối đa', 200000, 'int', '--max-nodes',
-              minimum=1),
+              minimum=1,
+              note='giới hạn bộ nhớ, nên 50 000–1 000 000',
+              advice=(50000, 1000000)),
         Param('clipping', 'clipping (Y/n)', True, 'bool',
-              false_flag='--no-clipping'),
+              false_flag='--no-clipping',
+              note='Procedure 2; Y cho route ngắn hơn, N để so sánh'),
     ],
     'world': [
         Param('simplify', 'simplify (m)', .1, 'float', '--simplify',
-              minimum=0.),
+              minimum=0.,
+              note='dung sai rút gọn waypoint, nên 0–1; 0 giữ mọi điểm',
+              advice=(0., 1.)),
         Param('collision_grid', 'collision grid (m)', 1., 'float',
-              '--collision-grid', minimum=.001),
+              '--collision-grid', minimum=.001,
+              note='ô gom đỉnh cho collision, nên 0,5–2; lớn = nhẹ hơn',
+              advice=(.5, 2.)),
     ],
     'flight': [
-        Param('speed', 'tốc độ (m/s)', 5., 'float', '--speed', minimum=.001),
-        Param('max_accel', 'gia tốc tối đa (m/s2)', 3., 'float',
-              '--max-accel', minimum=.001),
+        Param('speed', 'tốc độ (m/s)', 5., 'float', '--speed', minimum=.001,
+              note='cruise speed; nên 2–8, cao quá dễ vượt sai số cho phép',
+              advice=(2., 8.)),
+        Param('max_accel', 'gia tốc tối đa (m/s²)', 3., 'float',
+              '--max-accel', minimum=.001,
+              note='giới hạn của profile, nên 1–6',
+              advice=(1., 6.)),
         Param('dwell', 'dừng tại waypoint (s)', 0., 'float', '--dwell',
-              minimum=0.),
+              minimum=0.,
+              note='dừng ở mỗi waypoint, nên 0–2; 0 là bay xuyên qua',
+              advice=(0., 2.)),
         Param('start_delay', 'trễ khởi động (s)', 2., 'float',
-              '--start-delay', minimum=0.),
+              '--start-delay', minimum=0.,
+              note='chờ trước khi bay, nên 0–5',
+              advice=(0., 5.)),
     ],
     'gazebo': [
         Param('timeout', 'timeout (s)', 900., 'float', '--timeout',
-              minimum=1.),
+              minimum=1.,
+              note='chặn Gazebo treo, nên 300–1800; route city bay 40–70 s',
+              advice=(300., 1800.)),
     ],
     'validate': [
         Param('max_error', 'sai số cho phép (m)', 1., 'float', '--max-error',
-              minimum=.000001),
+              minimum=.000001,
+              note='ngưỡng bám quỹ đạo, nên 0,2–2; 1 m là ngưỡng đã dùng',
+              advice=(.2, 2.)),
     ],
 }
 
@@ -322,11 +353,28 @@ def format_group(group, values):
                     for item in PARAM_GROUPS[group])
 
 
+def prompt_text(item, default):
+    """Question line: what the value does, then the default."""
+    note = f' — {item.note}' if item.note else ''
+    return f'      {item.question}{note} [{format_default(item, default)}]: '
+
+
+def warn_outside(item, value):
+    """Say when a value is outside the range worth using, but keep it."""
+    if not item.advice or item.kind == 'bool':
+        return
+    low, high = item.advice
+    if low <= value <= high:
+        return
+    print(f'      (!) {item.key}={format_default(item, value)} ngoài khoảng nên '
+          f'dùng {low:g}–{high:g}; vẫn dùng giá trị này.')
+
+
 def ask_value(item, default):
     """Ask for one value; Enter keeps the default, bad input is asked again."""
     while True:
         try:
-            text = input(f'      {item.question} [{format_default(item, default)}]: ')
+            text = input(prompt_text(item, default))
         except EOFError:
             print()
             return default
@@ -355,6 +403,7 @@ def ask_value(item, default):
         if item.maximum is not None and value > item.maximum:
             print(f'      (phải ≤ {item.maximum:g})')
             continue
+        warn_outside(item, value)
         return value
 
 
@@ -383,8 +432,7 @@ def choose_group(group, args, state):
                                             and args.max_error is not None)
                                  else 'default')
             if state['mode'] == 'dry':
-                print(f'      {item.question} '
-                      f'[{format_default(item, defaults[item.key])}]')
+                print(prompt_text(item, defaults[item.key]).rstrip())
     state['values'][group] = chosen
     state['sources'][group] = origins
     return chosen

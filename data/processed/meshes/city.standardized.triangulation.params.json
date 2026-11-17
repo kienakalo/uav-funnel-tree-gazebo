@@ -1,23 +1,23 @@
 {
   "output": "data/processed/meshes/city.standardized.triangulation.off",
-  "output_sha256": "f6e01c6d421f71aec828ae2f71593e7b2d0460604453459eb5e86b2ea47b28df",
+  "output_sha256": "052917dbbcecc908a8cfac026cee11f3591a21733e87063edbe439230a3f2ae1",
   "script": "tools/data/triangulation.py",
   "script_sha256": "40f43570a4999557ac08bee16282a121d655e87bb3b745a2297b4a4a4ba111ec",
   "scene": "data/processed/scenes/city.standardized.glb",
   "scene_sha256": "cdd605eedc01011c5c39408ce167fca6244d1a9e0a7527450d13861570a837cb",
   "parameters": {
-    "cell": 5.0,
+    "cell": 4.0,
     "coverage": "city",
     "vertical_clearance": 1.5,
     "horizontal_half_width": 1.6,
     "max_axis_slope": 0.5
   },
   "result": {
-    "vertices": 2295,
-    "triangles": 4400,
-    "edges": 6694,
-    "surface_source": 792,
-    "surface_target": 1810,
+    "vertices": 3355,
+    "triangles": 6480,
+    "edges": 9834,
+    "surface_source": 1133,
+    "surface_target": 2708,
     "nonmanifold_edges": 0
   }
 }

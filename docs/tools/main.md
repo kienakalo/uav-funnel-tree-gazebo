@@ -98,23 +98,41 @@ giá trị trong ngoặc vuông (đúng cấu hình đang commit); gõ số khá
 đó. Câu trả lời chỉ hỏi **một lần** cho cả run, nên `simulate` bay g1, g2, g3
 bằng cùng bộ tham số.
 
-| Bước | Tham số | Mặc định | Cờ truyền xuống |
-| --- | --- | --- | --- |
-| `triangulation` | `cell` (m) | 5 | `--cell` |
-| | `clearance` (m) | 1,5 | `--clearance` |
-| | `half-width` (m) | 1,6 | `--half-width` |
-| | `max-slope` (m/m) | 0,5 | `--max-slope` |
-| `run_funnel` | thời gian tối đa mỗi goal (s) | 300 | `--seconds` |
-| | số node tối đa | 200 000 | `--max-nodes` |
-| | `clipping` | Y | `--no-clipping` khi N |
-| `build_world` | `simplify` (m) | 0,1 | `--simplify` |
-| | `collision grid` (m) | 1,0 | `--collision-grid` |
-| | tốc độ (m/s) | 5 | `--speed` |
-| | gia tốc tối đa (m/s²) | 3 | `--max-accel` |
-| | dừng tại waypoint (s) | 0 | `--dwell` |
-| | trễ khởi động (s) | 2 | `--start-delay` |
-| `run_simulate.sh` | `timeout` (s) | 900 | `--timeout` |
-| `validate` | sai số cho phép (m) | 1,0 | `--max-error` |
+| Bước | Tham số | Mặc định | Nghĩa và khoảng nên dùng | Cờ |
+| --- | --- | --- | --- | --- |
+| `triangulation` | `cell` (m) | 5 | Cạnh ô lưới; 3–10, dưới 5 thì plan rất chậm | `--cell` |
+| | `clearance` (m) | 1,5 | Khe hở dọc trên nóc công trình; 0,5–3 | `--clearance` |
+| | `half-width` (m) | 1,6 | Nới ngang khi truy vấn; 0,2–1,6, nhỏ = bám footprint | `--half-width` |
+| | `max-slope` (m/m) | 0,5 | Độ dốc ramp; 0,5–2, lớn = lên/xuống dốc hơn | `--max-slope` |
+| `run_funnel` | thời gian tối đa mỗi goal (s) | 300 | Chặn tìm kiếm; 60–900, city g2 cần khoảng 190 | `--seconds` |
+| | số node tối đa | 200 000 | Giới hạn bộ nhớ; 50 000–1 000 000 | `--max-nodes` |
+| | `clipping` | Y | Procedure 2; Y cho route ngắn hơn, N để so sánh | `--no-clipping` khi N |
+| `build_world` | `simplify` (m) | 0,1 | Dung sai rút gọn waypoint; 0–1, 0 giữ mọi điểm | `--simplify` |
+| | `collision grid` (m) | 1,0 | Ô gom đỉnh cho collision; 0,5–2, lớn = nhẹ hơn | `--collision-grid` |
+| | tốc độ (m/s) | 5 | Tốc độ cruise; 2–8, cao quá dễ vượt sai số cho phép | `--speed` |
+| | gia tốc tối đa (m/s²) | 3 | Gia tốc của profile; 1–6 | `--max-accel` |
+| | dừng tại waypoint (s) | 0 | Dừng ở mỗi waypoint; 0–2, 0 là bay xuyên qua | `--dwell` |
+| | trễ khởi động (s) | 2 | Chờ trước khi bay; 0–5 | `--start-delay` |
+| `run_simulate.sh` | `timeout` (s) | 900 | Chặn Gazebo treo; 300–1800, route city bay 40–70 s | `--timeout` |
+| `validate` | sai số cho phép (m) | 1,0 | Ngưỡng bám quỹ đạo; 0,2–2, 1 m là ngưỡng đã dùng | `--max-error` |
+
+Dòng hỏi in kèm nghĩa và khoảng nên dùng, nên không phải mở tài liệu mới biết
+đang đổi cái gì:
+
+```text
+      cell (m) — cạnh ô lưới, nên 3–10; dưới 5 thì plan rất chậm [5]: 
+      half-width (m) — nới ngang khi truy vấn, nên 0,2–1,6; nhỏ = bám footprint [1.6]: 
+```
+
+Giá trị ngoài khoảng nên dùng **vẫn được chấp nhận** (đó là khuyến nghị, không
+phải giới hạn cứng) nhưng in thêm một dòng cảnh báo:
+
+```text
+      (!) cell=1 ngoài khoảng nên dùng 3–10; vẫn dùng giá trị này.
+```
+
+Chỉ giá trị vô lý mới bị hỏi lại: số âm, 0 với tham số phải dương, chữ không
+phải số.
 
 Nhập sai (chữ, số âm, 0) thì tool báo và hỏi lại. Sau khi hỏi in lại
 `→ cell=5 clearance=1.5 ...`, thêm `(đã đổi)` nếu có giá trị khác mặc định,
