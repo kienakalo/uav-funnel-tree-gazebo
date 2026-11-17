@@ -15,7 +15,8 @@ Stages:
   flow      print the stages and the commands they run
 
 Examples:
-  python3 main.py                        # same as: python3 main.py data
+  python3 main.py                        # data, then plan, then simulate
+  python3 main.py data                   # only the data stage
   python3 main.py flow
   python3 main.py data
   python3 main.py data --dry-run
@@ -30,6 +31,10 @@ data/processed/meshes. --no-all-meshes limits it to the navigation surface,
 and --force-missions replaces missions that already exist. The step is
 interactive: run it in a terminal, or commit the mission files for a
 non-interactive run.
+
+A bare run executes data, plan and simulate in that order, so the simulate
+stage needs Gazebo Jetty and a display unless --headless is passed; use
+"python3 main.py data" and "python3 main.py plan" to run one stage only.
 
 The data stage needs NumPy, Matplotlib (previews) and Shapely (triangulation).
 It rewrites data/processed/ and generated/data_viz/, and writes the missions to
@@ -61,6 +66,8 @@ STAGES = {
     # Built by stage_commands because it takes a mission and a goal.
     'simulate': [],
 }
+
+DEFAULT_STAGES = ['data', 'plan', 'simulate']
 
 DESCRIPTIONS = {
     'data': 'raw -> processed (fixtures, scene, GLB, surface, previews, mission)',
@@ -112,7 +119,8 @@ def show_flow(args):
         print(f'  {name:9s} {description}')
         for command in stage_commands(name, args):
             print('            ' + display(command))
-    print('\nNo stage given: data is executed. Use "flow" to only print this list.')
+    print('\nNo stage given: data, plan and simulate are executed in that order. '
+          'Use "flow" to only print this list.')
 
 
 def run_stage(name, args):
@@ -133,7 +141,7 @@ def main():
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('stages', nargs='*', metavar='stage',
-                        help='data, plan or flow')
+                        help='data, plan, simulate or flow')
     parser.add_argument('--dry-run', action='store_true',
                         help='Print the commands without running them')
     parser.add_argument('--all-meshes', action=argparse.BooleanOptionalAction,
@@ -163,12 +171,12 @@ def main():
     simulate_flags = (args.mission or args.goal or args.headless or args.software
                       or args.show_surface or args.max_error is not None
                       or args.no_png)
-    if simulate_flags and 'simulate' not in (args.stages or ['data']):
+    if simulate_flags and 'simulate' not in (args.stages or DEFAULT_STAGES):
         parser.error('--mission/--goal/--headless/--software/--show-surface/'
                      '--max-error/--no-png only apply to the simulate stage')
     if args.max_error is not None and not (args.max_error > 0):
         parser.error('--max-error must be positive')
-    stages = args.stages or ['data']
+    stages = args.stages or list(DEFAULT_STAGES)
     if 'flow' in stages:
         show_flow(args)
         stages = [stage for stage in stages if stage != 'flow']

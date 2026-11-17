@@ -62,8 +62,10 @@ Chỉ cửa sổ 3D cần các gói này; chạy stage bằng PNG thì không c�
 
 ```bash
 python3 main.py flow        # liệt kê các bước và lệnh
-python3 main.py data        # chạy toàn bộ stage
+python3 main.py             # data -> plan -> simulate
 python3 main.py data --dry-run
+
+python3 main.py data        # chỉ stage dữ liệu
 
 # bước 6 mặc định chọn START/GOAL cho mọi mesh (10 file mission)
 python3 main.py data
@@ -72,7 +74,7 @@ python3 main.py data --force-missions      # chọn lại cả mesh đã có
 
 python3 main.py plan        # lập tuyến, vẽ ảnh, đối chiếu reference
 
-# cần Gazebo Jetty; mỗi lần một goal
+# cần Gazebo Jetty; mỗi lần một goal (bare main.py chạy g1)
 python3 main.py simulate --goal g1
 python3 main.py simulate --goal g2 --headless
 ```
