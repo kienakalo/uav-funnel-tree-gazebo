@@ -1,7 +1,7 @@
 {
   "image": "generated/routes/cliff.png",
-  "image_sha256": "a262e233142e011811ce4c776d7ace002d0a2714d4a47939bb68c0f515900794",
-  "generated_at": "2026-11-17T22:12:51+07:00",
+  "image_sha256": "7327deb137ddc40f7ce757476b57d00c232d694b4e1760f0b3fb869c786f4624",
+  "generated_at": "2026-11-17T22:34:04+07:00",
   "parameters": {
     "seconds": 300.0,
     "max_nodes": 200000,

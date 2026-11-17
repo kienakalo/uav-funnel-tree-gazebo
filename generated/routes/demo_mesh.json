@@ -1207,7 +1207,7 @@
     "implementation_status": "experimental; validate per mesh",
     "mode": "combined"
   },
-  "planning_seconds": 0.39,
+  "planning_seconds": 0.222,
   "environment": {
     "python": "3.14.8",
     "numpy": "2.5.4"
