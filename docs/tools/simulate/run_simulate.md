@@ -5,7 +5,7 @@
 | Stage | `simulate` (bước chạy) |
 | Vào | `generated/simulate/<mission>-<goal>/funnel_physics.sdf` + `route.json` (do `build_world.py` sinh) |
 | Ra | `generated/simulate/<mission>-<goal>/` — telemetry, metadata, `gazebo.log`, ảnh chụp |
-| Cờ | `--mission`, `--goal`, `--headless`, `--software`, `--show-surface`, `--timeout S`, `--check`, `--no-build`, `--container/--native`, `--image`, `--gpu`, `--screenshot/--no-screenshot`, `--keep-open`, `--pull` |
+| Cờ | `--mission`, `--goal`, `--headless`, `--software`, `--show-surface`, `--timeout S`, `--check`, `--no-build`, `--container/--native`, `--image`, `--gpu`, `--keep-open`, `--pull` |
 
 ## Việc nó làm
 
@@ -18,7 +18,7 @@
 6. chạy gz sim (-r cho GUI, -s -r cho headless) trong container hoặc trên máy
 7. chờ telemetry_metadata.json có đúng run_id
 8. unpause /world/<world>/control
-9. GUI: chụp ảnh ở 10/60/120 s và lúc hoàn thành, đóng khi route xong
+9. GUI: chờ route xong rồi đóng cửa sổ (trừ khi --keep-open)
    headless: chờ CSV có phase=complete rồi dừng
 10. in số dòng telemetry và Save at
 ```
@@ -41,7 +41,6 @@ ngoài các file trong thư mục run.
 | `--container` / `--native` | container | Chạy trong image Gazebo hay dùng `gz` trên máy |
 | `--image NAME` | `ghcr.io/openrobotics/gazebo:jetty-full` | Image dùng cho `--container` |
 | `--gpu auto\|nvidia\|intel\|software` | `auto` | Chọn đường render cho GUI |
-| `--screenshot` / `--no-screenshot` | bật khi GUI | Chụp cửa sổ Gazebo ở các mốc thời gian mô phỏng |
 | `--keep-open` | tắt | Không tự đóng cửa sổ khi route xong |
 | `--pull` | tắt | `docker pull` image trước khi chạy |
 
@@ -105,26 +104,12 @@ Nó kiểm:
 6. Assimp trong image đọc được `city.sim.glb` (`check_glb.py`). Bước này bắt
    đúng lỗi bufferView từng làm thành phố biến mất trong Gazebo.
 
-## Ảnh chụp cửa sổ
+## Ảnh minh hoạ
 
-Khi chạy GUI, `screenshot.py` được gọi ở các mốc **thời gian mô phỏng** 10 s,
-60 s, 120 s và lúc `phase=complete` (mốc vượt quá thời lượng route bị bỏ qua):
-
-```
-screenshot_t010.png / .json
-screenshot_t060.png / .json
-screenshot_complete.png / .json
-```
-
-Mỗi file `.json` ghi `run_id`, `sim_time`, `phase`, hình học cửa sổ, lệnh chụp,
-`DISPLAY`/`WAYLAND_DISPLAY`, SHA256 của ảnh và ghi chú rằng ảnh là **chụp cửa sổ
-GUI**, không phải đầu ra đo của mô phỏng. Kết quả đo vẫn là
-`physics_telemetry.csv` và `validation.json`.
-
-Trên Hyprland, cửa sổ được tìm theo class `Gazebo GUI` và cắt bằng `grim -g`.
-Các cửa sổ Gazebo đang mở trước phiên được ghi vào `FUNNEL_IGNORE_WINDOWS` để
-không bị chụp nhầm. Trên X11, script lùi về `import -window root` (chụp cả màn
-hình) và ghi rõ trong metadata.
+Pipeline **không** chụp ảnh. Muốn ảnh cho báo cáo, tự chụp cửa sổ Gazebo (ví dụ
+`grim -g "$(hyprctl clients -j | ...)"`) hoặc dùng ảnh từ `tracking.png` — file
+này do `validate.py` vẽ từ telemetry, không phải screenshot. Khi chèn ảnh, ghi
+rõ nguồn và phiên chạy theo `AGENTS.md`.
 
 ## Biến môi trường truyền cho Gazebo
 

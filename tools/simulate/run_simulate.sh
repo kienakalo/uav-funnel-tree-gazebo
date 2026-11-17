@@ -10,7 +10,7 @@
 #                                       [--software] [--show-surface] [--timeout S]
 #                                       [--container|--native] [--image NAME]
 #                                       [--gpu auto|nvidia|intel|software]
-#                                       [--screenshot|--no-screenshot] [--keep-open]
+#                                       [--keep-open]
 #   bash tools/simulate/run_simulate.sh --check | --no-build
 #
 # The Gazebo container is the default so the same tree runs on any machine;
@@ -26,7 +26,7 @@ Usage:
                                       [--software] [--show-surface] [--timeout S]
                                       [--container|--native] [--image NAME]
                                       [--gpu auto|nvidia|intel|software]
-                                      [--screenshot|--no-screenshot] [--keep-open]
+                                      [--keep-open]
   bash tools/simulate/run_simulate.sh --check | --no-build
 
 --check verifies Docker (or a native gz), the gz-sim 10 bindings, the plugin
@@ -49,7 +49,6 @@ timeout_s=900
 container=true
 image='ghcr.io/openrobotics/gazebo:jetty-full'
 gpu=auto
-screenshots=auto
 keep_open=false
 pull=false
 
@@ -67,8 +66,6 @@ while [[ $# -gt 0 ]]; do
     --native) container=false; shift ;;
     --image) image="$2"; shift 2 ;;
     --gpu) gpu="$2"; shift 2 ;;
-    --screenshot) screenshots=true; shift ;;
-    --no-screenshot) screenshots=false; shift ;;
     --keep-open) keep_open=true; shift ;;
     --pull) pull=true; shift ;;
     -h|--help) usage; exit 0 ;;
@@ -88,12 +85,10 @@ planner=python3
 container_name="funnel-$(printf '%s_%s' "$mission" "$goal" | sed 's/[^A-Za-z0-9]/_/g')-$$"
 gui_home=''
 gazebo_pid=''
-screenshot_pid=''
 
 fail() { echo "run_simulate: $*" >&2; exit 1; }
 
 cleanup() {
-  [[ -n "$screenshot_pid" ]] && kill "$screenshot_pid" 2>/dev/null || true
   if [[ "$container" == true ]]; then
     docker rm -f "$container_name" >/dev/null 2>&1 || true
   fi
@@ -186,14 +181,6 @@ check_files() {
   fi
 }
 
-record_open_gazebo_windows() {
-  if [[ "$headless" == true ]] || ! command -v hyprctl >/dev/null 2>&1; then
-    return 0
-  fi
-  FUNNEL_IGNORE_WINDOWS="$(python3 tools/simulate/screenshot.py --list-gazebo 2>/dev/null | paste -sd, - || true)"
-  export FUNNEL_IGNORE_WINDOWS
-}
-
 prepare_gui_home() {
   if [[ "$headless" == true ]]; then return 0; fi
   gui_home="$(mktemp -d "${TMPDIR:-/tmp}/funnel-gui-XXXXXX")"
@@ -219,54 +206,6 @@ unpause_world() {
     sleep 1
   done
   return 1
-}
-
-start_screenshots() {
-  if [[ "$screenshots" == false || "$headless" == true ]]; then return 0; fi
-  if [[ "$screenshots" == auto ]]; then screenshots=true; fi
-  # Three moments spread over the planned flight: 20 %, 50 % and 80 % of the
-  # nominal duration in telemetry_metadata.json (fallback: fixed seconds).
-  local offsets
-  offsets="$("$planner" -c 'import json, sys
-try:
-    duration = json.load(open(sys.argv[1]))["nominal_duration"]
-except Exception:
-    raise SystemExit(1)
-print(" ".join(str(max(1, round(duration * share))) for share in (0.2, 0.5, 0.8)))' \
-    "$folder/telemetry_metadata.json" 2>/dev/null || true)"
-  if [[ -z "$offsets" ]]; then offsets='10 30 50'; fi
-  (
-    declare -A taken=()
-    while :; do
-      if [[ ! -s "$csv" ]]; then sleep 0.5; continue; fi
-      local line sim_time phase
-      line="$(tail -n 1 "$csv" 2>/dev/null || true)"
-      [[ -n "$line" ]] || { sleep 0.5; continue; }
-      sim_time="${line%%,*}"
-      phase="${line##*,}"
-      phase="${phase%$'\r'}"
-      for offset in $offsets; do
-        if [[ -z "${taken[$offset]:-}" ]] \
-            && awk -v t="$sim_time" -v o="$offset" 'BEGIN { exit !(t >= o) }'; then
-          taken[$offset]=1
-          python3 tools/simulate/screenshot.py \
-            --output "$folder/screenshot_t$(printf '%03d' "$offset").png" \
-            --run-id "$FUNNEL_RUN_ID" --sim-time "$sim_time" --phase "$phase" \
-            --log "$log" || true
-        fi
-      done
-      if [[ "$phase" == complete && -z "${taken[complete]:-}" ]]; then
-        taken[complete]=1
-        python3 tools/simulate/screenshot.py \
-          --output "$folder/screenshot_complete.png" \
-          --run-id "$FUNNEL_RUN_ID" --sim-time "$sim_time" --phase "$phase" \
-          --log "$log" || true
-        break
-      fi
-      sleep 0.5
-    done
-  ) &
-  screenshot_pid=$!
 }
 
 wait_for_completion() {
@@ -327,7 +266,6 @@ if [[ "$software" == true ]]; then export LIBGL_ALWAYS_SOFTWARE=1; fi
 sim_args=(-r -v 3)
 if [[ "$headless" == true ]]; then sim_args=(-s -r -v 3); fi
 
-record_open_gazebo_windows
 if [[ "$container" == true ]]; then
   prepare_gui_home
   docker_args=(--rm --name "$container_name" --user "$(id -u):$(id -g)"
@@ -393,7 +331,6 @@ if ! unpause_world; then
   echo "run_simulate: the world did not answer the unpause request; it already runs (-r)" >&2
 fi
 
-start_screenshots
 
 if [[ "$headless" == true ]]; then
   if ! wait_for_completion; then
@@ -412,7 +349,6 @@ else
   elif ! wait_for_completion; then
     echo "run_simulate: timeout after ${timeout_s}s without a complete phase" >&2
   fi
-  [[ -n "$screenshot_pid" ]] && wait "$screenshot_pid" 2>/dev/null || true
   if [[ "$container" == true ]]; then
     docker stop "$container_name" >/dev/null 2>&1 || true
   else

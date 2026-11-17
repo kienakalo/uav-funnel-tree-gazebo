@@ -27,7 +27,6 @@ Mỗi kết quả phải trả lời được: **dữ liệu nào, mã nào, tha
 | `generated/simulate/*/telemetry_metadata.json` | Không | Có `run_id` của phiên |
 | `generated/simulate/*/validation.json` | Không | Có `run_id` và số đo phiên |
 | `generated/simulate/*/tracking.png` | Không | Vẽ từ telemetry của phiên |
-| `generated/simulate/*/screenshot_*.png` | Không | Ảnh cửa sổ GUI; metadata có timestamp + SHA256 |
 | `generated/simulate/*/gazebo.log` | Không | Log phiên; chứa đường dẫn tuyệt đối của máy chạy |
 
 Vì `planning_seconds` là số đo thật, chạy lại `main.py plan` sẽ làm route JSON
@@ -94,11 +93,9 @@ bash tools/simulate/run_simulate.sh --check
 python3 main.py simulate --goal g1     # ~1 phút gồm dựng world + bay + chấm
 ```
 
-Ảnh trong `generated/simulate/*/screenshot_*.png` là **chụp cửa sổ Gazebo** ở
-20/50/80 % thời lượng; file `.json` cạnh đó ghi `run_id`, `sim_time`, hình học
-cửa sổ, lệnh `grim` và SHA256. Ảnh phụ thuộc kích thước cửa sổ và theme GUI,
-không phải đầu ra đo; số đo nằm trong `physics_telemetry.csv` và
-`validation.json`.
+Pipeline không sinh ảnh cửa sổ. Ảnh minh hoạ (nếu có) do người chạy tự chụp;
+ghi nguồn và phiên chạy khi chèn vào báo cáo. Số đo nằm trong
+`physics_telemetry.csv`, `validation.json` và `tracking.png` (vẽ từ CSV).
 
 ## Số liệu để trích dẫn
 

@@ -26,7 +26,7 @@ generated/routes/*.json ──build_world──► generated/simulate/<mission>-
                                             │
                                run_simulate ─┴─► physics_telemetry.csv
                                                  telemetry_metadata.json
-                                                 gazebo.log + screenshot_*.png
+                                                 gazebo.log
                                             │
                                 validate ───┴─► validation.json
                                                  tracking.png (map + error)
@@ -54,7 +54,6 @@ Stage `simulate` cần Gazebo nên chạy riêng, không nằm trong `main.py al
 | simulate | Plugin bay (trajectory + controller) | [`plugin.md`](simulate/plugin.md) |
 | simulate | Dựng world + bay + backup | [`run_simulate.md`](simulate/run_simulate.md) |
 | simulate | Camera + MarkerManager cho GUI | [`gui_config.md`](simulate/gui_config.md) |
-| simulate | Chụp cửa sổ + metadata | [`screenshot.md`](simulate/screenshot.md) |
 | simulate | Kiểm GLB bằng Assimp | [`check_glb.md`](simulate/check_glb.md) |
 | simulate | Chấm kết quả | [`validate.md`](simulate/validate.md) |
 | — | Thuật toán | [`funnel_tree.md`](funnel_tree.md) |

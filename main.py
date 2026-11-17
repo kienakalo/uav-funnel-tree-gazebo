@@ -115,10 +115,6 @@ def stage_commands(name, args):
             commands[1] += ['--image', args.image]
         if args.gpu:
             commands[1] += ['--gpu', args.gpu]
-        if args.screenshot is True:
-            commands[1].append('--screenshot')
-        elif args.screenshot is False:
-            commands[1].append('--no-screenshot')
         if args.keep_open:
             commands[1].append('--keep-open')
         if args.pull:
@@ -197,10 +193,6 @@ def main():
     parser.add_argument('--gpu', choices=('auto', 'nvidia', 'intel', 'software'),
                         default=None,
                         help='simulate: GPU for the GUI (default: auto)')
-    parser.add_argument('--screenshot', action=argparse.BooleanOptionalAction,
-                        default=None,
-                        help='simulate: capture the Gazebo window at 10/60/120 s '
-                             'and at completion (default: on in the GUI)')
     parser.add_argument('--keep-open', action='store_true',
                         help='simulate: leave the window open after the route, '
                              'instead of closing it at completion')
@@ -213,12 +205,12 @@ def main():
     simulate_flags = (args.mission or args.goal or args.headless or args.software
                       or args.show_surface or args.max_error is not None
                       or args.no_png or args.container is not None or args.image
-                      or args.gpu or args.screenshot is not None
+                      or args.gpu
                       or args.keep_open or args.pull)
     if simulate_flags and 'simulate' not in (args.stages or DEFAULT_STAGES):
         parser.error('--mission/--goal/--headless/--software/--show-surface/'
                      '--max-error/--no-png/--container/--image/--gpu/'
-                     '--screenshot/--keep-open/--pull only apply to the simulate stage')
+                     '--keep-open/--pull only apply to the simulate stage')
     if args.max_error is not None and not (args.max_error > 0):
         parser.error('--max-error must be positive')
     stages = args.stages or list(DEFAULT_STAGES)

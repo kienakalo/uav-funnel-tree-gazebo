@@ -35,7 +35,7 @@ Hai panel:
 2. **Sai số theo thời gian** kèm đường giới hạn `--max-error`.
 
 Panel 1 trả lời câu "drone có đi đúng tuyến không"; panel 2 trả lời "bám sát
-đến mức nào". Ảnh là hình vẽ từ CSV, không phải screenshot GUI.
+đến mức nào". Ảnh là hình vẽ từ CSV, không phải ảnh chụp cửa sổ Gazebo.
 
 ## `validation.json`
 
