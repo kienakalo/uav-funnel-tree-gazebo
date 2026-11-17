@@ -62,7 +62,7 @@ Chỉ cửa sổ 3D cần các gói này; chạy stage bằng PNG thì không c�
 
 ```bash
 python3 main.py flow        # liệt kê các bước và lệnh
-python3 main.py             # data -> plan -> simulate
+python3 main.py             # data -> plan -> simulate (cả 3 goal)
 python3 main.py data --dry-run
 
 python3 main.py data        # chỉ stage dữ liệu
@@ -76,7 +76,9 @@ python3 main.py plan        # lập tuyến, vẽ ảnh, đối chiếu referenc
 
 # stage simulate: mặc định bay trong container Gazebo, có GUI
 bash tools/simulate/run_simulate.sh --check    # kiểm Docker/image/plugin/SDF
-python3 main.py simulate --goal g1             # bay rồi chấm điểm
+python3 main.py simulate                       # bay cả g1, g2, g3 rồi chấm
+python3 main.py simulate --goal g1             # chỉ một goal
+python3 main.py --quiet                        # ẩn output tool, chỉ in bước
 python3 main.py simulate --goal g2 --gpu nvidia
 python3 main.py simulate --goal g3 --headless  # không mở cửa sổ
 ```

@@ -19,6 +19,11 @@
    - một goal hoặc `all-goals`: một lượt chung.
 4. **Ghi JSON** với hash, tham số, số đo.
 
+Trước mỗi mission, tool in `[i/N] <tên>: solving` để thấy tiến trình. Mission
+`city.standardized.triangulation` là ngoại lệ về thời gian: 3 goal, mỗi goal một
+lượt tìm kiếm với clipping, mất khoảng **176 s**; các fixture còn lại dưới 1 s.
+Vì vậy một lần `python3 main.py plan` mất khoảng 3 phút, phần lớn là city.
+
 ## Vì sao mỗi goal một lượt
 
 Một lượt chung giữ frontier theo goal xa nhất; trên bề mặt thành phố (646

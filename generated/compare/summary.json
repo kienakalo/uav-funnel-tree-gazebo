@@ -8,6 +8,7 @@
   ],
   "failed": [],
   "skipped": [
+    "city.standardized.glb2off",
     "city.standardized.triangulation",
     "cube",
     "dome",

@@ -23,7 +23,7 @@ về `sys.executable` — khi đó phải activate venv trước.
 | --- | --- | --- |
 | `data` | 6 | copy fixtures → standardize → off2glb → triangulation → data_viz → set_start_goal |
 | `plan` | 3 | run_funnel → route_viz → compare |
-| `simulate` | 3 | build_world → run_simulate `--no-build` → validate |
+| `simulate` | 3 × số goal | build_world → run_simulate `--no-build` → validate, lặp cho từng goal (mặc định cả g1, g2, g3) |
 
 Không ghi stage nào thì chạy **cả ba theo thứ tự data → plan → simulate**. Muốn
 một stage thì ghi tên: `python3 main.py plan`.
@@ -43,10 +43,11 @@ Thứ tự trong `data` có chủ đích:
 | --- | --- |
 | `flow` | In các lệnh rồi thoát |
 | `--dry-run` | In lệnh, không chạy |
+| `--quiet` | Ẩn output của tool, chỉ in bước + thời gian; output hiện ra khi bước lỗi |
 | `--all-meshes` / `--no-all-meshes` | Bước 6 chọn cho mọi mesh (mặc định) hay chỉ bề mặt |
 | `--force-missions` | Chỉ với `--all-meshes`: chọn lại cả mesh đã có mission |
 | `--mission STEM` | `simulate`: route stem (mặc định `city.standardized.triangulation`) |
-| `--goal ID` | `simulate`: goal id (mặc định `g1`) |
+| `--goal ID` | `simulate`: chỉ bay một goal; mặc định bay mọi goal của route |
 | `--headless` | `simulate`: `gz sim -s -r`, không GUI |
 | `--software` | `simulate`: ép software rendering |
 | `--show-surface` | `simulate`: `build_world --surface` |
@@ -60,6 +61,33 @@ Thứ tự trong `data` có chủ đích:
 
 `--force-missions` không đi cùng `--no-all-meshes` (báo lỗi), vì chọn lại một
 mesh nên gọi trực tiếp `set_start_goal.py --force`.
+
+## Đầu ra trên terminal
+
+Mỗi stage được đóng khung, mỗi bước có nhãn riêng và output của tool được thụt
+vào, nên không còn một dòng chảy phẳng:
+
+```text
+========================================================================
+Stage 2/3: plan — funnel routes, route images and the reference comparison
+3 step(s)
+========================================================================
+
+[plan 1/3] tools/plan/run_funnel.py
+    [1/10] J17: solving
+    J17: 9 route(s), dài nhất 3.464, 0.0s
+    Save at: generated/routes/J17.json
+    ...
+    done in 190.4 s
+
+plan: ok in 191.2 s
+```
+
+- Đường dẫn tuyệt đối dưới repo được rút thành đường dẫn tương đối.
+- Bước dài in tiến trình riêng (ví dụ `[3/10] city...: solving` trước khi giải).
+- Cuối mỗi stage in tổng thời gian; chạy nhiều stage in thêm tổng cuối.
+- `--quiet` giữ nguyên khung bước nhưng ẩn output tool; nếu bước lỗi thì output
+  được in ra để đọc lỗi.
 
 ## Hành vi khi lỗi
 

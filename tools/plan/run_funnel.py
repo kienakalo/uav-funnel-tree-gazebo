@@ -167,9 +167,13 @@ def main():
         fail(f'no mission in {args.input}; run "python3 main.py data" first')
     args.output.mkdir(parents=True, exist_ok=True)
 
-    for path in missions:
+    total = len(missions)
+    for index, path in enumerate(missions, 1):
         if not path.is_file():
             fail(f'missing mission {path}')
+        # The city mission needs about three minutes, so announce each solve:
+        # without this line a silent terminal looks like a hang.
+        print(f'[{index}/{total}] {path.stem}: solving', flush=True)
         record, elapsed = plan_mission(path, args.seconds, args.max_nodes,
                                        not args.no_clipping)
         output = args.output / f'{path.stem}.json'

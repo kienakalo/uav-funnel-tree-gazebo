@@ -575,11 +575,14 @@ def main():
         meshes = mesh_list(DEFAULT_MESH.parent)
         if not meshes:
             fail(f'no .off mesh in {DEFAULT_MESH.parent}; run "python3 main.py data" first')
-        for index, mesh in enumerate(meshes, 1):
-            print(f'\n[{index}/{len(meshes)}] {relative(mesh)}', flush=True)
-            if mission_path(mesh, args.output, None).is_file() and not args.force:
-                print('  đã có mission; bỏ qua (--force để chọn lại).', flush=True)
-                continue
+        pending = [mesh for mesh in meshes
+                   if args.force or not mission_path(mesh, args.output, None).is_file()]
+        if not pending:
+            print(f'All {len(meshes)} meshes already have missions; '
+                  'use --force to choose again.', flush=True)
+            return
+        for index, mesh in enumerate(pending, 1):
+            print(f'\n[{index}/{len(pending)}] {relative(mesh)}', flush=True)
             process_mesh(mesh, args)
         return
 
