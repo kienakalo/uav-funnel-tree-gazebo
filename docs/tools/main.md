@@ -4,7 +4,7 @@
 | --- | --- |
 | Vai trò | Chạy một hoặc nhiều stage bằng subprocess |
 | Vào | Tên stage (`data`, `plan`, `simulate`, `flow`) + cờ |
-| Ra | Không có file riêng; chạy các tool và dừng ở lỗi đầu tiên |
+| Ra | Chạy các tool và dừng ở lỗi đầu tiên; ghi `generated/parameters.json` |
 
 ## Cách chọn interpreter
 
@@ -42,7 +42,9 @@ Thứ tự trong `data` có chủ đích:
 | Cờ | Tác dụng |
 | --- | --- |
 | `flow` | In các lệnh rồi thoát |
-| `--dry-run` | In lệnh, không chạy |
+| `--dry-run` | In lệnh và câu hỏi tham số, không chạy, không hỏi, không xoá |
+| `--fresh` | Xoá kết quả cũ rồi chạy cả ba stage, không hỏi (chỉ dùng khi không ghi stage) |
+| `--no-ask` | Không hỏi gì: giữ toàn bộ tham số mặc định |
 | `--quiet` | Ẩn output của tool, chỉ in bước + thời gian; output hiện ra khi bước lỗi |
 | `--all-meshes` / `--no-all-meshes` | Bước 6 chọn cho mọi mesh (mặc định) hay chỉ bề mặt |
 | `--force-missions` | Chỉ với `--all-meshes`: chọn lại cả mesh đã có mission |
@@ -51,7 +53,7 @@ Thứ tự trong `data` có chủ đích:
 | `--headless` | `simulate`: `gz sim -s -r`, không GUI |
 | `--software` | `simulate`: ép software rendering |
 | `--show-surface` | `simulate`: `build_world --surface` |
-| `--max-error M` | `simulate`: ngưỡng cho `validate` (mặc định 1,0 m) |
+| `--max-error M` | `simulate`: ngưỡng cho `validate`; thành mặc định của câu hỏi chấm điểm (1,0 m) |
 | `--no-png` | `simulate`: bỏ `tracking.png` |
 | `--container` / `--no-container` | `simulate`: bay trong container (mặc định) hay dùng `gz` trên máy |
 | `--image NAME` | `simulate`: image Gazebo (mặc định `ghcr.io/openrobotics/gazebo:jetty-full`) |
@@ -61,6 +63,91 @@ Thứ tự trong `data` có chủ đích:
 
 `--force-missions` không đi cùng `--no-all-meshes` (báo lỗi), vì chọn lại một
 mesh nên gọi trực tiếp `set_start_goal.py --force`.
+
+## Chạy lại từ đầu
+
+Chạy đủ ba stage mà không ghi stage nào, `main.py` hỏi trước khi làm gì:
+
+```text
+Trả lời y sẽ xoá và sinh lại:
+    generated/  82 file · 36.7 MB
+    data/processed/meshes/  11 file · 18.4 MB
+    data/processed/scenes/  10 file · 6.1 MB
+    Giữ lại: data/processed/missions/ (START/GOAL), data/raw/, data/expected/
+    Container Gazebo còn sót: funnel-city_standardized_triangulation_g1-12345
+Chạy lại từ đầu? (y/N): 
+```
+
+- **Enter = Không**: giữ kết quả cũ và chạy tiếp. Gõ `y` mới xoá.
+- `--fresh` bỏ qua câu hỏi và xoá luôn; `--fresh` không đi cùng một stage nào
+  (báo lỗi), vì xoá `generated/` rồi chạy riêng `simulate` sẽ mất route của
+  g2/g3 và lặng lẽ bay lại chỉ g1.
+- stdin không phải terminal (pipe, cron, CI) thì không hỏi: in
+  `Không có terminal để hỏi; giữ kết quả cũ (dùng --fresh để xoá).`
+- Xoá xong in `Đã xoá <n> file · <MB>` và lệnh khôi phục
+  `git checkout -- generated data`.
+- `data/processed/missions/` **không bị xoá**: mission ghi lựa chọn START/GOAL,
+  không sinh lại được. Muốn chọn lại thì `--force-missions`.
+- Container Gazebo còn sót tên `funnel-*` (do lần chạy trước bị kill) bị
+  `docker rm -f` cùng lúc.
+
+## Tham số hỏi khi chạy
+
+Bước nào có tham số thì `main.py` hỏi ngay trước khi chạy bước đó. Enter giữ
+giá trị trong ngoặc vuông (đúng cấu hình đang commit); gõ số khác thì dùng số
+đó. Câu trả lời chỉ hỏi **một lần** cho cả run, nên `simulate` bay g1, g2, g3
+bằng cùng bộ tham số.
+
+| Bước | Tham số | Mặc định | Cờ truyền xuống |
+| --- | --- | --- | --- |
+| `triangulation` | `cell` (m) | 5 | `--cell` |
+| | `clearance` (m) | 1,5 | `--clearance` |
+| | `half-width` (m) | 1,6 | `--half-width` |
+| | `max-slope` (m/m) | 0,5 | `--max-slope` |
+| `run_funnel` | thời gian tối đa mỗi goal (s) | 300 | `--seconds` |
+| | số node tối đa | 200 000 | `--max-nodes` |
+| | `clipping` | Y | `--no-clipping` khi N |
+| `build_world` | `simplify` (m) | 0,1 | `--simplify` |
+| | `collision grid` (m) | 1,0 | `--collision-grid` |
+| | tốc độ (m/s) | 5 | `--speed` |
+| | gia tốc tối đa (m/s²) | 3 | `--max-accel` |
+| | dừng tại waypoint (s) | 0 | `--dwell` |
+| | trễ khởi động (s) | 2 | `--start-delay` |
+| `run_simulate.sh` | `timeout` (s) | 900 | `--timeout` |
+| `validate` | sai số cho phép (m) | 1,0 | `--max-error` |
+
+Nhập sai (chữ, số âm, 0) thì tool báo và hỏi lại. Sau khi hỏi in lại
+`→ cell=5 clearance=1.5 ...`, thêm `(đã đổi)` nếu có giá trị khác mặc định,
+kèm dòng `$ <lệnh đầy đủ>` để chép vào báo cáo.
+
+Đổi tham số hình học (`cell`, `clearance`, `half-width`, `max-slope`) làm bề
+mặt có SHA khác. Bước 6 của `data` chạy
+`set_start_goal.py --all-meshes --refresh-changed`: mission cũ được snap lại
+vào bề mặt mới theo đúng toạ độ START/GOAL đã lưu, nên `plan` không dừng với
+lỗi *"mesh changed since the mission was saved"*.
+
+## parameters.json
+
+Cuối mỗi run (kể cả khi lỗi) `main.py` ghi `generated/parameters.json`:
+
+```json
+{
+  "command": "main.py data",
+  "stages": ["data"],
+  "cleared": false,
+  "interactive": true,
+  "parameters": {"triangulation": {"cell": 5.0, "clearance": 1.5,
+                                   "half_width": 1.6, "max_slope": 0.5}},
+  "sources": {"triangulation": {"cell": "default", "clearance": "default",
+                                "half_width": "default", "max_slope": "default"}},
+  "commit": "e6db303",
+  "seconds": 9.328
+}
+```
+
+`parameters` là giá trị đã dùng; `sources` cho biết mỗi giá trị đến từ mặc
+định, từ câu trả lời hay từ cờ dòng lệnh. File này không commit (mỗi run ghi
+đè); muốn trích vào báo cáo thì lấy từ đây.
 
 ## Đầu ra trên terminal
 
@@ -94,10 +181,14 @@ plan: ok in 191.2 s
 `run_stage` chạy tuần tự; lệnh nào trả mã khác 0 thì dừng ngay:
 
 ```python
-completed = subprocess.run(command, cwd=ROOT)
-if completed.returncode:
-    raise SystemExit(f'Stage {name} failed: {printable}')
+code = capture(command) if args.quiet else stream(command)
+if code:
+    raise SystemExit(f'Stage {name} failed at step {step_number}: '
+                     f'{step_label(command)}')
 ```
+
+`stream` đọc từng dòng để output hiện ngay (không đợi bước xong); `capture`
+giữ output và chỉ in khi lỗi.
 
 Không có cơ chế bỏ qua lỗi hay chạy tiếp — muốn bỏ một bước thì sửa `STAGES`
 hoặc gọi tool trực tiếp.
@@ -105,9 +196,11 @@ hoặc gọi tool trực tiếp.
 ## Ví dụ
 
 ```bash
-python3 main.py                     # data -> plan -> simulate
+python3 main.py                     # hỏi chạy lại từ đầu, hỏi tham số, rồi chạy
+python3 main.py --fresh             # xoá kết quả cũ rồi chạy cả ba
+python3 main.py --no-ask            # không hỏi, dùng mặc định
 python3 main.py flow                # xem lệnh
-python3 main.py data --dry-run
+python3 main.py data --dry-run      # xem câu hỏi + lệnh, không đổi gì
 python3 main.py plan
 python3 main.py simulate --goal g2 --headless
 python3 main.py data --no-all-meshes
@@ -117,4 +210,7 @@ python3 main.py data --force-missions
 ## Mở rộng
 
 Thêm stage = thêm một khóa vào `STAGES` và `DESCRIPTIONS`; mỗi phần tử là một
-`list` lệnh tuyệt đối (phần tử đầu là interpreter). Không cần sửa `run_stage`.
+dict `{'run': [...], 'params': [...]}` — `run` là lệnh tuyệt đối (phần tử đầu là
+interpreter), `params` là danh sách nhóm trong `PARAM_GROUPS`. Thêm một nhóm
+tham số = thêm một khóa vào `PARAM_GROUPS` và `GROUP_TITLES`, không cần sửa
+`run_stage`.

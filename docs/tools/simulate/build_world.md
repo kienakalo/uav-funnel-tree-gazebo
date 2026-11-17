@@ -5,7 +5,7 @@
 | Stage | `simulate` bước 1 |
 | Vào | `generated/routes/<mission>.json`, bề mặt trong `route.mesh`, scene chuẩn hoá |
 | Ra | `generated/simulate/<mission>-<goal>/` — 6 file |
-| Cờ | `--mission`, `--route`, `--goal`, `--list-goals`, `--scene`, `--output`, `--collision-grid`, `--collision {decimated,full}`, `--visual {glb,stl}`, `--simplify M`, `--surface`, `--check` |
+| Cờ | `--mission`, `--route`, `--goal`, `--list-goals`, `--scene`, `--output`, `--collision-grid`, `--collision {decimated,full}`, `--visual {glb,stl}`, `--simplify M`, `--speed`, `--max-accel`, `--dwell`, `--start-delay`, `--surface`, `--check` |
 
 ## Input
 
@@ -28,6 +28,22 @@ Không đọc: mission JSON, STL, world cũ, file Gazebo.
 | `--list-goals` | In bảng rồi thoát, không dựng world |
 
 Lý do: một phiên Gazebo bay một tuyến; đoán hộ sẽ tốn vài phút và có thể bay sai goal.
+
+## Tham số bay
+
+`route.json` là hợp đồng giữa world và plugin; bốn giá trị dưới đây quyết định
+cách bay và đều ghi trong file đó (và trong `world_metadata.json`, khóa
+`flight`):
+
+| Cờ | Mặc định | Ý nghĩa |
+| --- | --- | --- |
+| `--speed` | 5 m/s | Tốc độ cruise của quỹ đạo tham chiếu |
+| `--max-accel` | 3 m/s² | Gia tốc giới hạn của profile tốc độ |
+| `--dwell` | 0 s | Dừng bao lâu tại mỗi waypoint; 0 là bay xuyên qua |
+| `--start-delay` | 2 s | Chờ trước khi bắt đầu chạy tuyến |
+
+Đổi một trong bốn giá trị này **không** đổi hình học world, chỉ đổi quỹ đạo
+tham chiếu, nên phải bay lại và chấm lại thì `validation.json` mới đúng.
 
 ## Đầu ra
 

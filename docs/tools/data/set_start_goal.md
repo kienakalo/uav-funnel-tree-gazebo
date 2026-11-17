@@ -51,6 +51,35 @@
 
 Không có timestamp → chạy lại với cùng lựa chọn cho ra đúng byte cũ.
 
+## Cập nhật mission khi bề mặt đổi
+
+Mission ghi `mesh_sha256` của bề mặt lúc chọn, nên bề mặt sinh lại với tham số
+khác sẽ làm `plan` dừng với *"mesh changed since the mission was saved"*.
+`--refresh-changed` (chỉ đi với `--all-meshes`) xử lý việc đó mà không cần chọn
+lại tay: toạ độ START/GOAL đã lưu được snap vào đỉnh gần nhất của bề mặt mới,
+id `g1..g3` giữ nguyên, rồi ghi lại SHA/kích thước.
+
+```bash
+.venv/bin/python tools/data/set_start_goal.py --all-meshes --refresh-changed
+```
+
+```text
+data/processed/missions/city.standardized.triangulation.json: bề mặt đã đổi, cập nhật lại lựa chọn cũ
+  START đỉnh 182 -> 182 (0.000 m)
+  g1 đỉnh 1275 -> 1275 (0.000 m)
+  ...
+Save at: data/processed/missions/city.standardized.triangulation.json
+
+1 mission(s) cập nhật theo bề mặt mới.
+```
+
+- Mission không đổi SHA thì bỏ qua, không ghi lại.
+- Điểm nào rơi xa hơn `--max-snap` so với mọi đỉnh mới thì tool **dừng**, không
+  tự dịch mission.
+- `--refresh-changed` không đi cùng `--force` (một bên giữ điểm cũ, một bên
+  chọn lại).
+- `main.py` luôn thêm cờ này vào bước 6 của stage `data`.
+
 ## Quản lý nhiều mesh
 
 ```bash

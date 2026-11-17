@@ -61,9 +61,11 @@ Chỉ cửa sổ 3D cần các gói này; chạy stage bằng PNG thì không c�
 ## Chạy
 
 ```bash
-python3 main.py flow        # liệt kê các bước và lệnh
-python3 main.py             # data -> plan -> simulate (cả 3 goal)
-python3 main.py data --dry-run
+python3 main.py flow        # liệt kê các bước, lệnh và tham số sẽ hỏi
+python3 main.py             # hỏi chạy lại từ đầu + tham số, rồi data -> plan -> simulate
+python3 main.py --fresh     # xoá kết quả cũ rồi chạy cả ba, không hỏi
+python3 main.py --no-ask    # không hỏi gì, dùng mặc định
+python3 main.py data --dry-run   # xem câu hỏi + lệnh, không đổi file nào
 
 python3 main.py data        # chỉ stage dữ liệu
 
@@ -92,7 +94,7 @@ Sáu bước, dừng ngay khi một bước lỗi:
 | 3 | `tools/data/off2glb.py` | `raw/meshes/*.off` → `scenes/meshes/*.off2glb.glb` |
 | 4 | `tools/data/triangulation.py --force` | `city.standardized.glb` → `meshes/city.standardized.triangulation.off` |
 | 5 | `tools/data/data_viz.py --all` | `processed/meshes/*.off` → `generated/data_viz/*.png` |
-| 6 | `tools/data/set_start_goal.py` | bề mặt → `data/processed/missions/<mesh>.json` |
+| 6 | `tools/data/set_start_goal.py --all-meshes --refresh-changed` | bề mặt → `data/processed/missions/<mesh>.json` |
 
 Stage `plan` có ba bước:
 

@@ -9,11 +9,13 @@ Nguồn nằm ở [`data/raw/`](../raw).
 | `scenes/city.standardized.glb` | Standardize | `tools/data/standardize.py` |
 | `scenes/meshes/*.off2glb.glb` | OFF → GLB (Y-up) | `tools/data/off2glb.py` |
 | `meshes/city.standardized.triangulation.off` | Tam giác phân bề mặt | `tools/data/triangulation.py` |
+| `meshes/city.standardized.triangulation.params.json` | Tham số + SHA đã sinh ra bề mặt | `tools/data/triangulation.py` |
 | `meshes/city.standardized.glb2off.off` | Bản OFF của scene để xem, không phải đầu vào thuật toán | `tools/data/glb2off.py` |
 | `missions/<mesh>.json` | START/GOAL đã chọn | `tools/data/set_start_goal.py` |
 
-Tên file theo quy trình. Không có file metadata đi kèm; tham số được ghi ở
-dưới và in ra khi chạy tool.
+Tên file theo quy trình. Bề mặt có sidecar `.params.json` ghi tham số và SHA;
+các file khác ghi tham số trong chính nội dung (mission, route, metadata) hoặc
+chỉ in ra khi chạy tool.
 
 ## Vì sao từng bước
 
@@ -222,8 +224,10 @@ python3 main.py data --force-missions   # chọn lại cả mesh đã có
 | GOAL mặc định | `74.73658745332892 -55.35715733632823 7.205632472302205` |
 | Kết quả | 2.295 đỉnh, 4.400 tam giác, 6.694 cạnh |
 
-Tham số được in ra console mỗi lần chạy. Không có file metadata đi kèm; muốn
-tái lập thì dùng đúng lệnh và tham số ở trên.
+Tham số được in ra console và ghi vào
+`meshes/city.standardized.triangulation.params.json` (kèm SHA của scene, script
+và file `.off`). Muốn tái lập thì dùng đúng lệnh và tham số ở trên; chạy lại với
+cùng tham số cho ra cùng SHA.
 
 ### Thay đổi nguồn dựng bề mặt (2026-11-16)
 

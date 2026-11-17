@@ -1,9 +1,9 @@
 {
-  "rows": 361,
+  "rows": 360,
   "completed": true,
-  "duration": 36.266,
+  "duration": 36.167,
   "max_error": 0.9709,
-  "mean_error": 0.0917,
+  "mean_error": 0.0919,
   "max_speed": 5.0317,
   "max_acceleration": 9.2393,
   "max_error_limit": 1.0,
@@ -11,9 +11,9 @@
   "goal": "g3",
   "world": "funnel_sim_city_standardized_triangulation_g3",
   "route_sha256": "b3c106adfa402e59f4ae5b008517f6fce1afbd2bf5c5ec60d2d3346f5062fcab",
-  "run_id": "20261117_144018-144862",
+  "run_id": "20261117_171259-218281",
   "nominal_duration": 32.14312553995026,
   "telemetry": "generated/simulate/city.standardized.triangulation-g3/physics_telemetry.csv",
-  "telemetry_sha256": "edfd95f903390851a542b7a673650ae95d4b1da932bc0b036f794e3dbac4f10a",
+  "telemetry_sha256": "0ecb216b5e97fd1d34eefafe847b5c1ced0d28f78e21878633e4edb3151c6cb3",
   "passed": true
 }

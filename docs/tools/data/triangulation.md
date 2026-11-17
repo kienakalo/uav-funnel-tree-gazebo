@@ -4,8 +4,8 @@
 | --- | --- |
 | Stage | `data` bước 4 |
 | Vào | `data/processed/scenes/city.standardized.glb` + START/GOAL |
-| Ra | `data/processed/meshes/city.standardized.triangulation.off` |
-| Cờ | `--scene`, `--start X Y Z`, `--goal X Y Z`, `--cell` (5), `--coverage {city,mission}`, `--output`, `--force` |
+| Ra | `data/processed/meshes/city.standardized.triangulation.off` + `…params.json` |
+| Cờ | `--scene`, `--start X Y Z`, `--goal X Y Z`, `--cell` (5), `--clearance` (1,5), `--half-width` (1,6), `--max-slope` (0,5), `--coverage {city,mission}`, `--output`, `--force` |
 | Cần | NumPy, Shapely |
 | Hằng số | `CLEARANCE = 1.5`, `HALF_WIDTH = 1.6`, `MAX_AXIS_SLOPE = 0.5` |
 
@@ -97,7 +97,31 @@ Parameters: {"cell": 5.0, "coverage": "city", "vertical_clearance": 1.5,
              "horizontal_half_width": 1.6, "max_axis_slope": 0.5}
 Result: {"vertices": 2295, "triangles": 4400, "edges": 6694,
          "surface_source": 792, "surface_target": 1810, "nonmanifold_edges": 0}
+Save at: data/processed/meshes/city.standardized.triangulation.off
+Save at: data/processed/meshes/city.standardized.triangulation.params.json
 ```
+
+File `.params.json` là sidecar, ghi cùng chỗ với bề mặt:
+
+```json
+{
+  "output": "data/processed/meshes/city.standardized.triangulation.off",
+  "output_sha256": "f6e01c6d…",
+  "script": "tools/data/triangulation.py",
+  "script_sha256": "40f43570…",
+  "scene": "data/processed/scenes/city.standardized.glb",
+  "scene_sha256": "cdd605ee…",
+  "parameters": {"cell": 5.0, "coverage": "city", "vertical_clearance": 1.5,
+                 "horizontal_half_width": 1.6, "max_axis_slope": 0.5},
+  "result": {"vertices": 2295, "triangles": 4400, "edges": 6694,
+             "surface_source": 792, "surface_target": 1810,
+             "nonmanifold_edges": 0}
+}
+```
+
+Nhờ đó một bề mặt luôn truy được về tham số, scene và phiên bản script sinh ra
+nó, kể cả khi tham số do người dùng nhập ở `main.py`. Không có dấu thời gian
+nên chạy lại với cùng tham số cho ra cùng file.
 
 ## Tham số mặc định của bề mặt hiện tại
 

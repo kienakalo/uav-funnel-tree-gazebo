@@ -261,17 +261,19 @@ def camera_pose(waypoints):
     return [round(value, 3) for value in (*position, 0.0, pitch, 45.0)]
 
 
-def build_route(record, goal, vertex, waypoints, world):
+def build_route(record, goal, vertex, waypoints, world, speed=SPEED,
+                max_acceleration=MAX_ACCELERATION, dwell=DWELL,
+                start_delay=START_DELAY):
     payload = {
         'mission': record['mission'],
         'goal': goal,
         'goal_vertex': vertex,
         'world': world,
         'waypoints': [[float(value) for value in point] for point in waypoints],
-        'speed': SPEED,
-        'max_acceleration': MAX_ACCELERATION,
-        'start_delay': START_DELAY,
-        'dwell': DWELL,
+        'speed': speed,
+        'max_acceleration': max_acceleration,
+        'start_delay': start_delay,
+        'dwell': dwell,
     }
     return payload
 
@@ -499,6 +501,20 @@ def main():
                              '(default: 0.1; 0 disables)')
     parser.add_argument('--surface', action='store_true',
                         help='Also write surface.stl as a visual of the envelope')
+    parser.add_argument('--speed', type=float, default=SPEED, metavar='M/S',
+                        help=f'Cruise speed of the reference, in m/s '
+                             f'(default: {SPEED:g})')
+    parser.add_argument('--max-accel', type=float, default=MAX_ACCELERATION,
+                        metavar='M/S2',
+                        help=f'Acceleration limit of the speed profile, in m/s2 '
+                             f'(default: {MAX_ACCELERATION:g})')
+    parser.add_argument('--dwell', type=float, default=DWELL, metavar='S',
+                        help=f'Time the reference spends at each waypoint, in '
+                             f'seconds (default: {DWELL:g}; 0 flies through)')
+    parser.add_argument('--start-delay', type=float, default=START_DELAY,
+                        metavar='S',
+                        help=f'Wait before the route starts, in seconds '
+                             f'(default: {START_DELAY:g})')
     parser.add_argument('--check', action='store_true',
                         help='Validate an existing build instead of writing one')
     args = parser.parse_args()
@@ -523,6 +539,14 @@ def main():
     original_waypoints = len(waypoints)
     if args.simplify < 0 or not math.isfinite(args.simplify):
         parser.error('--simplify must be zero or positive and finite')
+    if not (args.speed > 0 and math.isfinite(args.speed)):
+        parser.error('--speed must be positive and finite')
+    if not (args.max_accel > 0 and math.isfinite(args.max_accel)):
+        parser.error('--max-accel must be positive and finite')
+    if not (args.dwell >= 0 and math.isfinite(args.dwell)):
+        parser.error('--dwell must be zero or positive and finite')
+    if not (args.start_delay >= 0 and math.isfinite(args.start_delay)):
+        parser.error('--start-delay must be zero or positive and finite')
     waypoints = simplify(waypoints, args.simplify)
     mission = Path(record['mission']).stem
     out = args.output / f'{mission}-{goal}'
@@ -551,7 +575,9 @@ def main():
     world = world_name(mission, goal)
     meshes = build_meshes(args.scene, surface, out, args.collision_grid,
                           args.collision == 'full', args.visual, args.surface)
-    payload = build_route(record, goal, goal_vertex, waypoints, world)
+    payload = build_route(record, goal, goal_vertex, waypoints, world,
+                          args.speed, args.max_accel, args.dwell,
+                          args.start_delay)
     (out / 'route.json').write_text(json.dumps(payload, indent=2) + '\n', encoding='utf-8')
     sdf = build_sdf(out, world, payload, meshes, meshes['surface_stl'])
 
@@ -575,6 +601,10 @@ def main():
         'waypoints': len(waypoints),
         'waypoints_before_simplify': original_waypoints,
         'simplify_tolerance': args.simplify,
+        'flight': {'speed': args.speed,
+                   'max_acceleration': args.max_accel,
+                   'dwell': args.dwell,
+                   'start_delay': args.start_delay},
         'waypoint_length': round(sum(math.dist(a, b) for a, b in
                                       zip(waypoints, waypoints[1:])), 6),
         'model': '1 kg point mass with force feedback; box body collision; decorative rotors',
@@ -586,6 +616,8 @@ def main():
     print(f'Mission {mission}, goal {goal} (vertex {goal_vertex})')
     print(f'Route: {original_waypoints} -> {len(waypoints)} waypoints '
           f'(simplify {args.simplify:g} m), {metadata["waypoint_length"]:.2f} m')
+    print(f'Flight: {args.speed:g} m/s, {args.max_accel:g} m/s², '
+          f'dwell {args.dwell:g} s, start delay {args.start_delay:g} s')
     print(f'Visual: {relative(meshes["visual"])} — {meshes["visual_triangles"]} triangles')
     stats = meshes['collision_stats']
     print(f'Collision: {relative(meshes["collision"])} — '

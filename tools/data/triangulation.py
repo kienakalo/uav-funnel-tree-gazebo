@@ -19,10 +19,12 @@ intermediate STL. The scene is re-read with the same reader the visualization
 uses, which bakes the node transforms, switches to Z-up and normalizes the
 width to 200 m.
 
-Parameters are printed to the console and documented in
-data/processed/README.md. No sidecar is written.
+Parameters are printed to the console and written to a sidecar next to the
+surface (<name>.params.json) with the hashes of the scene, the script and the
+output, so a surface can be traced back to the run that produced it.
 """
 import argparse
+import hashlib
 import heapq
 import json
 import math
@@ -52,7 +54,18 @@ HALF_WIDTH = 1.6
 MAX_AXIS_SLOPE = .5
 
 
-def build_surface(triangles, start, goal, step, coverage='city'):
+def relative(path):
+    path = Path(path).resolve()
+    return path.relative_to(ROOT) if path.is_relative_to(ROOT) else path
+
+
+def sha256(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def build_surface(triangles, start, goal, step, coverage='city',
+                  clearance=CLEARANCE, half_width=HALF_WIDTH,
+                  max_slope=MAX_AXIS_SLOPE):
     """Every whole mesh cell clears all inflated city-triangle AABBs below it."""
     low, high = triangles.min(axis=1), triangles.max(axis=1)
     spatial = STRtree(polygons(triangles[:, :, :2]))
@@ -68,11 +81,11 @@ def build_surface(triangles, start, goal, step, coverage='city'):
     required = np.empty((len(xs) - 1, len(ys) - 1))
     for i in range(len(xs) - 1):
         for j in range(len(ys) - 1):
-            query = box(xs[i] - HALF_WIDTH, ys[j] - HALF_WIDTH,
-                        xs[i + 1] + HALF_WIDTH, ys[j + 1] + HALF_WIDTH)
+            query = box(xs[i] - half_width, ys[j] - half_width,
+                        xs[i + 1] + half_width, ys[j + 1] + half_width)
             ids = spatial.query(query)
-            required[i, j] = (float(high[ids, 2].max()) if len(ids) else 0.) + CLEARANCE
-    heights = np.full((len(xs), len(ys)), CLEARANCE)
+            required[i, j] = (float(high[ids, 2].max()) if len(ids) else 0.) + clearance
+    heights = np.full((len(xs), len(ys)), clearance)
     for di, dj in ((0, 0), (1, 0), (0, 1), (1, 1)):
         section = heights[di:di + len(xs) - 1, dj:dj + len(ys) - 1]
         np.maximum(section, required, out=section)
@@ -89,7 +102,7 @@ def build_surface(triangles, start, goal, step, coverage='city'):
             if not (0 <= a < len(xs) and 0 <= b < len(ys)):
                 continue
             distance = math.hypot(xs[a] - xs[i], ys[b] - ys[j])
-            candidate = height - MAX_AXIS_SLOPE * distance
+            candidate = height - max_slope * distance
             if candidate > heights[a, b] + 1e-10:
                 heights[a, b] = candidate
                 heapq.heappush(queue, (-candidate, a, b))
@@ -116,8 +129,8 @@ def build_surface(triangles, start, goal, step, coverage='city'):
     # Entry and delivery descent must also have clear vertical columns.
     for location, surface_index in ((start, source), (goal, target)):
         x, y, bottom = location
-        ids = spatial.query(box(x - HALF_WIDTH, y - HALF_WIDTH,
-                                x + HALF_WIDTH, y + HALF_WIDTH))
+        ids = spatial.query(box(x - half_width, y - half_width,
+                                x + half_width, y + half_width))
         top = points[surface_index, 2]
         overlap = ((high[ids, 2] >= min(bottom, top) - .2) &
                    (low[ids, 2] <= max(bottom, top) + .2))
@@ -137,6 +150,15 @@ def main():
                         metavar=('X', 'Y', 'Z'),
                         help='Envelope goal point (default: delivery mission goal)')
     parser.add_argument('--cell', type=float, default=5.)
+    parser.add_argument('--clearance', type=float, default=CLEARANCE,
+                        help=f'Vertical clearance above the city in metres '
+                             f'(default: {CLEARANCE})')
+    parser.add_argument('--half-width', type=float, default=HALF_WIDTH,
+                        help=f'Inflation around each cell in metres '
+                             f'(default: {HALF_WIDTH})')
+    parser.add_argument('--max-slope', type=float, default=MAX_AXIS_SLOPE,
+                        help=f'Largest height change per metre while spreading '
+                             f'the envelope (default: {MAX_AXIS_SLOPE})')
     parser.add_argument('--coverage', choices=('city', 'mission'), default='city')
     parser.add_argument('--output', type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument('--force', action='store_true',
@@ -151,23 +173,39 @@ def main():
     start = np.array(args.start)
     goal = np.array(args.goal)
     points, surface_faces, source, target, stats = build_surface(
-        vertices[faces], start, goal, args.cell, args.coverage)
+        vertices[faces], start, goal, args.cell, args.coverage,
+        args.clearance, args.half_width, args.max_slope)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     write_off(args.output, points, surface_faces)
     parameters = {
         'cell': args.cell, 'coverage': args.coverage,
-        'vertical_clearance': CLEARANCE, 'horizontal_half_width': HALF_WIDTH,
-        'max_axis_slope': MAX_AXIS_SLOPE,
+        'vertical_clearance': args.clearance,
+        'horizontal_half_width': args.half_width,
+        'max_axis_slope': args.max_slope,
     }
     print('Parameters:', json.dumps(parameters))
-    print('Result:', json.dumps({
+    result = {
         'vertices': int(len(points)), 'triangles': int(len(surface_faces)),
         'edges': int(stats['edges']), 'surface_source': int(source),
         'surface_target': int(target),
         'nonmanifold_edges': int(stats['nonmanifold_edges']),
-    }))
-    print(f'Save at: {args.output}')
+    }
+    print('Result:', json.dumps(result))
+    print(f'Save at: {relative(args.output)}')
+
+    sidecar = args.output.with_suffix('.params.json')
+    sidecar.write_text(json.dumps({
+        'output': str(relative(args.output)),
+        'output_sha256': sha256(args.output),
+        'script': str(relative(Path(__file__))),
+        'script_sha256': sha256(Path(__file__)),
+        'scene': str(relative(args.scene)),
+        'scene_sha256': sha256(args.scene),
+        'parameters': parameters,
+        'result': result,
+    }, indent=2) + '\n', encoding='utf-8')
+    print(f'Save at: {relative(sidecar)}')
 
 
 if __name__ == '__main__':

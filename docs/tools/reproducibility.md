@@ -61,6 +61,16 @@ Nếu khác, ghi SHA cũ/mới + lý do vào
 [`../../data/processed/README.md`](../../data/processed/README.md) trước khi
 commit.
 
+Tham số đã dùng nằm ở hai chỗ, nên một kết quả luôn truy được về cấu hình:
+
+| File | Nội dung |
+| --- | --- |
+| `generated/parameters.json` | `main.py` ghi mỗi run: tham số từng bước, nguồn (mặc định / người trả lời / cờ), dòng lệnh, commit, thời gian chạy |
+| `data/processed/meshes/city.standardized.triangulation.params.json` | `triangulation.py` ghi cạnh bề mặt: tham số, SHA của scene, script và file `.off` |
+
+`generated/parameters.json` không commit (mỗi run ghi đè). Khi trích số liệu
+vào báo cáo, chép cả tham số từ file này, không chỉ chép kết quả.
+
 ## Môi trường
 
 - Python 3.14.8, NumPy 2.5.4, Matplotlib 3.11.2, Shapely 2.2.0, Pillow 13.0.0
@@ -102,6 +112,8 @@ ghi nguồn và phiên chạy khi chèn vào báo cáo. Số đo nằm trong
 | Hạng mục | Giá trị |
 | --- | --- |
 | Bề mặt thành phố | 2.295 đỉnh / 4.400 tam giác / 6.694 cạnh |
+| Tham số bề mặt | ô 5 m, clearance 1,5 m, half-width 1,6 m, slope 0,5 m/m |
+| Tham số bay | 5 m/s, 3 m/s², dwell 0 s, start delay 2 s |
 | SHA256 bề mặt | `f6e01c6d421f71aec828ae2f71593e7b2d0460604453459eb5e86b2ea47b28df` |
 | SHA256 `city.standardized.glb` | `cdd605eedc01011c5c39408ce167fca6244d1a9e0a7527450d13861570a837cb` (sau khi sửa bufferView + thêm NORMAL) |
 | Route city (polyline) | 133,70 m · 284,06 m · 140,54 m |

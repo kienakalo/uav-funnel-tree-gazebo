@@ -376,6 +376,61 @@ def summary(record, path):
                   + (f' (snap {goal["snap"]:.3f})' if goal.get('snap') else ''))
 
 
+def refresh_mission(mesh_path, path, args):
+    """Rewrite a mission whose surface changed, keeping its chosen points.
+
+    The stored START and GOAL coordinates are snapped again on the new
+    surface, so the same places stay selected when the grid or the envelope
+    changes. Nothing is invented: if a point falls farther than --max-snap
+    from every new vertex, the tool stops instead of moving the mission.
+    """
+    record = json.loads(path.read_text(encoding='utf-8'))
+    current = hashlib.sha256(mesh_path.read_bytes()).hexdigest()
+    if record.get('mesh_sha256') == current:
+        return False
+    points, faces, boundary = read_mesh(mesh_path)
+    spacing = vertex_spacing(points)
+    mode = record.get('snap_mode') or args.snap
+    max_snap = max(float(record.get('max_snap') or 0.),
+                   spacing * math.sqrt(2.) / 2.)
+    print(f'\n{relative(path)}: bề mặt đã đổi, cập nhật lại lựa chọn cũ', flush=True)
+    start = record.get('start') or {}
+    if not isinstance(start.get('xyz'), list):
+        fail(f'{path}: START has no saved coordinates; run with --force '
+             'and choose again')
+    index, distance = snap(points, start['xyz'], mode, max_snap, 'START')
+    start_record = (describe(points, index) if distance <= 1e-9
+                    else describe(points, index, start['xyz'], distance))
+    print(f'  START đỉnh {start.get("vertex")} -> {index} ({distance:.3f} m)', flush=True)
+    goals = []
+    for goal in record.get('goals') or []:
+        if not isinstance(goal.get('xyz'), list):
+            fail(f'{path}: GOAL {goal.get("id")} has no saved coordinates; run '
+                 'with --force and choose again')
+        index, distance = snap(points, goal['xyz'], mode, max_snap,
+                               f'GOAL {goal.get("id")}')
+        goal_record = (describe(points, index) if distance <= 1e-9
+                       else describe(points, index, goal['xyz'], distance))
+        goal_record = {'id': goal.get('id'), **goal_record}
+        print(f'  {goal.get("id")} đỉnh {goal.get("vertex")} -> {index} '
+              f'({distance:.3f} m)', flush=True)
+        goals.append(goal_record)
+    record.update({
+        'mesh': str(relative(mesh_path)),
+        'mesh_sha256': current,
+        'mesh_vertices': int(len(points)),
+        'mesh_faces': int(len(faces)),
+        'boundary_edges': int(boundary),
+        'vertex_spacing': round(spacing, 6),
+        'max_snap': round(max_snap, 6),
+        'start': start_record,
+        'goals': goals,
+    })
+    write_json(path, record)
+    print(f'Save at: {path}')
+    return True
+
+
 def choose_console(path, points, faces, mode, max_snap):
     """Ask on the terminal, using /dev/tty when stdin is piped."""
     streams = terminal_streams()
@@ -553,6 +608,9 @@ def main():
     parser.add_argument('--max-snap', type=float,
                         help='Reject points farther than this from a vertex '
                              '(default: half a grid diagonal)')
+    parser.add_argument('--refresh-changed', action='store_true',
+                        help='With --all-meshes: rewrite missions whose surface '
+                             'changed, keeping the saved START/GOAL coordinates')
     parser.add_argument('--force', action='store_true',
                         help='Replace an existing mission file')
     args = parser.parse_args()
@@ -563,6 +621,10 @@ def main():
         fail('--all-goals cannot be combined with --goal or --goal-vertex')
     if args.all_meshes and (args.mesh or args.mission):
         fail('--all-meshes cannot be combined with --mesh or --mission')
+    if args.refresh_changed and not args.all_meshes:
+        fail('--refresh-changed needs --all-meshes')
+    if args.refresh_changed and args.force:
+        fail('--refresh-changed keeps the saved points; --force chooses new ones')
     if args.all_meshes and (args.start is not None or args.start_vertex is not None
                             or args.goal or args.goal_vertex or args.all_goals):
         fail('--all-meshes chooses interactively; drop --start/--goal/--all-goals')
@@ -575,6 +637,15 @@ def main():
         meshes = mesh_list(DEFAULT_MESH.parent)
         if not meshes:
             fail(f'no .off mesh in {DEFAULT_MESH.parent}; run "python3 main.py data" first')
+        if args.refresh_changed:
+            refreshed = 0
+            for mesh in meshes:
+                path = mission_path(mesh, args.output, None)
+                if path.is_file() and refresh_mission(mesh, path, args):
+                    refreshed += 1
+            if refreshed:
+                print(f'\n{refreshed} mission(s) cập nhật theo bề mặt mới.',
+                      flush=True)
         pending = [mesh for mesh in meshes
                    if args.force or not mission_path(mesh, args.output, None).is_file()]
         if not pending:

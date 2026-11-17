@@ -16,3 +16,5 @@ __pycache__/
 Thumbs.db
 
 AGENTS.md
+# Per-run parameter log written by main.py; every run overwrites it.
+generated/parameters.json
