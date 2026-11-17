@@ -19,10 +19,10 @@ liệu lần thứ nhất. Vì vậy `main.py --label` chép bộ kết quả sa
 
 ```bash
 # lần 1: cấu hình mặc định
-python3 main.py --label cell5
+python3 main.py --label grid5
 
 # lần 2: trả lời cell = 4 ở câu hỏi triangulation
-python3 main.py --label cell4
+python3 main.py --label grid4
 
 # bảng cho báo cáo
 python3 tools/plan/compare_runs.py
@@ -31,13 +31,13 @@ python3 tools/plan/compare_runs.py
 Muốn lưu kết quả đang có mà không chạy lại:
 
 ```bash
-python3 main.py --archive cell5
+python3 main.py --archive grid5-b
 ```
 
 So sánh một tập con hoặc đổi chỗ ghi:
 
 ```bash
-python3 tools/plan/compare_runs.py cell5 cell4 --output results/cell-grid
+python3 tools/plan/compare_runs.py grid5 grid4 --output results/grid-comparison
 ```
 
 ## Bảng gồm gì
@@ -80,9 +80,9 @@ Không có giá trị nào được suy ra từ mặc định của tool: thiế
 Mỗi archive có `route.png` và `gN/tracking.png`. Tool chép ra:
 
 ```text
-results/comparison/cell5-route.png
-results/comparison/cell5-g1-tracking.png
-results/comparison/cell4-g1-tracking.png
+results/comparison/grid5-route.png
+results/comparison/grid5-g1-tracking.png
+results/comparison/grid4-g1-tracking.png
 ```
 
 Tên file mang label nên hai lần chạy không thể lẫn ảnh. Ảnh giữ nguyên chân
@@ -95,8 +95,8 @@ tham số do `figstamp` vẽ, nên mở ảnh vẫn đọc được cấu hình.
   trên cùng SHA.
 - `cell` 4 m làm `plan` chậm hơn nhiều: lần đo trước cho g1 khoảng 107 s và g2
   vượt 300 s. Muốn so đủ ba goal thì trả lời `thời gian tối đa mỗi goal` = 600
-  ở lần chạy cell 4, nếu không `g2` sẽ `trượt` vì hết giờ chứ không phải vì
-  route xấu.
+  ở lần chạy cell 4, nếu không `g2` sẽ hết giờ giữa lúc lập tuyến (không có
+  route để bay), khác hẳn với `mốc bám = trượt` của một lần bay đã hoàn tất.
 - Archive ghi `created_at` và ảnh có thời điểm, nên hai lần chạy cùng tham số
   vẫn khác byte ảnh. So sánh bằng tham số + SHA, không bằng hash ảnh.
 - Tool không chạy lại gì và không sửa archive; chỉ đọc và chép ảnh.

@@ -1,13 +1,16 @@
 # UAV Funnel Tree — dữ liệu dẫn đường
 
-Repo này dựng **dữ liệu đầu vào và tuyến cho Funnel Tree**: từ scene thành phố
-thô (`data/raw/scenes/city.glb`) và chín mesh mẫu, stage `data` tạo ra scene đã
-chuẩn hoá, các bản GLB để xem, bề mặt tam giác phân dùng làm miền dẫn đường,
+Repo này dựng **dữ liệu, tuyến và chuyến bay cho Funnel Tree**: từ scene thành
+phố thô (`data/raw/scenes/city.glb`) và chín mesh mẫu, stage `data` tạo ra scene
+đã chuẩn hoá, các bản GLB để xem, bề mặt tam giác phân dùng làm miền dẫn đường,
 ảnh kiểm tra hình học và nhiệm vụ START → GOAL; stage `plan` chạy thuật toán,
-vẽ tuyến và đối chiếu độ dài với đường tham chiếu.
+vẽ tuyến và đối chiếu độ dài với đường tham chiếu; stage `simulate` dựng world
+Gazebo từ một tuyến, bay bằng plugin quỹ đạo và chấm telemetry.
 
-Thuật toán Funnel Tree chỉ đọc mesh `.off`; repo này không chứa phần mô phỏng
-Gazebo hay benchmark.
+Thuật toán Funnel Tree chỉ đọc mesh `.off`. Stage `simulate` là **kiểm chứng
+tuyến có bay được không**, không phải một phần của thuật toán: nó đọc route do
+`plan` sinh ra và không ghi ngược lại gì vào `data/` hay `generated/routes/`.
+Repo cũng không có benchmark so với thuật toán khác.
 
 ## Kết quả của stage `data`
 
@@ -28,6 +31,21 @@ Gazebo hay benchmark.
 | `generated/routes/<mission>.png` | Ảnh bề mặt + các tuyến |
 | `generated/compare/<mesh>.json` | So từng đỉnh với `data/expected/<mesh>.paths.json` |
 | `generated/compare/summary.json` | Mesh nào đạt, không đạt, bị bỏ qua |
+
+## Kết quả của stage `simulate`
+
+| Tệp | Nội dung |
+| --- | --- |
+| `generated/simulate/<mission>-<goal>/city.sim.glb` | Bản visual của thành phố trong world đó (có `NORMAL` để Gazebo tô sáng) |
+| `generated/simulate/<mission>-<goal>/city.sim.collision.stl` | Bản collision đã decimate theo `--collision-grid` |
+| `generated/simulate/<mission>-<goal>/funnel_physics.sdf`, `route.json` | World và tuyến đã rút gọn mà plugin thực sự bay |
+| `generated/simulate/<mission>-<goal>/physics_telemetry.csv` | Telemetry từng bước: `sim_time`, vị trí, setpoint, `error`, `phase` |
+| `generated/simulate/<mission>-<goal>/validation.json` | `max_error`, `mean_error`, `final_error`, `valid`, `passed` |
+| `generated/simulate/<mission>-<goal>/tracking.png` + `.png.json` | Ảnh tuyến + sai số theo thời gian, có dấu tham số |
+| `results/runs/<label>/` | Bản lưu của một lần chạy (`--label` / `--archive`), không stage nào xoá |
+
+`valid` và `passed` trả lời hai câu khác nhau; xem
+[`docs/tools/simulate/validate.md`](docs/tools/simulate/validate.md).
 
 ## Cài đặt
 
@@ -66,9 +84,9 @@ python3 main.py             # hỏi xoá gì + tham số, rồi data -> plan -> 
 python3 main.py --fresh     # xoá những gì các stage sẽ sinh lại, không hỏi
 python3 main.py --no-ask    # không hỏi gì, dùng mặc định
 python3 main.py data --dry-run   # xem câu hỏi + lệnh, không đổi file nào
-python3 main.py --label cell5    # chạy rồi lưu kết quả để so sánh về sau
-python3 main.py --archive cell5  # chỉ lưu kết quả đang có, không chạy lại
-python3 tools/plan/compare_runs.py  # bảng cell5 vs cell4 cho báo cáo
+python3 main.py --label grid4       # chạy rồi lưu kết quả để so sánh về sau
+python3 main.py --archive grid4-b   # chỉ lưu kết quả đang có, không chạy lại
+python3 tools/plan/compare_runs.py  # bảng mọi archive đang có (cell5, city792, ...)
 python3 tools/figures.py         # kiểm tra ảnh đã ghi đúng tham số chưa
 
 python3 main.py data        # chỉ stage dữ liệu
@@ -206,11 +224,13 @@ file mô tả thuật toán ở [`docs/tools/`](docs/tools/README.md).
 ## Cấu trúc thư mục
 
 ```text
-main.py                  # chạy stage data / plan
+main.py                  # chạy stage data / plan / simulate
 data/
   raw/                   # nguồn, không sửa tay
   processed/             # đầu vào đã xử lý, sinh lại bằng tools/
   expected/              # đường tham chiếu cho ảnh kiểm tra
+tools/
+  figures.py             # kiểm tra ảnh ↔ tham số (chân ảnh + sidecar)
 tools/data/
   copy_meshes.py         # validate + copy mesh mẫu
   standardize.py         # chuẩn hoá scene GLB
@@ -237,7 +257,10 @@ lib/
   mesh_glb.py            # container GLB
   mesh_off.py            # đọc/ghi OFF + lớp Mesh (kề, góc, khoảng cách)
   plotting.py            # chọn backend cửa sổ, báo lỗi rõ khi thiếu
+  figstamp.py            # chân ảnh + PNG tEXt + sidecar .png.json
 generated/               # đầu ra
+results/
+  runs/                  # bản lưu từng lần chạy (--label), không bị xoá
 docs/
   data-format.md         # quy ước định dạng
   tools/                 # mỗi tool một file: vào/ra, thuật toán, giới hạn
@@ -249,10 +272,23 @@ vào `sys.path`, xem [`lib/README.md`](lib/README.md).
 ## Lưu trong Git
 
 - Commit: dữ liệu `raw/`, đầu ra `processed/` (kể cả `missions/*.json`), mã
-  nguồn, tài liệu và kết quả stage `plan` (`generated/routes/**`,
+  nguồn, tài liệu, kết quả `plan` (`generated/routes/**`,
   `generated/compare/**`).
-- Không commit: `.venv/`, `generated/data_viz/` và
-  `data/processed/scenes/city.standardized.glb` vì sinh lại được ở bước 2.
+- Commit cả `generated/simulate/**` và `results/runs/**` của những chuyến bay
+  đang dùng làm bằng chứng: telemetry và `validation.json` chỉ sinh lại được khi
+  có Docker + image Gazebo + GPU, nên để trong Git thay vì chỉ trên một máy.
+- Commit `generated/data_viz/**` và `generated/routes/**` (PNG): mỗi ảnh mang
+  chân tham số + SHA và được dẫn trực tiếp trong báo cáo. Ảnh có timestamp nên
+  chạy lại stage là diff đổi; chỉ commit lại khi tham số hoặc mesh đổi.
+- Commit `data/processed/scenes/city.standardized.glb`: `triangulation` đọc nó
+  và SHA của nó nằm trong `surface.params.json`, nên giữ file để đối chiếu.
+- Không commit: `.venv/`, `__pycache__/`, `generated/parameters.json` (mỗi run
+  ghi đè), và log khác ngoài `generated/simulate/*/gazebo.log` (log của chuyến
+  bay đã lưu là bằng chứng, có ngoại lệ trong `.gitignore`).
+
+Lý do lưu từng nhóm đầu ra, và cách so sánh hai lần chạy:
+[`results/README.md`](results/README.md),
+[`docs/tools/reproducibility.md`](docs/tools/reproducibility.md).
 
 Chạy lại stage `data` phải cho ra đúng byte của
 `data/processed/meshes/city.standardized.triangulation.off`. Nếu khác, ghi lại

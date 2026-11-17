@@ -131,23 +131,23 @@ tool ghi vào cùng tên file. Muốn so sánh hai cấu hình sau khi đã ch�
 lưu từng lần chạy lại:
 
 ```bash
-python3 main.py --label cell5          # chạy theo cấu hình hiện tại rồi lưu
-python3 main.py --label cell4          # lần chạy thứ hai, không cần --fresh
-python3 tools/plan/compare_runs.py     # bảng cell5 vs cell4 cho báo cáo
+python3 main.py --label grid5          # chạy theo cấu hình hiện tại rồi lưu
+python3 main.py --label grid4          # lần chạy thứ hai, không cần --fresh
+python3 tools/plan/compare_runs.py     # bảng grid5 vs grid4 cho báo cáo
 ```
 
 `--archive` dùng khi kết quả đã có sẵn trên đĩa và không muốn chạy lại:
 
 ```bash
-python3 main.py --archive cell5
+python3 main.py --archive grid5-b
 ```
 
 Mỗi archive là một thư mục trong `results/runs/<label>/`:
 
 | File | Nội dung |
 | --- | --- |
-| `manifest.json` | tham số + nguồn, commit, SHA scene/bề mặt/route, START/GOAL đã snap, độ dài route từng goal, thời lượng bay, `max_error`, `mean_error`, `valid`, `passed`, danh sách file kèm SHA |
-| `parameters.json` | bản sao `generated/parameters.json` của lần chạy |
+| `manifest.json` | tham số + nguồn, `commit` (HEAD lúc lưu), SHA scene/bề mặt/route, START/GOAL đã snap, độ dài route từng goal, thời lượng bay, `max_error`, `mean_error`, `valid`, `passed`, danh sách file kèm SHA |
+| `parameters.json` | bản sao `generated/parameters.json` của lần chạy `main.py` **cuối cùng** (với `--archive` có thể chỉ là một goal) |
 | `surface.params.json` | tham số + SHA của bề mặt đã dùng |
 | `mission.json`, `route.json`, `route.png`, `route.png.json` | mission, route đã lập và ảnh tuyến |
 | `plan-summary.json` | `generated/compare/summary.json` (đối chiếu reference) |
@@ -162,6 +162,10 @@ Mỗi archive là một thư mục trong `results/runs/<label>/`:
   chỉ chạy `simulate` thì có `world`, `flight`, `gazebo`, `validate`); tham số
   hình học và solver vẫn truy được qua `surface.params.json` và `routes.solver`,
   và `compare_runs.py` tự gộp lại.
+- `commit` là `HEAD` **lúc lưu archive**, không phải lúc bay. Với `--label` hai
+  thời điểm trùng nhau; với `--archive` thì không, và `parameters.json` chỉ là
+  log của lần `main.py` cuối cùng. Số liệu vẫn truy được qua `route_sha256` và
+  `telemetry_sha256` trong `validation.json`.
 
 ## Tham số hỏi khi chạy
 
@@ -301,8 +305,8 @@ python3 main.py plan
 python3 main.py simulate --goal g2 --headless
 python3 main.py data --no-all-meshes
 python3 main.py data --force-missions
-python3 main.py --label cell5       # chạy rồi lưu kết quả vào results/runs/cell5
-python3 main.py --archive cell5     # chỉ lưu kết quả đang có
+python3 main.py --label grid4       # chạy rồi lưu kết quả vào results/runs/grid4
+python3 main.py --archive grid4-b   # chỉ lưu kết quả đang có
 ```
 
 ## Mở rộng

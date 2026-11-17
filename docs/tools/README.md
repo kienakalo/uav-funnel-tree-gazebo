@@ -39,8 +39,8 @@ main.py --label <tên> ──► results/runs/<tên>/manifest.json + số liệu
                           (không stage nào xoá; compare_runs.py đọc để so sánh)
 ```
 
-Ba stage một chiều: `plan` đọc kết quả `data`; `simulate` đọc route của `plan`.
-Ba stage một chiều: `plan` đọc kết quả `data`, `simulate` đọc route của `plan`.
+Ba stage một chiều: `plan` đọc kết quả `data`, `simulate` đọc route của `plan`;
+không stage nào ghi ngược lại kết quả của stage trước.
 Stage `simulate` cần Gazebo nên chạy được riêng (`main.py simulate`), và bare run
 vẫn chạy cả ba theo thứ tự.
 
@@ -63,7 +63,7 @@ vẫn chạy cả ba theo thứ tự.
 | — | Kiểm tra ảnh ↔ tham số | [`figures.md`](figures.md) |
 | simulate | Dựng world + mesh | [`build_world.md`](simulate/build_world.md) |
 | simulate | Plugin bay (trajectory + controller) | [`plugin.md`](simulate/plugin.md) |
-| simulate | Dựng world + bay + backup | [`run_simulate.md`](simulate/run_simulate.md) |
+| simulate | Bay trong Gazebo (+ backup telemetry cũ) | [`run_simulate.md`](simulate/run_simulate.md) |
 | simulate | Camera + MarkerManager cho GUI | [`gui_config.md`](simulate/gui_config.md) |
 | simulate | Kiểm GLB bằng Assimp | [`check_glb.md`](simulate/check_glb.md) |
 | simulate | Chấm kết quả | [`validate.md`](simulate/validate.md) |

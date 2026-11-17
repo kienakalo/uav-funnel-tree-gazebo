@@ -6,11 +6,11 @@ các cấu hình sau khi `generated/` bị ghi đè.
 
 | Mục | Ai ghi | Vì sao giữ |
 | --- | --- | --- |
-| `runs/<label>/manifest.json` | `main.py --label` / `--archive` | Tham số + nguồn, commit, SHA scene/bề mặt/route, START/GOAL đã snap, độ dài route, thời lượng bay, `max_error`, danh sách file kèm SHA |
-| `runs/<label>/parameters.json` | như trên | Bản sao `generated/parameters.json` của lần chạy đó (file gốc bị ghi đè mỗi run) |
+| `runs/<label>/manifest.json` | `main.py --label` / `--archive` | Tham số + nguồn, `commit` (HEAD lúc lưu), SHA scene/bề mặt/route, START/GOAL đã snap, độ dài route, thời lượng bay, `max_error`, `mean_error`, `valid`, `passed`, danh sách file kèm SHA |
+| `runs/<label>/parameters.json` | như trên | Bản sao `generated/parameters.json` của lần `main.py` **cuối cùng** (file gốc bị ghi đè mỗi run) |
 | `runs/<label>/surface.params.json` | như trên | Tham số + SHA của bề mặt đã dùng, để biết hai archive có cùng hình học hay không |
 | `runs/<label>/mission.json`, `route.json`, `route.png` | như trên | Mission, route đã lập và ảnh tuyến; ảnh có chân ghi tham số |
-| `runs/<label>/gN/` | như trên | `validation.json`, `world_metadata.json`, quỹ đạo bay, `tracking.png` + sidecar, `telemetry_metadata.json` của từng goal |
+| `runs/<label>/gN/` | như trên | `validation.json`, `world_metadata.json`, `route.json` (tuyến đã rút gọn mà plugin bay), `tracking.png` + sidecar, `telemetry_metadata.json` của từng goal |
 | `comparison/` | `tools/plan/compare_runs.py` | Bảng Markdown + JSON và ảnh của các lần chạy, tên file mang label |
 
 Quy ước:
@@ -24,7 +24,18 @@ Quy ước:
   đã sinh ra kết quả nằm trong `parameters.json` của chính archive (`command`,
   `stages`, tham số, nguồn).
 - `--label`/`--archive` **không ghi đè**: label đã tồn tại thì tool dừng.
+- `commit` trong `manifest.json` là `HEAD` **lúc lưu**, không phải lúc bay. Hai
+  archive hiện có đều lưu sau khi bay: `cell5b` bay ở `587f71f` nhưng lưu ở
+  `1a270fd`; `city792` bay ở `a478578`, còn `valid`/`passed` được tính bằng
+  `validate.py` của working tree lúc đó (vào Git ở `9487a5a`) — số đo
+  `max_error`/`mean_error` không đổi. Đừng suy commit sinh ra số liệu từ trường
+  này; dùng `route_sha256`/`telemetry_sha256` trong `validation.json`.
 - `--fresh` và mọi stage đều không xoá `results/`.
+- `gN/` **không** chứa `physics_telemetry.csv` và `gazebo.log`; archive chỉ giữ
+  `telemetry_sha256` trong `validation.json`. Hai file gốc nằm ở
+  `generated/simulate/<mission>-<goal>/` (đã commit) và sẽ bị ghi đè hoặc xoá ở
+  lần chạy sau, nên archive không tự kiểm lại được telemetry một khi `generated/`
+  đổi. Muốn kiểm ngay thì so SHA với file gốc trước lần chạy kế tiếp.
 - `comparison/` sinh lại được từ `runs/`, nên có thể bỏ và tạo lại bất cứ lúc nào.
 
 ## Các archive đang có
@@ -42,7 +53,6 @@ Mission hiện tại của thành phố là START 792 → 1810 / 1910 / 1518 (xe
 Đọc và so sánh:
 
 ```bash
-python3 main.py --archive cell5
 python3 tools/plan/compare_runs.py          # bảng mọi archive, xếp theo tên
 ```
 

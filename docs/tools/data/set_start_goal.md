@@ -66,7 +66,7 @@ delivery trong repo cũ (`generated/city_three_goals/cases.json`, commit
 - Bề mặt **không** phụ thuộc mission: đổi START/GOAL chỉ đổi route, SHA bề mặt
   vẫn `f6e01c6d…`.
 - Mission cũ (START 182 ở góc −100, −95) và các lần bay của nó nằm trong
-  [`results/runs/`](../../results/README.md).
+  [`results/runs/`](../../../results/README.md).
 
 ## Schema JSON
 

@@ -1,6 +1,6 @@
 # Mã nguồn dùng chung
 
-Ba module. Đây **không phải package**: không có `__init__.py`, các module được
+Bốn module. Đây **không phải package**: không có `__init__.py`, các module được
 import trực tiếp theo tên (`from mesh_glb import write_glb`) sau khi chương trình
 thêm `lib/` vào `sys.path`. Tool mới dùng `lib/` cần thêm cùng một dòng.
 
@@ -9,6 +9,7 @@ thêm `lib/` vào `sys.path`. Tool mới dùng `lib/` cần thêm cùng một d�
 | `mesh_glb.py` | `read_glb`, `write_glb`, `indexed_from_triangles`: container GLB 2 | — (chỉ stdlib + NumPy) |
 | `mesh_off.py` | `read_off`, `write_off`, `inspect_mesh`, `unique_edge_count` và lớp `Point`/`Mesh` | — (chỉ stdlib + NumPy) |
 | `plotting.py` | `use_interactive`, `unavailable_message`: chọn backend cửa sổ, báo rõ khi thiếu | — (chỉ stdlib) |
+| `figstamp.py` | `save`, `sha256`: chân ảnh + PNG `tEXt` + sidecar `.png.json` cho mọi hình | — (chỉ stdlib + Matplotlib) |
 
 Lớp `Mesh` trong `mesh_off.py` là cấu trúc dữ liệu thuật toán đi trên: `points`,
 `faces`, `vertex_faces`, `edge_faces`, `distance`, `angle`, `other_face`,
@@ -19,6 +20,9 @@ Lớp `Mesh` trong `mesh_off.py` là cấu trúc dữ liệu thuật toán đi t
 `mesh_glb.py` được `tools/data/standardize.py` và `tools/data/off2glb.py` dùng;
 `mesh_off.py` là reader/writer OFF duy nhất, dùng ở sáu tool của stage `data` và
 cả ba tool của stage `plan`. Thuật toán Funnel nằm ở `algo/funnel_tree.py`.
+`figstamp.py` là chỗ duy nhất ghi chân ảnh/metadata/sidecar, dùng ở
+`tools/data/data_viz.py`, `tools/plan/route_viz.py` và
+`tools/simulate/validate.py`; `tools/figures.py` đọc lại ba lớp đó để kiểm tra.
 
 ## Chữ ký phụ thuộc mã nguồn
 
