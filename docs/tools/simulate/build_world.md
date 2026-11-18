@@ -185,13 +185,13 @@ Waypoint lấy từ route của stage `plan`, sau đó **rút gọn Douglas–Pe
 
 Số của mission hiện tại (START 792 → 1810 / 1910 / 1518), đọc từ
 `world_metadata.json` và `validation.json` của ba lần bay đã lưu ở
-`results/runs/city792`:
+`results/runs/city792e`:
 
 | Goal | Trước | Sau | Độ dài polyline (đã rút gọn) | Thời gian bay |
 | --- | --- | --- | --- | --- |
-| g1 | 41 | **27** | 142,42 m | 35,4 s |
-| g2 | 46 | **25** | 125,63 m | 33,2 s |
-| g3 | 40 | **24** | 86,14 m | 24,6 s |
+| g1 | 41 | **27** | 142,42 m | 35,9 s |
+| g2 | 46 | **25** | 125,63 m | 33,1 s |
+| g3 | 40 | **24** | 86,14 m | 25,0 s |
 
 (`world_metadata.json` không ghi độ dài cung spline, nên cột đó đã bỏ thay vì
 chép lại số của mission cũ.)

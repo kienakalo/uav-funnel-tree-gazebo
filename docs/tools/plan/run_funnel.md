@@ -63,10 +63,10 @@ Mission id lấy từ tên file sau khi bỏ `.mission.json`: `cliff.mission.jso
 
 Trước mỗi mission, tool in `[i/N] <tên>: solving` để thấy tiến trình. Mission
 `city.standardized.triangulation` là ngoại lệ về thời gian: 3 goal, mỗi goal một
-lượt tìm kiếm với clipping. Lần đo 18/11/2026 mất **45,0 s** (g1 19,4 s · g2
-14,9 s · g3 10,7 s), lần khác 62,3 s; các fixture còn lại dưới 1 s. Vì vậy
-`python3 main.py plan` mất khoảng 1 phút, phần lớn là city — máy chậm hoặc đang
-tải thì lâu hơn.
+lượt tìm kiếm với clipping. Lần đo 18/11/2026 mất **45,0 s** (g1 19,6 s · g2
+14,8 s · g3 10,6 s); các fixture còn lại dưới 1 s. Vì vậy `python3 main.py plan`
+mất khoảng 1 phút, phần lớn là city — máy chậm hoặc đang tải thì lâu hơn, nên
+đừng dùng số giây để so thuật toán.
 
 ## Vì sao mỗi goal một lượt
 

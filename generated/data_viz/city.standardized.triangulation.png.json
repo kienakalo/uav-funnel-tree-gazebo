@@ -1,7 +1,7 @@
 {
   "image": "generated/data_viz/city.standardized.triangulation.png",
-  "image_sha256": "c78063179a8e5a213aac3bf06471de6e5be3771ac34e6a86c00acbadb96cf593",
-  "generated_at": "2026-11-18T08:27:26+07:00",
+  "image_sha256": "1990f8d08c02cdb511115fa72ae893d3a8d7697368410f6aa750167a64f42a29",
+  "generated_at": "2026-11-18T21:58:37+07:00",
   "parameters": {
     "cell": 5.0,
     "coverage": "city",

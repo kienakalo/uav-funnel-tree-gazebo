@@ -169,9 +169,9 @@ Ví dụ của g2 (mission START 792): hợp lệ nhưng trượt mốc chất l
 
 | Đầu vào | Kết quả |
 | --- | --- |
-| g1 thật (352 dòng, `max_error` 0,365 m) | `valid: true`, `passed: true`, exit 0 |
-| g2 thật (331 dòng, 1,022 m) | `valid: true`, `passed: false`, exit 0 + cảnh báo mốc |
-| g3 thật (245 dòng, 0,851 m) | `valid: true`, `passed: true`, exit 0 |
+| g1 thật (357 dòng, `max_error` 0,365 m) | `valid: true`, `passed: true`, exit 0 |
+| g2 thật (330 dòng, 1,022 m) | `valid: true`, `passed: false`, exit 0 + cảnh báo mốc |
+| g3 thật (249 dòng, 0,852 m) | `valid: true`, `passed: true`, exit 0 |
 | g1 cắt còn 120 dòng đầu (dòng cuối `moving`) | `valid: false`, exit 1, lý do *last row is not in the complete phase* |
 
 ## Liên quan

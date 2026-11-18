@@ -28,8 +28,8 @@ mô hình bay là point-mass có bộ điều khiển PD, không phải mô hìn
 autopilot.
 
 Kết quả định lượng của lần chạy đang lưu: 3 tuyến dài 142,42 / 125,64 / 86,15 m;
-ba chuyến bay 35,4 / 33,2 / 24,6 s với sai số bám lớn nhất **0,365 / 1,022 /
-0,851 m**; đối chiếu đường tham chiếu **5/5** mesh đạt.
+ba chuyến bay 35,9 / 33,1 / 25,0 s với sai số bám lớn nhất **0,365 / 1,022 /
+0,852 m**; đối chiếu đường tham chiếu **5/5** mesh đạt.
 
 ## 2. Ảnh minh hoạ
 
@@ -224,15 +224,16 @@ commit file đó, vì `--fresh` không xoá và không sinh lại được lựa
 | Mission thành phố | START 792 (−38,752, 22,103) → g1 1810, g2 1910, g3 1518 |
 | Tuyến | 142,42 / 125,64 / 86,15 m; 41 / 46 / 40 waypoint |
 | Lan truyền | 49 / 34 / 21 lần (tổng 104, 646 source) |
-| Bay | 35,4 / 33,2 / 24,6 s; `max_error` 0,365 / 1,022 / 0,851 m |
-| `mean_error` | 0,068 / 0,110 / 0,091 m |
+| Bay | 35,9 / 33,1 / 25,0 s; `max_error` 0,365 / 1,022 / 0,852 m |
+| `mean_error` | 0,067 / 0,111 / 0,089 m |
 | Hợp lệ / mốc 1 m | cả ba `valid`; g2 vượt mốc 2 % tại một góc cua |
 | Đối chiếu reference | 5/5 mesh đạt, 5 bỏ qua (không có reference) |
 
-g2 không phải nhiễu: bốn lần bay có archive cho 1,022 · 1,026 · 1,022 · 1,024 m,
-cùng một góc cua (đoạn 8→9, drone chậm 4,9 → 4,2 m/s trong 0,2 s trong khi setpoint
-giữ 5,0 m/s). Đó là đặc tính của tuyến, và là lý do `valid` được tách khỏi
-`passed`.
+g2 vượt mốc 1,0 m ở **1,0224 m**, dù chuyến bay vẫn `valid` (hết tuyến, dừng
+cách đích 0,0004 m). Đó là lý do `valid` được tách khỏi `passed`: một chuyến bay
+hoàn thành nhiệm vụ vẫn có thể trượt chỉ tiêu chất lượng. Chỉ lần chạy cuối được
+lưu archive (`results/runs/city792e`); muốn có bằng chứng lặp lại thì chạy lại và
+lưu thêm label.
 
 ### Lưu và so sánh nhiều lần chạy
 

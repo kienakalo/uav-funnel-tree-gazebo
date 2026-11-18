@@ -227,7 +227,7 @@
       ],
       "search": {
         "propagations": 49,
-        "seconds": 19.377
+        "seconds": 19.58
       }
     },
     {
@@ -468,7 +468,7 @@
       ],
       "search": {
         "propagations": 34,
-        "seconds": 14.875
+        "seconds": 14.803
       }
     },
     {
@@ -679,7 +679,7 @@
       ],
       "search": {
         "propagations": 21,
-        "seconds": 10.703
+        "seconds": 10.6
       }
     }
   ],
@@ -689,7 +689,7 @@
     "mode": "per-goal",
     "clipping": true
   },
-  "planning_seconds": 44.955,
+  "planning_seconds": 44.984,
   "environment": {
     "python": "3.14.8",
     "numpy": "2.5.4"

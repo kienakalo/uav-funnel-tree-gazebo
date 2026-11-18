@@ -3,7 +3,7 @@
   "goal": "g2",
   "goal_vertex": 1910,
   "route_file": "generated/routes/city.standardized.triangulation.routes.json",
-  "route_sha256": "761d2615a68cdb4b7ebebbc76cdd7b8413b3c5c9e1ad7293390e5c70699a4c66",
+  "route_sha256": "346574eeb60ab5c77f9b3aec4d11b4af5a7df2f14b7feb92fd845c0f68aa0da7",
   "surface": "data/processed/meshes/city.standardized.triangulation.off",
   "surface_sha256": "f6e01c6d421f71aec828ae2f71593e7b2d0460604453459eb5e86b2ea47b28df",
   "scene": "data/processed/scenes/city.standardized.glb",
