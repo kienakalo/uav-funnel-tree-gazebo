@@ -1,11 +1,53 @@
+---
+title: run_simulate.sh
+aliases:
+  - run_simulate
+type: script
+stage: simulate
+source: tools/simulate/run_simulate.sh
+tags:
+  - funnel-tree/tool
+  - funnel-tree/stage/simulate
+---
+
 # `tools/simulate/run_simulate.sh`
 
-| | |
-| --- | --- |
-| Stage | `simulate` (bước chạy) |
-| Vào | `generated/simulate/<mission>-<goal>/funnel_physics.sdf` + `flown_route.json` (do `build_world.py` sinh) |
-| Ra | `generated/simulate/<mission>-<goal>/` — telemetry, metadata, `gazebo.log`, ảnh chụp |
-| Cờ | `--mission`, `--goal`, `--headless`, `--software`, `--show-surface`, `--timeout S`, `--check`, `--no-build`, `--container/--native`, `--image`, `--gpu`, `--keep-open`, `--pull` |
+> [!abstract] Mục đích
+> Chạy một phiên Gazebo cho một goal: dựng world nếu cần, kiểm runtime, chạy
+> `gz sim` (trong container hoặc trên máy), chờ telemetry kết thúc rồi in kết
+> quả.
+
+> [!info] Vị trí
+> **File** `tools/simulate/run_simulate.sh` (kèm `gazebo_system_python.sh`) — stage `simulate`, bước chạy  
+> **Thuật toán** Kiểm runtime → chạy `gz sim` trong container/máy → chờ `phase=complete` → in kết quả  
+> **Vào** `generated/simulate/<mission>-<goal>/funnel_physics.sdf` + `flown_route.json`  
+> **Ra** trong cùng thư mục: telemetry, metadata, `gazebo.log`, ảnh chụp (nếu có)  
+> **Cờ** `--mission`, `--goal`, `--headless`, `--software`, `--show-surface`, `--timeout S`, `--check`, `--no-build`, `--container/--native`, `--image`, `--gpu`, `--keep-open`, `--pull`  
+> **Cần** Docker (mặc định) hoặc Gazebo Jetty trên máy (`--native`)  
+
+## Thành phần chính
+
+| Hàm shell | Vào | Ra | Việc |
+| --- | --- | --- | --- |
+| `usage()` | — | help | In toàn bộ cờ và ví dụ |
+| `check_environment()` | cờ runtime | lỗi hoặc `ok` | Kiểm Docker/image hoặc `gz` trên máy, bindings, plugin |
+| `check_files()` | mission, goal | lỗi hoặc `ok` | Kiểm SDF, `flown_route.json`, `gz sdf -k`, Assimp đọc GLB |
+| `resolve_gpu()`, `gpu_label()` | `--gpu` | `nvidia`/`intel`/`software` + nhãn | Chọn thiết bị render và nhãn ghi vào `FUNNEL_GPU` |
+| `prepare_gui_home()` | `world_metadata.json` | `HOME` tạm | Gọi `gui_config.py` để có camera + `MarkerManager` |
+| `unpause_world()` | tên world | — | Gửi `/world/<world>/control` sau khi plugin đã nạp |
+| `wait_for_completion()` | chế độ chạy | mã thoát | GUI chờ hết tuyến; headless chờ `phase=complete` |
+| `cleanup()` | — | — | Đóng tiến trình và dọn container còn sót |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Hệ thống | `docker`, image `ghcr.io/openrobotics/gazebo:jetty-full` | Runtime mặc định |
+| Hệ thống | `gz`, `gz sdf`, `libassimp5` | Runtime `--native` và kiểm SDF/GLB |
+| Nội bộ | `tools/simulate/build_world.py` | Dựng world khi không có `--no-build` |
+| Nội bộ | `tools/simulate/gui_config.py` | Ghi `gui.config` cho `HOME` tạm |
+| Nội bộ | `tools/simulate/check_glb.py` | Kiểm visual trước khi bay |
+| Nội bộ | `gazebo_system_python.sh` | Bỏ `VIRTUAL_ENV`/`PYTHONHOME` khi chạy native |
 
 ## Việc nó làm
 
@@ -167,3 +209,10 @@ Chạy script trực tiếp thì nó tự dựng world (trừ khi thêm `--no-bu
 | `gz sdf rejects ...` | SDF hỏng hoặc mesh URI không tồn tại |
 | `Assimp cannot import .../city.sim.glb` | GLB sai bufferView; dựng lại world (`build_world.py`) |
 | Không thấy cửa sổ Gazebo | Thiếu `DISPLAY`/X socket, hoặc chạy `--headless` |
+
+## Liên quan
+
+- [`build_world.md`](build_world.md) — bước 1 của stage, sinh world và route.
+- [`plugin.md`](plugin.md) — module được nạp trong phiên chạy này.
+- [`validate.md`](validate.md) — bước 3, chấm telemetry vừa ghi.
+- [`../docker.md`](../docker.md) — `FUNNEL_RUNTIME=native` khi chạy trong image.

@@ -1,13 +1,56 @@
+---
+title: standardize.py
+aliases:
+  - standardize
+type: tool
+stage: data
+source: tools/data/standardize.py
+tags:
+  - funnel-tree/tool
+  - funnel-tree/stage/data
+---
+
 # `standardize.py`
 
-| | |
-| --- | --- |
-| Stage | `data` bước 2 |
-| Vào | `data/raw/scenes/city.glb` (scene Sketchfab) |
-| Ra | `data/processed/scenes/city.standardized.glb` |
-| Cờ | `--input`, `--output` |
-| Đọc bằng | `tools/data/glb2off.py: transformed_objects` |
-| Ghi bằng | `lib/mesh_glb.py: write_glb` |
+> [!abstract] Mục đích
+> Chuẩn hoá `city.glb` của bên thứ ba thành scene **một node một vật thể**:
+> bake transform, đổi tên node, bỏ material/texture và ghi nguồn vào `extras`.
+> Hình học không đổi.
+
+> [!info] Vị trí
+> **File** `tools/data/standardize.py` — stage `data`, bước 2  
+> **Thuật toán** Bake ma trận `parent × local` theo cây node, weld tam giác trùng theo giá trị float, ghi float32  
+> **Vào** `data/raw/scenes/city.glb` (scene Sketchfab, Y-up)  
+> **Ra** `data/processed/scenes/city.standardized.glb`  
+> **Cờ** `--input`, `--output`  
+> **Đọc bằng** `tools/data/glb2off.py: transformed_objects`  
+> **Ghi bằng** `lib/mesh_glb.py: write_glb`  
+
+## API chính
+
+| Hàm | Vào | Ra | Việc |
+| --- | --- | --- | --- |
+| `asset_extras(path)` | đường dẫn GLB | `dict` `extras` của khối `asset`, rỗng nếu thiếu | Tách chunk JSON để lấy `license`, `author`, `source_url`, `title` từ file gốc |
+| `main()` | `--input`, `--output` | GLB chuẩn hoá + một dòng số đo | Duyệt node bằng `transformed_objects`, gộp tam giác bằng `indexed_from_triangles`, đổi tên `object_%03d`, ghi bằng `write_glb`, đọc lại tự kiểm |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Thư viện | NumPy; `argparse`, `hashlib`, `json`, `struct`, `pathlib` | Mảng toạ độ, CLI, hash, đọc chunk GLB |
+| Nội bộ | `tools/data/glb2off.py: transformed_objects` | Bake transform và trả triangle soup theo từng node |
+| Nội bộ | `lib/mesh_glb.py: indexed_from_triangles, write_glb` | Weld tam giác rời thành lưới có chỉ số rồi ghi GLB |
+| Dữ liệu | `data/raw/scenes/city.glb` | Scene nguồn duy nhất |
+
+## Chạy
+
+```bash
+.venv/bin/python tools/data/standardize.py
+.venv/bin/python tools/data/standardize.py \
+    --input data/raw/scenes/city.glb --output /tmp/city.standardized.glb
+```
+
+Mặc định đọc `data/raw/scenes/city.glb` và ghi `data/processed/scenes/city.standardized.glb`.
 
 ## Scene gốc có gì
 
@@ -74,3 +117,10 @@ File này **không commit** (≈6 MB, sinh lại được).
 - Chỉ đọc primitive tam giác không nén; gặp Draco hoặc sparse accessor thì dừng.
 - Không kiểm material, UV, normal — chúng bị bỏ.
 - Đỉnh không được weld giữa các node: mỗi node giữ lưới riêng.
+
+## Liên quan
+
+- [`glb2off.md`](glb2off.md) — nơi định nghĩa `transformed_objects` và `read_glb_scene`.
+- [`triangulation.md`](triangulation.md) — đọc scene chuẩn hoá để dựng bề mặt.
+- [`../../data-format.md`](../../data-format.md) — khác biệt float32/float64 và hệ trục.
+- [`../lib.md`](../lib.md) — container GLB tối giản của repo.

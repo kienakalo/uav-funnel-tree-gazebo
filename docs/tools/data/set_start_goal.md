@@ -1,12 +1,54 @@
+---
+title: set_start_goal.py
+aliases:
+  - set_start_goal
+type: tool
+stage: data
+source: tools/data/set_start_goal.py
+tags:
+  - funnel-tree/tool
+  - funnel-tree/stage/data
+---
+
 # `set_start_goal.py`
 
-| | |
-| --- | --- |
-| Stage | `data` bước 7 |
-| Vào | Một `.off` + lựa chọn của người dùng |
-| Ra | `data/processed/missions/<mesh>.mission.json` |
-| Cờ | `--mesh`, `--mission`, `--output`, `--list-meshes`, `--all-meshes`, `--start`, `--start-vertex`, `--goal`, `--goal-vertex`, `--all-goals`, `--pick`, `--snap`, `--max-snap`, `--force` |
-| Ghi chú | `--all-meshes` bỏ qua `*.glb2off.off`: đó là bản xem toàn scene, các vỏ lặp toạ độ đỉnh nên không dựng được `Mesh` |
+> [!abstract] Mục đích
+> Chọn **START và GOAL** trên một mesh OFF rồi lưu thành mission JSON. Lựa
+> chọn được snap về đỉnh gần nhất và tái dùng ở các lần sau, nên `plan` không bao
+> giờ phải hỏi lại.
+
+> [!info] Vị trí
+> **File** `tools/data/set_start_goal.py` — stage `data`, bước 7  
+> **Thuật toán** Snap về đỉnh gần nhất trong XY (hoặc 3D), kiểm topology bằng `inspect_mesh`, ghi JSON không timestamp  
+> **Vào** một `.off` + lựa chọn của người dùng (JSON cũ, cờ, terminal hoặc `--pick`)  
+> **Ra** `data/processed/missions/<mesh>.mission.json`  
+> **Cờ** `--mesh`, `--mission`, `--output`, `--list-meshes`, `--all-meshes`, `--start`, `--start-vertex`, `--goal`, `--goal-vertex`, `--all-goals`, `--pick`, `--snap`, `--max-snap`, `--refresh-changed`, `--force`  
+> **Ghi chú** `--all-meshes` bỏ qua `*.glb2off.off`: đó là bản xem toàn scene, các vỏ lặp toạ độ đỉnh nên không dựng được `Mesh`  
+
+## API chính
+
+| Hàm | Vào | Ra | Việc |
+| --- | --- | --- | --- |
+| `read_mesh(path)` | đường dẫn OFF | `Mesh` đã kiểm | Kiểm đỉnh trùng, mặt suy biến, cạnh kề >2 mặt, đỉnh rỗng |
+| `vertex_spacing(points)` | mảng đỉnh | mét | Trung vị khoảng cách giữa các cột lưới kề nhau |
+| `resolve(text, points, mode, max_snap, label)` | chuỗi `N` hoặc `x y z` | `(index, snap_record)` | Chuyển lựa chọn người dùng thành đỉnh đã snap |
+| `snap(points, target, mode, max_snap, label)` | toạ độ đích | `(index, distance)` | Snap XY (hoặc 3D), từ chối nếu quá `--max-snap` |
+| `terminal_streams()` | — | `(read_line, write)` | Đọc/ghi `/dev/tty` kể cả khi stdout bị pipe |
+| `ask_console(...)`, `ask_pick(...)` | mesh + quy tắc snap | START/GOAL | Hỏi trên terminal; `--pick` mở cửa sổ 3D, thiếu backend thì lùi về bàn phím |
+| `mission_record(...)` | mesh, điểm, chế độ | `dict` mission | Dựng toàn bộ trường JSON (hash, kích thước, snap, selected_by) |
+| `check_saved(record, mesh_path, points, faces)` | mission đã lưu | `bool` / lỗi | Từ chối mission khi mesh đổi hash hoặc số đỉnh/mặt |
+| `refresh_mission(mesh_path, path, args)` | mission cũ + bề mặt mới | ghi lại JSON | Snap lại START/GOAL đã lưu, giữ id `g1..gN`; điểm quá xa thì dừng |
+| `process_mesh(mesh_path, args)`, `main()` | một mesh / cả thư mục | mission JSON, `Save at:` | Điều phối đọc → chọn → kiểm → ghi |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Thư viện | NumPy; `argparse`, `json`, `sys`, `pathlib`; Matplotlib chỉ khi `--pick` | Mảng đỉnh, CLI, cửa sổ chọn điểm |
+| Nội bộ | `lib/mesh_off.py: read_off, inspect_mesh` (qua `Mesh`) | Đọc và kiểm topology |
+| Nội bộ | `lib/plotting.py: use_interactive` | Chọn backend cho `--pick` |
+| Dữ liệu | `data/processed/meshes/*.off` | Mesh để chọn điểm |
+| Được gọi bởi | `main.py` bước 7 (`--all-meshes --refresh-changed`) | Đồng bộ mission khi bề mặt đổi |
 
 ## Việc nó làm
 
@@ -143,3 +185,10 @@ Vì vậy `main.py data` trên máy không có bàn phím cần mission đã com
 10 file trong `data/processed/missions/`: city START 792 → 3 GOAL
 (1810, 1910, 1518); 2 fixture START 1 theo reference (cliff, demo_mesh); 7 fixture
 còn lại START 0 all-goals (J17, L, cube, dome, icosahedron, star, terrain).
+
+## Liên quan
+
+- [`triangulation.md`](triangulation.md) — sinh bề mặt mà mission trỏ tới.
+- [`../plan/run_funnel.md`](../plan/run_funnel.md) — đọc mission để lập tuyến.
+- [`../../data-format.md`](../../data-format.md) — schema `mission.json`.
+- [`../main.md`](../main.md) — stage `data` gọi bước này với `--refresh-changed`.

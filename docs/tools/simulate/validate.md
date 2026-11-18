@@ -1,11 +1,48 @@
+---
+title: validate.py
+aliases:
+  - validate
+type: tool
+stage: simulate
+source: tools/simulate/validate.py
+tags:
+  - funnel-tree/tool
+  - funnel-tree/stage/simulate
+---
+
 # `tools/simulate/validate.py`
 
-| | |
-| --- | --- |
-| Stage | `simulate` (bước cuối) |
-| Vào | `generated/simulate/<mission>-<goal>/physics_telemetry.csv` + `telemetry_metadata.json` + `world_metadata.json` + `flown_route.json` |
-| Ra | `validation.json`, `tracking.png` + `tracking.png.json` (dấu tham số) trong cùng thư mục |
-| Cờ | `--run DIR`, `--root DIR`, `--mission`, `--goal`, `--max-error M`, `--arrival-tolerance M`, `--no-png` |
+> [!abstract] Mục đích
+> Chấm một lần bay từ telemetry: tách **hợp lệ** (hết tuyến, dừng đúng đích)
+> khỏi **đạt mốc chất lượng** (bám tuyến trong 1 m), rồi ghi `validation.json` và
+> `tracking.png`.
+
+> [!info] Vị trí
+> **File** `tools/simulate/validate.py` — stage `simulate`, bước cuối  
+> **Thuật toán** Thống kê cột `error` và `phase` của telemetry; `valid` tách khỏi `passed`  
+> **Vào** `generated/simulate/<mission>-<goal>/physics_telemetry.csv` + `telemetry_metadata.json` + `world_metadata.json` + `flown_route.json`  
+> **Ra** `validation.json`, `tracking.png` + `tracking.png.json` (dấu tham số) trong cùng thư mục  
+> **Cờ** `--run DIR`, `--root DIR`, `--mission`, `--goal`, `--max-error M`, `--arrival-tolerance M`, `--no-png`  
+
+## API chính
+
+| Hàm | Vào | Ra | Việc |
+| --- | --- | --- | --- |
+| `run_folder(args)` | `--run` hoặc root + mission + goal | `Path` thư mục run | Xác định thư mục cần chấm |
+| `read_rows(path)` | CSV telemetry | danh sách dòng đã đổi kiểu | Đọc 16 cột do plugin ghi |
+| `analyse(rows, max_error)` | dòng + mốc | `dict` kết quả | Tính `completed`, `duration`, `final_error`, `max_error`, `mean_error`, `max_speed`, `max_acceleration`, `valid`, `passed` |
+| `render(rows, folder, title, limit, metadata, result)` | telemetry + metadata | `tracking.png` + sidecar | Vẽ mặt bằng tuyến và sai số theo thời gian |
+| `stamp_data(metadata, result, limit)` | metadata + kết quả | `(parameters, facts, sources)` | Gom tham số bay và số đo để đóng dấu |
+| `main()` | cờ dòng lệnh | JSON + PNG; thoát 1 nếu không hợp lệ | Đọc, chấm, ghi, in lý do khi fail |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Thư viện | Matplotlib; `argparse`, `csv`, `hashlib`, `json`, `math` | Vẽ và đọc telemetry |
+| Nội bộ | `lib/figstamp.py: save` | Chân ảnh, metadata PNG, sidecar |
+| Dữ liệu | `physics_telemetry.csv`, `telemetry_metadata.json` | Số đo của phiên |
+| Dữ liệu | `world_metadata.json`, `flown_route.json` | Tham số bay và tuyến để vẽ; archive cũ dùng `route.json` |
 
 `flown_route.json` chỉ dùng để vẽ tuyến trong `tracking.png`. Thư mục của archive
 lưu trước 18/11/2026 còn tên cũ `route.json`; tool đọc tên đó khi không có
@@ -135,3 +172,10 @@ Ví dụ của g2 (mission START 792): hợp lệ nhưng trượt mốc chất l
 | g2 thật (331 dòng, 1,022 m) | `valid: true`, `passed: false`, exit 0 + cảnh báo mốc |
 | g3 thật (245 dòng, 0,851 m) | `valid: true`, `passed: true`, exit 0 |
 | g1 cắt còn 120 dòng đầu (dòng cuối `moving`) | `valid: false`, exit 1, lý do *last row is not in the complete phase* |
+
+## Liên quan
+
+- [`plugin.md`](plugin.md) — nguồn của cột `error` và `phase`.
+- [`build_world.md`](build_world.md) — `world_metadata.json` chứa tham số bay.
+- [`../main.md`](../main.md) — stage dừng khi `valid: false`.
+- [`../plan/compare_runs.md`](../plan/compare_runs.md) — cột `mốc bám` lấy từ `passed`.

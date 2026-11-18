@@ -1,12 +1,49 @@
+---
+title: Dockerfile — cả pipeline trong một image
+aliases:
+  - docker
+  - Dockerfile
+  - docker-compose
+type: packaging
+stage: all
+source:
+  - Dockerfile
+  - docker-compose.yml
+  - .dockerignore
+tags:
+  - funnel-tree/docker
+---
+
 # `Dockerfile` — cả pipeline trong một image
 
-| | |
+> [!abstract] Mục đích
+> Đóng gói toàn bộ pipeline vào **một image** lấy nền Gazebo Jetty: Python
+> cho `data`/`plan`/`validate` và `gz` cho `simulate`, không cần Docker lồng
+> nhau.
+
+> [!info] Vị trí
+> **File** `Dockerfile`, `docker-compose.yml`, `.dockerignore`  
+> **Nền** `ghcr.io/openrobotics/gazebo@sha256:452ff649…` (Gazebo Jetty 10.5.0, Ubuntu 24.04, Python 3.12.3)  
+> **Thêm vào** `numpy==2.5.4`, `shapely==2.2.0`, `matplotlib==3.11.2`, `pillow==13.0.0`  
+> **Ra** image `uav-funnel-tree:pipeline`, chạy `python3 main.py`  
+> **Kèm** ba service compose cho NVIDIA / Intel / llvmpipe  
+
+## Thành phần
+
+| File | Vai trò |
 | --- | --- |
-| Nền | `ghcr.io/openrobotics/gazebo@sha256:452ff649…` (Gazebo Jetty 10.5.0, Ubuntu 24.04, Python 3.12.3) |
-| Thêm vào | `numpy==2.5.4`, `shapely==2.2.0`, `matplotlib==3.11.2`, `pillow==13.0.0` |
-| Vào | repo (trừ `.venv`, `generated/`, `results/`, `.git`) |
-| Ra | image `uav-funnel-tree:pipeline`, chạy `python3 main.py` |
-| Kèm | `docker-compose.yml` (3 backend GPU), `.dockerignore` |
+| `Dockerfile` | Cài bốn gói pip lên image Gazebo, đặt `FUNNEL_PYTHON`, `FUNNEL_RUNTIME=native`, `MPLCONFIGDIR` |
+| `docker-compose.yml` | Ba service dùng chung image, chỉ khác thiết bị đồ hoạ; mount repo vào `/work` |
+| `.dockerignore` | Loại `.venv`, `generated/`, `results/`, `.git` khỏi build context |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Image nền | `ghcr.io/openrobotics/gazebo@sha256:452ff649…` | Gazebo 10.5.0, bindings Python, `libassimp5` |
+| Pip | `numpy`, `shapely`, `matplotlib`, `pillow` | Bốn thư viện ngoài duy nhất của repo |
+| Docker | compose hoặc `docker build` | Build và chạy |
+| Nội bộ | `main.py`, `tools/`, `lib/`, `algo/` | Toàn bộ mã được copy vào `/work` |
 
 ## Vì sao một image
 
@@ -96,3 +133,9 @@ trường host.
 - `gazebo.log` trong kết quả ghi đường dẫn tuyệt đối của máy chạy (`/work/...`),
   nên log của hai môi trường không byte-identical dù số đo trùng.
 - Thời gian chạy phụ thuộc CPU host; đừng so giây giữa các máy.
+
+## Liên quan
+
+- [`simulate/run_simulate.md`](simulate/run_simulate.md) — `FUNNEL_RUNTIME=native` và `--native`.
+- [`main.md`](main.md) — lệnh chạy trong container.
+- [`reproducibility.md`](reproducibility.md) — digest image và môi trường đo.

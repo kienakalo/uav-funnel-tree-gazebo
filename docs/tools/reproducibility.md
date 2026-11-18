@@ -1,4 +1,39 @@
+---
+title: Tái lập kết quả
+aliases:
+  - reproducibility
+  - tái lập
+type: guide
+stage: all
+source:
+  - README.md
+  - docs/tools/reproducibility.md
+tags:
+  - funnel-tree/guide
+  - funnel-tree/reproducibility
+---
+
 # Tái lập kết quả
+
+> [!abstract] Mục đích
+> Trang này trả lời ba câu cho mỗi con số: **dữ liệu nào, mã nào, tham số
+> nào**. Nó liệt kê cái gì tất định, cái gì đổi giữa các lần chạy, và cách truy
+> một kết quả về đúng cấu hình sinh ra nó.
+
+> [!info] Vị trí
+> **Phạm vi** mọi đầu ra trong `data/processed/`, `generated/`, `results/runs/`  
+> **Đối tượng** người chạy lại thí nghiệm hoặc trích số vào báo cáo  
+> **Nguyên tắc** kết quả phải truy được về input + script + tham số, không chỉ về tên file  
+
+## Phụ thuộc
+
+| Loại | Nguồn | Cho biết |
+| --- | --- | --- |
+| Script | `tools/`, `main.py` (SHA trong kết quả) | Mã nào sinh ra file |
+| Tham số | `generated/parameters.json` | Giá trị đã dùng và nguồn của từng giá trị |
+| Sidecar | `*.params.json`, `*.png.json` | Tham số + SHA của input và output |
+| Archive | `results/runs/<label>/manifest.json` | Cả một lần chạy, ngoài vùng `--fresh` xoá |
+| Môi trường | `requirements.txt`, `Dockerfile`, digest image | Phiên bản thư viện và Gazebo |
 
 ## Nguyên tắc
 
@@ -180,3 +215,10 @@ Nói rõ khi báo cáo:
 2. City và 4 mesh còn lại **không có reference**, nên không có đối chiếu ngoài.
 3. Funnel Tree chưa được chứng minh tối ưu trên mặt không lồi.
 4. Bề mặt là envelope an toàn, không phải địa hình thật.
+
+## Liên quan
+
+- [`main.md`](main.md) — `--label`, `--archive`, `parameters.json`.
+- [`plan/compare_runs.md`](plan/compare_runs.md) — đọc archive thành bảng.
+- [`docker.md`](docker.md) — môi trường container và cổng kiểm chứng.
+- [`../data-format.md`](../data-format.md) — schema từng loại JSON.

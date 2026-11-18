@@ -1,10 +1,56 @@
+---
+title: main.py
+aliases:
+  - main
+  - pipeline
+type: entry point
+stage: all
+source: main.py
+tags:
+  - funnel-tree/tool
+  - funnel-tree/pipeline
+---
+
 # `main.py`
 
-| | |
-| --- | --- |
-| Vai trò | Chạy một hoặc nhiều stage bằng subprocess |
-| Vào | Tên stage (`data`, `plan`, `simulate`, `flow`) + cờ |
-| Ra | Chạy các tool và dừng ở lỗi đầu tiên; ghi `generated/parameters.json`; `--label`/`--archive` chép kết quả vào `results/runs/<label>/` |
+> [!abstract] Mục đích
+> Điểm vào duy nhất của pipeline: chạy stage `data` → `plan` → `simulate`
+> bằng subprocess, hỏi tham số một lần cho cả run, dọn đúng những thư mục sẽ sinh
+> lại và lưu bản kết quả vào `results/runs/` khi cần so sánh.
+
+> [!info] Vị trí
+> **File** `main.py` — chạy từ gốc repo, không thuộc stage nào  
+> **Thuật toán** Chạy từng bước bằng subprocess, dừng ở lỗi đầu tiên; hỏi tham số một lần cho cả run  
+> **Vào** tên stage (`data`, `plan`, `simulate`, `flow`) + cờ  
+> **Ra** chạy các tool và dừng ở lỗi đầu tiên; ghi `generated/parameters.json`; `--label`/`--archive` chép kết quả vào `results/runs/<label>/`  
+> **Stages** `data` (7 bước) → `plan` (3) → `simulate` (3 × số goal)  
+
+## API chính
+
+| Hàm / lớp | Vào | Ra | Việc |
+| --- | --- | --- | --- |
+| `Param` | tên, nhãn, mặc định, kiểu, cờ, khoảng khuyến nghị | — | Mô tả một giá trị sẽ hỏi và cờ tương ứng |
+| `stage_commands(name, args)` | tên stage + cờ | danh sách lệnh | Dựng lệnh từng bước, áp mission/goal/cờ cho `simulate` |
+| `run_stage(name, args, index, total, state)` | stage, cờ, vị trí | mã thoát | Chạy tuần tự, dừng ngay ở bước lỗi |
+| `stream(command)`, `capture(command)` | lệnh | mã thoát | In output theo dòng, hoặc giữ lại chỉ in khi lỗi (`--quiet`) |
+| `choose_group(group, args, state)` | nhóm tham số | `dict` giá trị | Hỏi một lần cho cả run, Enter giữ mặc định, cảnh báo ngoài khoảng |
+| `cleared_folders(stages, args)`, `ask_fresh(args, folders, stages)`, `clear_artifacts(...)` | stage + cờ | danh sách thư mục | Chỉ xoá những gì các stage được chọn sinh lại |
+| `simulate_folders(args)` | mission + goal | thư mục run | Xác định đúng thư mục `simulate` sẽ ghi đè |
+| `archive_files(mission, goals)`, `archive_details(...)`, `archive_run(...)` | mission, goal | thư mục archive | Chép số liệu + ảnh vào `results/runs/<label>/` |
+| `retarget_sidecars(target)` | thư mục archive | sửa sidecar | Trỏ `image` của sidecar sang bản sao, giữ nguyên SHA |
+| `report_quality(args, since=0.0)` | `--max-error`, mốc thời gian | in bảng | In `max`/`mean error` từng goal kể cả khi `--quiet` |
+| `write_parameters(args, stages, state, cleared, started)` | toàn bộ run | `generated/parameters.json` | Ghi giá trị đã dùng, nguồn của từng giá trị, commit, thời gian |
+| `main()` | `sys.argv` | mã thoát | Parse cờ, chọn stage, hỏi tham số, chạy, lưu archive nếu có |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Thư viện | `argparse` và stdlib khác; `.venv/bin/python` nếu có | CLI và chọn interpreter cho mọi bước |
+| Nội bộ | `tools/data/*.py`, `tools/plan/*.py`, `tools/simulate/*` | Các bước của ba stage |
+| Nội bộ | `tools/plan/compare_runs.py` | Đọc archive do `--label` tạo |
+| Dữ liệu | `data/processed/missions/*.mission.json` | `simulate` lấy danh sách goal mặc định |
+| Dữ liệu | `results/runs/<label>/` | Nơi không stage nào xoá |
 
 ## Cách chọn interpreter
 
@@ -317,3 +363,10 @@ riêng cần xoá) `CLEARED`; mỗi phần tử là một dict
 (phần tử đầu là interpreter), `params` là danh sách nhóm trong `PARAM_GROUPS`,
 `note` là nhãn in cạnh tên bước. Thêm một nhóm tham số = thêm một khóa vào
 `PARAM_GROUPS` và `GROUP_TITLES`, không cần sửa `run_stage`.
+
+## Liên quan
+
+- [`../data-format.md`](../data-format.md) — định dạng file giữa các stage.
+- [`reproducibility.md`](reproducibility.md) — archive và môi trường đo.
+- [`docker.md`](docker.md) — chạy `main.py` trong image.
+- [`README.md`](README.md) — mục lục toàn bộ tool.

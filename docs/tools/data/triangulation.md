@@ -1,13 +1,48 @@
+---
+title: triangulation.py
+aliases:
+  - triangulation
+type: tool
+stage: data
+source: tools/data/triangulation.py
+tags:
+  - funnel-tree/tool
+  - funnel-tree/stage/data
+---
+
 # `triangulation.py`
 
-| | |
-| --- | --- |
-| Stage | `data` bước 5 |
-| Vào | `data/processed/scenes/city.standardized.glb` + START/GOAL |
-| Ra | `data/processed/meshes/city.standardized.triangulation.off` + `…params.json` |
-| Cờ | `--scene`, `--start X Y Z`, `--goal X Y Z`, `--cell` (5), `--clearance` (1,5), `--half-width` (1,6), `--max-slope` (0,5), `--coverage {city,mission}`, `--output`, `--force` |
-| Cần | NumPy, Shapely |
-| Hằng số | `CLEARANCE = 1.5`, `HALF_WIDTH = 1.6`, `MAX_AXIS_SLOPE = 0.5` |
+> [!abstract] Mục đích
+> Dựng **bề mặt dẫn đường** liên tục phía trên thành phố: mỗi ô lưới cao hơn
+> mọi công trình bên dưới ít nhất `CLEARANCE`, rồi hạ dần thành ramp theo độ dốc
+> giới hạn. Đây là envelope an toàn, không phải địa hình thật.
+
+> [!info] Vị trí
+> **File** `tools/data/triangulation.py` — stage `data`, bước 5  
+> **Thuật toán** Lưới ô 5 m + truy vấn STRtree cho độ cao yêu cầu, lan truyền ramp bằng max-heap, kiểm topology và cột đứng  
+> **Vào** `data/processed/scenes/city.standardized.glb` + START/GOAL  
+> **Ra** `data/processed/meshes/city.standardized.triangulation.off` + `…params.json`  
+> **Cờ** `--scene`, `--start X Y Z`, `--goal X Y Z`, `--cell` (5), `--clearance` (1,5), `--half-width` (1,6), `--max-slope` (0,5), `--coverage {city,mission}`, `--output`, `--force`  
+> **Cần** NumPy, Shapely · **Hằng số** `CLEARANCE = 1.5`, `HALF_WIDTH = 1.6`, `MAX_AXIS_SLOPE = 0.5`  
+
+## API chính
+
+| Hàm | Vào | Ra | Việc |
+| --- | --- | --- | --- |
+| `build_surface(triangles, start, goal, step, coverage='city', clearance=1.5, half_width=1.6, max_slope=0.5)` | tam giác thành phố `(F, 3, 3)`, hai điểm 3D, cạnh ô, tham số envelope | `(points, faces, source, target, stats)` — lưới Z-up, chỉ số đỉnh START/GOAL, thống kê topology | Dựng lưới, tính độ cao yêu cầu bằng STRtree, lan truyền ramp bằng max-heap, kiểm cột đứng và topology |
+| `sha256(path)` | đường dẫn | hex digest | Ghi hash scene/script vào sidecar |
+| `relative(path)` | đường dẫn | đường dẫn tương đối repo | In và ghi sidecar gọn |
+| `main()` | cờ dòng lệnh | `.off` + `.params.json`, in tham số và kết quả | Đọc scene, gọi `build_surface`, `write_off`, tự kiểm rồi ghi sidecar |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Thư viện | NumPy, Shapely (`polygons`, `box`, `STRtree`) | Mảng lưới, truy vấn tam giác giao hộp 2D |
+| Thư viện | `heapq`, `math`, `argparse`, `hashlib`, `json` | Lan truyền ramp, CLI, sidecar |
+| Nội bộ | `tools/data/glb2off.py: read_glb_scene` | Tam giác thành phố ở Z-up, rộng 200 m |
+| Nội bộ | `lib/mesh_off.py: write_off, inspect_mesh` | Ghi bề mặt và kiểm topology |
+| Dữ liệu | START/GOAL mặc định | Hai đầu nhiệm vụ giao hàng; x/y chèn vào lưới |
 
 Đây là bước biến "thành phố rời rạc" thành **một mặt liên tục** mà Funnel Tree
 đi được.
@@ -139,6 +174,16 @@ nên chạy lại với cùng tham số cho ra cùng file.
 2.295 đỉnh, 4.400 tam giác, 6.694 cạnh,
 SHA256 `f6e01c6d421f71aec828ae2f71593e7b2d0460604453459eb5e86b2ea47b28df`.
 
+## Chạy
+
+```bash
+.venv/bin/python tools/data/triangulation.py --force
+.venv/bin/python tools/data/triangulation.py --cell 4 --clearance 2 --force
+.venv/bin/python tools/data/triangulation.py --coverage mission --force
+```
+
+`--force` cần thiết vì `main.py` và lần chạy tay đều ghi đè bề mặt đã có.
+
 ## Giới hạn
 
 - Mặt chỉ tồn tại trong vùng `extent`; ngoài đó không có gì để đi.
@@ -146,3 +191,10 @@ SHA256 `f6e01c6d421f71aec828ae2f71593e7b2d0460604453459eb5e86b2ea47b28df`.
 - Envelope là **xấp xỉ an toàn**, không phải mặt đường thật; mọi kết luận về
   đường bay phải nói rõ điều này.
 - Không dùng STL trung gian: tam giác lấy trực tiếp từ GLB.
+
+## Liên quan
+
+- [`standardize.md`](standardize.md) — scene đầu vào của bước này.
+- [`glb2off.md`](glb2off.md) — `read_glb_scene` và phép chuẩn hoá 200 m.
+- [`set_start_goal.md`](set_start_goal.md) — chọn START/GOAL lưu thành mission.
+- [`../funnel_tree.md`](../funnel_tree.md) — thuật toán chạy trên bề mặt này.

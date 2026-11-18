@@ -1,11 +1,66 @@
+---
+title: build_world.py
+aliases:
+  - build_world
+type: tool
+stage: simulate
+source: tools/simulate/build_world.py
+tags:
+  - funnel-tree/tool
+  - funnel-tree/stage/simulate
+---
+
 # `build_world.py`
 
-| | |
-| --- | --- |
-| Stage | `simulate` bước 1 |
-| Vào | `generated/routes/<mission>.routes.json`, bề mặt trong `route.mesh`, scene chuẩn hoá |
-| Ra | `generated/simulate/<mission>-<goal>/` — 6 file |
-| Cờ | `--mission`, `--route`, `--goal`, `--list-goals`, `--scene`, `--output`, `--collision-grid`, `--collision {decimated,full}`, `--visual {glb,stl}`, `--simplify M`, `--speed`, `--max-accel`, `--dwell`, `--start-delay`, `--surface`, `--check` |
+> [!abstract] Mục đích
+> Biến một tuyến đã lập thành **một world Gazebo**: visual GLB, collision STL
+> đã decimate, SDF có drone và tuyến, cùng `flown_route.json` làm hợp đồng cho
+> plugin bay.
+
+> [!info] Vị trí
+> **File** `tools/simulate/build_world.py` — stage `simulate`, bước 1  
+> **Thuật toán** Vertex clustering để decimate collision, Douglas–Peucker để rút gọn tuyến, dựng SDF bằng ElementTree  
+> **Vào** `generated/routes/<mission>.routes.json`, bề mặt trong `route.mesh`, scene chuẩn hoá  
+> **Ra** `generated/simulate/<mission>-<goal>/` — 6 file  
+> **Cờ** `--mission`, `--route`, `--goal`, `--list-goals`, `--scene`, `--output`, `--collision-grid`, `--collision {decimated,full}`, `--visual {glb,stl}`, `--simplify M`, `--speed`, `--max-accel`, `--dwell`, `--start-delay`, `--surface`, `--check`  
+
+## API chính
+
+| Hàm | Vào | Ra | Việc |
+| --- | --- | --- | --- |
+| `load_route(path)` | route JSON | `dict` + hash | Đọc tuyến của stage `plan`, kiểm mesh/SHA |
+| `choose_goal(record, goal)` | route + `--goal` | `(goal, vertex, waypoints)` | Fail-closed: thiếu hoặc sai goal thì dừng kèm danh sách |
+| `world_name(mission, goal)` | mission + goal | `funnel_sim_<stem>_<goal>` | Đặt tên world và model nhất quán |
+| `build_meshes(scene, surface, out, collision_cell, full_collision, visual_format, with_surface)` | scene, bề mặt, thư mục ra, tham số | `dict` thống kê mesh | Ghi `city.sim.glb` (có NORMAL), `city.sim.collision.stl`, `surface.stl` |
+| `decimate(points, faces, cell)` | lưới + ô gom | `(points, faces, stats)` | Vertex clustering: gom đỉnh theo ô, bỏ mặt suy biến/trùng |
+| `write_stl(path, points, faces)` | lưới | số tam giác | Ghi STL nhị phân; từ chối tam giác suy biến |
+| `simplify(points, tolerance)` | polyline 3D + dung sai | polyline rút gọn | Douglas–Peucker, giữ đường trong `tolerance` |
+| `camera_pose(waypoints)` | waypoint | 6 số (độ) | Camera phía tây-nam, khung trọn tuyến |
+| `build_route(...)` | route, goal, waypoint, tham số bay | `dict` `flown_route.json` | Hợp đồng world ↔ plugin: waypoint, speed, accel, delay, dwell |
+| `add_route_line(world_element, waypoints, radius=0.15)` | cây SDF | thêm phần tử | Ống tuyến + chấm màu ở start/goal/waypoint |
+| `build_sdf(out, world, route, meshes, surface_stl)` | mọi mảnh đã dựng | `funnel_physics.sdf` | Ghép physics, ánh sáng, city, drone, plugin loader |
+| `check_world(out, route_record, meshes)` | thư mục run | lỗi hoặc `ok` | Kiểm SDF, URI tương đối, `flown_route.json`, kích thước STL |
+| `main()` | cờ dòng lệnh | 6 file + `Save at:` | Điều phối toàn bộ, kể cả `--check` |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Thư viện | NumPy; `argparse`, `hashlib`, `json`, `math`, `xml.etree.ElementTree` | Hình học, hash, dựng SDF |
+| Nội bộ | `tools/data/glb2off.py: read_glb_scene` | Tam giác thành phố ở Z-up, rộng 200 m |
+| Nội bộ | `lib/mesh_glb.py: write_glb` | Ghi visual GLB float32 có NORMAL |
+| Nội bộ | `lib/mesh_off.py: read_off` | Đọc bề mặt cho `surface.stl` |
+| Dữ liệu | `generated/routes/<mission>.routes.json`, `data/processed/scenes/city.standardized.glb` | Tuyến và hình học thành phố |
+
+## Chạy
+
+```bash
+.venv/bin/python tools/simulate/build_world.py \
+    --mission city.standardized.triangulation --goal g1
+.venv/bin/python tools/simulate/build_world.py \
+    --mission city.standardized.triangulation --list-goals
+.venv/bin/python tools/simulate/build_world.py --mission city.standardized.triangulation --goal g1 --check
+```
 
 ## Input
 
@@ -205,3 +260,10 @@ Không ghi gì, chỉ kiểm:
 - Quỹ đạo làm mượt (Catmull-Rom) có thể bo góc khác polyline vài decimet; nếu
   cần bám tuyệt đối, giảm `speed` hoặc dùng `--simplify 0`.
 - `camera_pose` chỉ là góc nhìn ban đầu; người xem vẫn xoay/zoom được trong GUI.
+
+## Liên quan
+
+- [`run_simulate.md`](run_simulate.md) — chạy world vừa dựng.
+- [`plugin.md`](plugin.md) — đọc `flown_route.json` do bước này ghi.
+- [`check_glb.md`](check_glb.md) — kiểm visual bằng đúng Assimp của Gazebo.
+- [`gui_config.md`](gui_config.md) — dùng `camera_pose` trong `world_metadata.json`.

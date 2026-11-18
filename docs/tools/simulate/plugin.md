@@ -1,12 +1,54 @@
+---
+title: plugin/ — bộ điều khiển bay
+aliases:
+  - plugin
+  - funnel_drone_system
+  - trajectory
+type: module
+stage: simulate
+source:
+  - tools/simulate/plugin/trajectory.py
+  - tools/simulate/plugin/funnel_drone_system.py
+tags:
+  - funnel-tree/tool
+  - funnel-tree/stage/simulate
+---
+
 # `plugin/` — bộ điều khiển bay
 
-| | |
-| --- | --- |
-| Stage | `simulate` bước 2 |
-| File | `tools/simulate/plugin/trajectory.py`, `funnel_drone_system.py` |
-| Chạy trong | tiến trình Gazebo, system Python 3.12 có `gz.sim10` (source build) hoặc `gz.sim` (gói Debian/Ubuntu) |
-| Vào | `flown_route.json` (qua `FUNNEL_ROUTE`) |
-| Ra | `physics_telemetry.csv`, `telemetry_metadata.json` (trong `FUNNEL_OUTPUT_DIR`) |
+> [!abstract] Mục đích
+> Hai module chạy **bên trong tiến trình Gazebo**: `trajectory.py` biến
+> waypoint thành quỹ đạo theo thời gian, `funnel_drone_system.py` đẩy mô hình 1 kg
+> bám quỹ đạo và ghi telemetry.
+
+> [!info] Vị trí
+> **File** `tools/simulate/plugin/trajectory.py`, `tools/simulate/plugin/funnel_drone_system.py`  
+> **Thuật toán** Catmull-Rom + profile tốc độ hình thang; điều khiển feedforward + PD, kẹp ±6 m/s²  
+> **Stage** `simulate`, bước 2 — chạy trong Gazebo, không phải CLI  
+> **Vào** `flown_route.json` (qua `FUNNEL_ROUTE`)  
+> **Ra** `physics_telemetry.csv`, `telemetry_metadata.json` (trong `FUNNEL_OUTPUT_DIR`)  
+> **Cần** `gz.sim10`/`gz.math9` (source build) hoặc `gz.sim`/`gz.math` (gói Debian/Ubuntu)  
+
+## API chính
+
+| Thành phần | Vào | Ra | Việc |
+| --- | --- | --- | --- |
+| `Trajectory(points, max_speed=5.0, dwell=0.0, max_acceleration=3.0, descent_speed=None)` | waypoint đã rút gọn + tham số bay | đối tượng quỹ đạo | Lấy mẫu Catmull-Rom bước 0,2 m, đo độ dài cung, dựng profile tốc độ hình thang |
+| `Trajectory.state(t)` | thời gian mô phỏng | `(position, velocity, acceleration, segment, phase)` | Tra vị trí và đạo hàm; pha `waiting / moving / dwell / complete` |
+| `control_acceleration(position, velocity, goal, goal_velocity, goal_acceleration)` | trạng thái thật và đích | gia tốc 3D (m/s²) | Feedforward + PD (2,5 và 3,2), kẹp ±6 m/s²; plugin cộng `g` |
+| `FunnelDroneSystem.configure(entity, sdf, ecm, event_mgr)` | entity, SDF, ECM | — | Đọc biến môi trường, `flown_route.json`, mở CSV |
+| `FunnelDroneSystem.pre_update(info, ecm)` | thời gian mô phỏng | lực đẩy mỗi bước | Lấy `state(t)`, tính lực, ghi telemetry 10 Hz, publish `/marker` |
+| `get_system()` | — | lớp system | Điểm vào mà `gz-sim-python-system-loader-system` gọi |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Thư viện | `bisect`, `math` (stdlib) | Nội suy cung và profile tốc độ |
+| Thư viện | `csv`, `hashlib`, `json`, `os`, `pathlib` | Telemetry, hash tuyến, biến môi trường |
+| Gazebo | `gz.sim10` / `gz.sim`, `gz.math9` / `gz.math` | API system, vector, transport cho `/marker` |
+| Nội bộ | `trajectory.py` | Quỹ đạo và luật điều khiển |
+| Dữ liệu | `flown_route.json` | Waypoint và bốn tham số bay |
 
 ## Vai trò
 
@@ -122,3 +164,10 @@ Thời lượng danh nghĩa được tính lại từ tuyến đã làm mượt 
 - Không import NumPy/Matplotlib — plugin chạy trong Gazebo bằng Python hệ thống.
 - Chưa kiểm chứng API trên Gazebo Jetty thực tế; nếu tên hàm đổi, sửa theo
   binding và chạy lại `--check`.
+
+## Liên quan
+
+- [`build_world.md`](build_world.md) — ghi `flown_route.json` và gắn plugin vào SDF.
+- [`run_simulate.md`](run_simulate.md) — đặt biến môi trường và chờ telemetry.
+- [`validate.md`](validate.md) — chấm CSV do plugin ghi.
+- [`gui_config.md`](gui_config.md) — `MarkerManager` vẽ vệt bay.

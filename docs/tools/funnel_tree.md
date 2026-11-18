@@ -1,12 +1,51 @@
+---
+title: funnel_tree.py
+aliases:
+  - funnel_tree
+  - Funnel Tree
+type: algorithm
+stage: plan
+source: algo/funnel_tree.py
+tags:
+  - funnel-tree/algorithm
+  - funnel-tree/stage/plan
+---
+
 # `algo/funnel_tree.py`
 
-| | |
-| --- | --- |
-| Vai trò | Thuật toán Funnel Tree trên mặt đa diện |
-| Vào | một `Mesh` (không đọc file) + đỉnh nguồn |
-| Ra | `paths` (danh sách đường 3D) và `stats` |
-| Phụ thuộc | NumPy, stdlib |
-| Trạng thái | **experimental** — chưa chứng nhận tối ưu |
+> [!abstract] Mục đích
+> Cài đặt **Funnel Tree** trên mặt đa diện tam giác: lan truyền cosine cục bộ
+> theo tầng mặt, cắt nhánh bằng Procedure 2, rồi chỉ trải dải mặt đã chọn để lấy
+> đường ngắn nhất.
+
+> [!info] Vị trí
+> **File** `algo/funnel_tree.py` — thư viện thuật toán, stage `plan` gọi qua `run_funnel`  
+> **Vào** một `Mesh` (không đọc file) + đỉnh nguồn (+ tập đích nếu có)  
+> **Ra** `paths` — danh sách đường 3D theo chỉ số đỉnh — và `stats`  
+> **Phụ thuộc** NumPy, stdlib · **Trạng thái** experimental, chưa chứng nhận tối ưu  
+
+## API chính
+
+| Hàm | Vào | Ra | Việc |
+| --- | --- | --- | --- |
+| `angle_sides(a, b, opposite)` | ba cạnh | góc (radian) | Định luật cosin, góc đối diện cạnh `opposite` |
+| `cosine_side(a, b, angle)` | hai cạnh + góc xen giữa | cạnh thứ ba | Định luật cosin |
+| `clip_children(length_a, angle_a, length_b, angle_b, tolerance=1e-10)` | độ dài và góc hai nhánh | `(funnel, child)`, `0 = trái`, `1 = phải` | Procedure 2: quyết định giữ nhánh nào |
+| `seeds(mesh, source)` | mesh + đỉnh nguồn | danh sách `Funnel` | Đi vòng fan tam giác quanh nguồn; fan không liên thông → `ValueError` |
+| `propagate(mesh, source, deadline, max_nodes, clipping=True, target_vertices=None)` | mesh, nguồn, hạn thời gian/node | funnel ứng viên cho từng đích | Lan truyền qua cạnh `(x, q)`, cắt nhánh, tự kiểm bằng `reconstruct` |
+| `reconstruct(mesh, source, funnel, deadline=None)` | một funnel | polyline 3D | Trải dải mặt ra 2D, cắt đường thẳng với từng cạnh chung |
+| `solve_targets(mesh, source, targets, timeout=20.0, max_nodes=200000, clipping=True)` | mesh, nguồn, tập đích | `(paths, stats)` | Dijkstra trên các secondary source, mỗi source `propagate` một lần |
+| `solve(mesh, source, timeout=20.0, max_nodes=200000, clipping=True)` | mesh + nguồn | `paths` cho **mọi** đỉnh | Gọi `solve_targets` với toàn bộ đỉnh, dùng cho mesh nhỏ |
+| `trace_path(...)` | `previous`, `cache` | đường tới một đỉnh | Nối chuỗi source đã settle |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Thư viện | NumPy | Toạ độ, độ dài, góc |
+| Thư viện | `dataclasses`, `heapq`, `math`, `time` | `Funnel`, hàng đợi ưu tiên, hạn thời gian |
+| Nội bộ | `lib/mesh_off.py: Mesh` | Kề mặt/cạnh, `distance`, `angle`, `other_face` |
+| Được gọi bởi | `tools/plan/run_funnel.py: solve_targets`, `tools/plan/compare.py: solve` | Lập tuyến và đối chiếu reference |
 
 ## Mô hình dữ liệu
 
@@ -19,19 +58,6 @@
 | `sequence` | dãy mặt đã đi qua |
 | `sp`, `pq`, `spq`, `psw`, `pqv` | độ dài và góc dùng cho phép cắt |
 | `deleted`, `children` | trạng thái sau khi bị Procedure 2 loại |
-
-## API
-
-| Hàm | Việc |
-| --- | --- |
-| `angle_sides(a, b, c)` | góc đối diện cạnh `c` (định luật cos) |
-| `cosine_side(a, b, angle)` | cạnh thứ ba từ hai cạnh và góc xen giữa |
-| `clip_children` | Procedure 2: quyết định giữ nhánh trái/phải/cả hai |
-| `seeds(mesh, source)` | khởi tạo phễu quanh đỉnh nguồn |
-| `propagate(mesh, source, deadline, max_nodes, clipping, target_vertices)` | lan truyền theo tầng mặt |
-| `reconstruct(mesh, source, funnel, deadline)` | dựng lại đường từ một phễu |
-| `solve_targets(mesh, source, targets, timeout, max_nodes, clipping)` | tìm đường tới các đỉnh được hỏi |
-| `solve(mesh, source, …)` | `solve_targets` cho mọi đỉnh |
 
 ## `seeds`
 
@@ -139,3 +165,10 @@ mesh = read_mesh('data/processed/meshes/cliff.off')
 paths, stats = solve_targets(mesh, 1, [0, 5], timeout=60)
 print(paths[0], stats['propagations'])
 ```
+
+## Liên quan
+
+- [`lib.md`](lib.md) — `Mesh` và các phép topology thuật toán dựa vào.
+- [`plan/run_funnel.md`](plan/run_funnel.md) — nơi `solve_targets` được gọi.
+- [`plan/compare.md`](plan/compare.md) — bằng chứng ngoài trên 5 fixture.
+- [`reproducibility.md`](reproducibility.md) — số đo hiệu năng và giới hạn.

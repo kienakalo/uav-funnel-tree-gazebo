@@ -1,11 +1,44 @@
+---
+title: check_glb.py
+aliases:
+  - check_glb
+type: tool
+stage: simulate
+source: tools/simulate/check_glb.py
+tags:
+  - funnel-tree/tool
+  - funnel-tree/stage/simulate
+---
+
 # `tools/simulate/check_glb.py`
 
-| | |
-| --- | --- |
-| Stage | `simulate` — kiểm trước khi bay |
-| Vào | Một hoặc nhiều file `.glb` |
-| Ra | Dòng `ok`/`fail` cho từng file; mã thoát 1 nếu có file lỗi |
-| Cờ | Danh sách đường dẫn; không có cờ khác |
+> [!abstract] Mục đích
+> Gọi đúng **Assimp 5.3** mà Gazebo dùng để nạp visual, và báo lỗi import
+> trước khi bay. Một GLB trình duyệt mở được vẫn có thể bị Assimp từ chối.
+
+> [!info] Vị trí
+> **File** `tools/simulate/check_glb.py` — stage `simulate`, kiểm trước khi bay  
+> **Thuật toán** `ctypes` gọi `aiImportFile` của `libassimp.so.5`, đọc `mNumMeshes` ở offset 16  
+> **Vào** một hoặc nhiều file `.glb`  
+> **Ra** dòng `ok`/`fail` cho từng file; mã thoát 1 nếu có file lỗi  
+> **Cờ** danh sách đường dẫn; không có cờ khác  
+> **Cần** `libassimp.so.5` (có sẵn trong image Gazebo)  
+
+## API chính
+
+| Hàm | Vào | Ra | Việc |
+| --- | --- | --- | --- |
+| `load_assimp(library='libassimp.so.5')` | tên thư viện | `ctypes.CDLL` | Nạp Assimp và khai báo `aiImportFile`, `aiGetErrorString` |
+| `check(lib, path)` | thư viện + file GLB | `(mesh_count, error)` | Import file; `error` rỗng khi thành công, đọc `mNumMeshes` ở offset 16 |
+| `main()` | danh sách đường dẫn | in kết quả, mã thoát | Duyệt file, dừng với mã 1 nếu có lỗi |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Thư viện | `ctypes`, `sys`, `pathlib` | Gọi C API của Assimp, không cần binding Python |
+| Hệ thống | `libassimp.so.5` | Bộ nạp mesh mà `gz-rendering` dùng |
+| Được gọi bởi | `run_simulate.sh --check` | Chặn bay khi visual không nạp được |
 
 ## Vì sao cần
 
@@ -62,3 +95,9 @@ script dừng trước khi mở Gazebo.
 - Phụ thuộc `libassimp.so.5`; máy không có Assimp thì báo lỗi nạp thư viện.
 - Chỉ kiểm **import**, không kiểm material, texture hay kích thước hiển thị.
 - Không thay thế `gz sdf -k`: SDF vẫn phải hợp lệ và URI phải trỏ đúng file.
+
+## Liên quan
+
+- [`build_world.md`](build_world.md) — sinh `city.sim.glb` mà bước này kiểm.
+- [`run_simulate.md`](run_simulate.md) — `--check` gọi tool này tự động.
+- [`../lib.md`](../lib.md) — `write_glb`, nơi từng gây lỗi `byteLength`.

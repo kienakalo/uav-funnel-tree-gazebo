@@ -1,12 +1,48 @@
+---
+title: figures.py
+aliases:
+  - figures
+type: tool
+stage: —
+source: tools/figures.py
+tags:
+  - funnel-tree/tool
+  - funnel-tree/check
+---
+
 # `figures.py`
 
-| | |
-| --- | --- |
-| Stage | Không nằm trong pipeline: kiểm tra ảnh trước khi dán vào báo cáo |
-| Vào | `*.png` trong `generated/` (mặc định) + sidecar `<tên>.png.json` + metadata PNG |
-| Ra | Bảng trên terminal; `--json PATH` ghi bảng tổng hợp |
-| Cờ | `--folder DIR` (lặp lại), `--json PATH`, `--no-fail` |
-| Mã thoát | 1 khi có ảnh thiếu sidecar, SHA lệch, metadata khác sidecar, hoặc sidecar mồ côi |
+> [!abstract] Mục đích
+> Đọc lại **ba lớp dấu** của mọi ảnh pipeline sinh (chân ảnh, metadata PNG,
+> sidecar `.png.json`) và báo lỗi khi chúng lệch nhau — bước kiểm trước khi dán
+> ảnh vào báo cáo.
+
+> [!info] Vị trí
+> **File** `tools/figures.py` — ngoài pipeline, chạy trước khi trích ảnh  
+> **Thuật toán** Đọc chunk PNG (`tEXt`/`zTXt`/`iTXt`), so SHA ảnh và tham số giữa ba lớp dấu  
+> **Vào** `*.png` trong `generated/` (mặc định) + sidecar `<tên>.png.json` + metadata PNG  
+> **Ra** bảng trên terminal; `--json PATH` ghi bảng tổng hợp  
+> **Cờ** `--folder DIR` (lặp lại), `--json PATH`, `--no-fail`  
+> **Mã thoát** 1 khi có ảnh thiếu sidecar, SHA lệch, metadata khác sidecar, hoặc sidecar mồ côi  
+
+## API chính
+
+| Hàm | Vào | Ra | Việc |
+| --- | --- | --- | --- |
+| `png_text(blob)` | byte của file PNG | `dict` khóa → giá trị | Tự đọc chunk `tEXt`, `zTXt`, `iTXt` bằng stdlib, không cần Pillow |
+| `sidecar_path(image)`, `read_json(path)` | đường dẫn ảnh | đường dẫn/`dict` sidecar | Tìm `<tên>.png.json` và đọc nó |
+| `problems_of(image, sidecar, embedded)` | ảnh + hai bản ghi | danh sách lỗi | So SHA ảnh, tên file, tham số giữa ba lớp |
+| `summary(sidecar)` | sidecar | một dòng | In tham số và facts giống chân ảnh |
+| `collect(folders)` | danh sách thư mục | danh sách bản ghi | Quét đệ quy mọi PNG và sidecar mồ côi |
+| `main()` | `--folder`, `--json`, `--no-fail` | bảng + mã thoát | In kết quả, ghi JSON nếu được hỏi |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Thư viện | `argparse`, `json`, `struct`, `zlib`, `pathlib` | Chỉ stdlib, kể cả giải nén `zTXt` |
+| Nội bộ | `lib/figstamp.py: relative, sha256` | Cùng cách tính đường dẫn và hash với lúc ghi |
+| Dữ liệu | `*.png` + `*.png.json` trong `generated/`, `results/` | Đầu vào cần kiểm |
 
 ## Vì sao cần
 
@@ -55,7 +91,6 @@ Không cần Pillow: tool tự đọc chunk PNG (header 8 byte, mỗi chunk `siz
 
 ## Liên quan
 
-- [`lib/figstamp.py`](lib.md) — nơi ghi dấu.
-- [`data_viz.md`](data/data_viz.md), [`route_viz.md`](plan/route_viz.md),
-  [`validate.md`](simulate/validate.md) — ba nơi gọi.
-- [`compare_runs.md`](plan/compare_runs.md) — so sánh số liệu giữa các lần chạy.
+- [`lib.md`](lib.md) — `figstamp.save` là nơi ghi ba lớp dấu.
+- [`data/data_viz.md`](data/data_viz.md), [`plan/route_viz.md`](plan/route_viz.md), [`simulate/validate.md`](simulate/validate.md) — ba nơi gọi.
+- [`plan/compare_runs.md`](plan/compare_runs.md) — so sánh số liệu giữa các lần chạy.

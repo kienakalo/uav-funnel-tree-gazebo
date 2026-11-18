@@ -1,11 +1,49 @@
+---
+title: compare_runs.py
+aliases:
+  - compare_runs
+type: tool
+stage: plan
+source: tools/plan/compare_runs.py
+tags:
+  - funnel-tree/tool
+  - funnel-tree/stage/plan
+---
+
 # `compare_runs.py`
 
-| | |
-| --- | --- |
-| Stage | Không nằm trong pipeline: dùng sau khi đã có ≥2 archive |
-| Vào | `results/runs/<label>/manifest.json` |
-| Ra | Bảng trên terminal, `results/comparison/comparison.md` + `.json`, ảnh `<label>-route.png`, `<label>-<goal>-tracking.png` |
-| Cờ | `label...` (mặc định mọi archive, xếp theo tên), `--runs DIR`, `--output DIR` |
+> [!abstract] Mục đích
+> Đọc các archive trong `results/runs/` và in **một bảng** với mỗi lần chạy
+> một cột, kèm bản Markdown để chép vào báo cáo. Không chạy lại gì, không sửa
+> archive.
+
+> [!info] Vị trí
+> **File** `tools/plan/compare_runs.py` — ngoài pipeline, dùng sau khi đã có ≥2 archive  
+> **Thuật toán** Gộp manifest + sidecar thành bảng hai chiều, xuất Markdown và chép ảnh theo label  
+> **Vào** `results/runs/<label>/manifest.json`  
+> **Ra** bảng trên terminal, `results/comparison/comparison.md` + `.json`, ảnh `<label>-route.png`, `<label>-<goal>-tracking.png`  
+> **Cờ** `label...` (mặc định mọi archive, xếp theo tên), `--runs DIR`, `--output DIR`  
+
+## API chính
+
+| Hàm | Vào | Ra | Việc |
+| --- | --- | --- | --- |
+| `flatten(manifest)` | một `manifest.json` | `dict` tham số phẳng | Gộp tham số manifest với `surface.params.json` và `routes.solver` khi lần chạy thiếu nhóm |
+| `labels_in(runs)`, `read_manifest(runs, label)` | thư mục archive | danh sách label, manifest | Liệt kê và đọc archive, báo lỗi nếu thiếu |
+| `rows_of(manifest)` | manifest phẳng | danh sách `(label, value)` | Dựng đúng thứ tự dòng của bảng |
+| `collect(runs, labels)` | thư mục + label | bảng hai chiều | Ghép mọi archive thành một bảng |
+| `markdown(labels, table, order)`, `aligned(...)` | bảng | chuỗi Markdown / bảng terminal | Xuất bản để chép vào báo cáo và bản căn cột |
+| `copy_images(runs, labels, output)` | archive + đích | ảnh đã đổi tên theo label | Chép `routes.png` và `gN/tracking.png` |
+| `main()` | label, `--runs`, `--output` | `.md`, `.json`, ảnh | Điều phối đọc → bảng → ghi |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Thư viện | `argparse`, `json`, `shutil`, `pathlib` | Chỉ stdlib, không cần NumPy/Matplotlib |
+| Dữ liệu | `results/runs/<label>/manifest.json` | Nguồn số liệu duy nhất |
+| Dữ liệu | `results/runs/<label>/surface.params.json`, `routes.json` | Nguồn dự phòng khi manifest thiếu nhóm tham số |
+| Do | `main.py --label` / `--archive` tạo | Archive là đầu vào, tool chỉ đọc |
 
 ## Vì sao cần archive
 
@@ -101,3 +139,10 @@ tham số do `figstamp` vẽ, nên mở ảnh vẫn đọc được cấu hình.
 - Archive ghi `created_at` và ảnh có thời điểm, nên hai lần chạy cùng tham số
   vẫn khác byte ảnh. So sánh bằng tham số + SHA, không bằng hash ảnh.
 - Tool không chạy lại gì và không sửa archive; chỉ đọc và chép ảnh.
+
+## Liên quan
+
+- [`../main.md`](../main.md) — `--label` và `--archive`.
+- [`../reproducibility.md`](../reproducibility.md) — archive giữ gì và `commit` nghĩa là gì.
+- [`compare.md`](compare.md) — đối chiếu với reference, khác mục đích.
+- [`../simulate/validate.md`](../simulate/validate.md) — `valid` và `passed` trong bảng.

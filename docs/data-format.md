@@ -1,4 +1,38 @@
+---
+title: Định dạng dữ liệu
+aliases:
+  - data-format
+  - định dạng
+type: reference
+stage: all
+source:
+  - lib/mesh_off.py
+  - lib/mesh_glb.py
+tags:
+  - funnel-tree/reference
+  - funnel-tree/data-format
+---
+
 # Định dạng dữ liệu
+
+> [!abstract] Mục đích
+> Tra cứu nhanh mọi định dạng file trong repo — OFF, GLB, JSON, CSV, SDF,
+> STL — cùng quy ước hậu tố tên file và nơi ghi schema chi tiết.
+
+> [!info] Vị trí
+> **Phạm vi** file trong `data/`, `generated/`, `results/runs/`  
+> **Nguyên tắc** OFF cho lưới tam giác, GLB cho scene/mesh xem được, JSON cho mọi bản ghi  
+> **Đọc/ghi bằng** `lib/mesh_off.py` (OFF) và `lib/mesh_glb.py` (GLB)  
+
+## Phụ thuộc
+
+| Định dạng | Đọc/ghi ở | Ghi chú |
+| --- | --- | --- |
+| OFF | `lib/mesh_off.py` | Chỉ tam giác; `E` trong header không được tin |
+| GLB | `lib/mesh_glb.py`, `tools/data/glb2off.py` | glTF 2 nhị phân, float32, không Draco |
+| JSON | Từng tool, schema ở bảng cuối | Không có timestamp ở file tất định |
+| CSV | `tools/simulate/plugin/` ghi, `validate.py` đọc | Telemetry 10 Hz, 16 cột |
+| SDF, STL | `tools/simulate/build_world.py` | World Gazebo và collision mesh |
 
 Ba định dạng dữ liệu chính: **OFF** cho mesh tam giác, **GLB** cho scene và mesh
 để xem, **JSON** cho mọi bản ghi (mission, tuyến, đối chiếu, kết quả bay). Kết
@@ -216,3 +250,10 @@ chuẩn hoá. Hệ quả cần biết: `standardize.py` làm tròn float32 **tr�
 chuẩn hoá, còn STL làm tròn **sau**, nên bề mặt dựng từ hai nguồn lệch nhau
 cỡ `2e-6` m ở cao độ. Hai bản ghi SHA tương ứng nằm trong
 [`data/processed/README.md`](../data/processed/README.md).
+
+## Liên quan
+
+- [`tools/lib.md`](tools/lib.md) — reader/writer OFF và GLB.
+- [`tools/data/glb2off.md`](tools/data/glb2off.md) — hai lối đọc GLB.
+- [`tools/simulate/build_world.md`](tools/simulate/build_world.md) — SDF, STL, `flown_route.json`.
+- [`tools/simulate/validate.md`](tools/simulate/validate.md) — schema `validation.json`.

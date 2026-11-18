@@ -1,11 +1,43 @@
+---
+title: gui_config.py
+aliases:
+  - gui_config
+type: tool
+stage: simulate
+source: tools/simulate/gui_config.py
+tags:
+  - funnel-tree/tool
+  - funnel-tree/stage/simulate
+---
+
 # `tools/simulate/gui_config.py`
 
-| | |
-| --- | --- |
-| Stage | `simulate` — chuẩn bị GUI |
-| Vào | `world_metadata.json` (có `camera_pose`) |
-| Ra | `$HOME/.gz/sim/10/gui.config` của phiên chạy |
-| Cờ | `--metadata`, `--output` |
+> [!abstract] Mục đích
+> Ghi `gui.config` riêng cho một phiên Gazebo: chỉ giữ 3D view và
+> `MarkerManager`, đặt **camera ban đầu** theo tuyến. Gazebo bỏ qua
+> `<gui><camera>` trong SDF nên phải làm ở đây.
+
+> [!info] Vị trí
+> **File** `tools/simulate/gui_config.py` — stage `simulate`, chuẩn bị GUI  
+> **Thuật toán** Template XML cố định; đổi `roll, pitch, yaw` từ độ sang radian, giữ `x, y, z` là mét  
+> **Vào** `world_metadata.json` (có `camera_pose`)  
+> **Ra** `$HOME/.gz/sim/10/gui.config` của phiên chạy  
+> **Cờ** `--metadata`, `--output`  
+
+## API chính
+
+| Hàm | Vào | Ra | Việc |
+| --- | --- | --- | --- |
+| `build(camera_pose)` | 6 số `x y z roll pitch yaw` (độ) | chuỗi XML `gui.config` | Đổi 3 góc sang radian, giữ `x, y, z` là mét, chèn vào template |
+| `main()` | `--metadata`, `--output` | ghi file, in đường dẫn | Đọc `camera_pose` từ metadata rồi gọi `build` |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Thư viện | `argparse`, `json`, `math`, `re`, `pathlib` | CLI, đổi độ → radian, template |
+| Dữ liệu | `generated/simulate/<mission>-<goal>/world_metadata.json` | Nguồn `camera_pose` |
+| Do | `run_simulate.sh` gọi | Tạo `HOME` tạm và mount vào container |
 
 ## Vì sao cần
 
@@ -82,3 +114,9 @@ python3 tools/simulate/gui_config.py \
   `10`).
 - File này chỉ đặt camera **ban đầu**; người xem vẫn xoay/zoom được.
 - Nếu Gazebo đổi tên plugin GUI, cần cập nhật template.
+
+## Liên quan
+
+- [`build_world.md`](build_world.md) — tính `camera_pose` từ bounding box tuyến.
+- [`run_simulate.md`](run_simulate.md) — dựng `HOME` tạm và mount file này.
+- [`plugin.md`](plugin.md) — publish vệt bay mà `MarkerManager` vẽ.

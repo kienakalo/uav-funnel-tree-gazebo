@@ -1,7 +1,40 @@
+---
+title: Công cụ trong pipeline
+aliases:
+  - tools
+  - mục lục tool
+type: index
+stage: all
+source: docs/tools/
+tags:
+  - funnel-tree/index
+---
+
 # Công cụ trong pipeline
 
-Mỗi tool một file, mô tả dữ liệu vào/ra, cờ dòng lệnh, thuật toán và giới hạn —
-đủ để trích dẫn khi viết báo cáo.
+> [!abstract] Mục đích
+> Mục lục các tool của pipeline, sơ đồ dữ liệu giữa ba stage và quy ước chung
+> áp dụng cho mọi trang trong `docs/`.
+
+> [!info] Vị trí
+> **Phạm vi** 25 trang: 7 tool `data`, 4 tool `plan`, 6 tool `simulate`, 8 trang chung (mục lục, `main.py`, `figures.py`, thuật toán, thư viện, Docker, tái lập, định dạng)  
+> **Cách đọc** mỗi trang có callout mục đích, bảng `API chính`, bảng `Phụ thuộc`, rồi phần thuật toán/đo đạc  
+> **Định dạng** Markdown chuẩn + YAML frontmatter + callout, đọc được cả trên GitHub và trong Obsidian  
+
+## Cách đọc một trang tool
+
+Mỗi trang trả lời năm câu, theo cùng một thứ tự:
+
+| Phần | Trả lời |
+| --- | --- |
+| `[!abstract] Mục đích` | File này sinh ra để làm gì, trong 1–2 câu |
+| `[!info] Vị trí` | Đường dẫn, stage, dữ liệu vào/ra, cờ, thư viện cần |
+| `## API chính` | Từng hàm: đầu vào, đầu ra, việc nó làm |
+| `## Phụ thuộc` | Thư viện ngoài, module nội bộ, file dữ liệu |
+| `## Liên quan` | Trang trước/sau trong pipeline và trang tham chiếu |
+
+Phần thân giữ thuật toán, số đo và giới hạn — những gì cần trích dẫn khi viết
+báo cáo. Frontmatter có `source`, `stage` và `tags` để Obsidian lọc theo stage.
 
 ## Luồng dữ liệu
 
@@ -89,5 +122,12 @@ vẫn chạy cả ba theo thứ tự.
 | World Gazebo | Z-up, tên `funnel_sim_<mission>_<goal>`; visual GLB (có NORMAL), collision STL; URI tương đối |
 | Runtime | Container `ghcr.io/openrobotics/gazebo:jetty-full`, GPU NVIDIA qua CDI hoặc Intel qua `/dev/dri` |
 | Ảnh Gazebo | Chụp cửa sổ GUI theo thời gian mô phỏng; metadata ghi cách chụp, không phải đầu ra đo |
+| Tài liệu | Markdown chuẩn + YAML frontmatter (`title`, `type`, `stage`, `source`, `tags`) + callout; link tương đối, không wikilink, để GitHub và Obsidian cùng đọc được |
 
 Định dạng file: [`../data-format.md`](../data-format.md).
+
+## Liên quan
+
+- [`../data-format.md`](../data-format.md) — định dạng file giữa các stage.
+- [`reproducibility.md`](reproducibility.md) — truy vết số liệu.
+- [`../../README.md`](../../README.md) — hướng dẫn cài đặt và chạy nhanh.

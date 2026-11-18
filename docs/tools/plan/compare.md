@@ -1,11 +1,54 @@
+---
+title: compare.py
+aliases:
+  - compare
+type: tool
+stage: plan
+source: tools/plan/compare.py
+tags:
+  - funnel-tree/tool
+  - funnel-tree/stage/plan
+---
+
 # `compare.py`
 
-| | |
-| --- | --- |
-| Stage | `plan` bước 3 |
-| Vào | `data/expected/*.paths.json` + mesh tương ứng |
-| Ra | `generated/compare/<mesh>.compare.json`, `generated/compare/summary.json` |
-| Cờ | `--expected`, `--meshes`, `--output`, `--seconds` (300), `--tolerance` (1e-4) |
+> [!abstract] Mục đích
+> Đối chiếu **độ dài route** do Funnel Tree tìm được với đường tham chiếu đã
+> lưu cho 5 fixture nhỏ; đây là bằng chứng ngoài duy nhất về độ đúng của thuật
+> toán.
+
+> [!info] Vị trí
+> **File** `tools/plan/compare.py` — stage `plan`, bước 3  
+> **Thuật toán** Chạy `solve` từ `source` của reference, so **độ dài** tương đối từng đỉnh với ngưỡng `1e-4`  
+> **Vào** `data/expected/*.paths.json` + mesh tương ứng  
+> **Ra** `generated/compare/<mesh>.compare.json`, `generated/compare/summary.json`  
+> **Cờ** `--expected`, `--meshes`, `--output`, `--seconds` (300), `--tolerance` (1e-4)  
+
+## API chính
+
+| Hàm | Vào | Ra | Việc |
+| --- | --- | --- | --- |
+| `route_length(path)` | polyline `[x, y, z]` | mét | Cộng khoảng cách Euclid giữa các điểm liên tiếp |
+| `compare(mesh_stem, expected_path, mesh_dir, seconds, tolerance)` | tên mesh, reference, thư mục mesh, giới hạn, ngưỡng | `dict` `compare.json` | Chạy `solve` từ `source` của reference, so từng đỉnh, gom `failures` và `stats` |
+| `relative(path)` | đường dẫn | đường dẫn tương đối | In và ghi JSON gọn |
+| `main()` | cờ dòng lệnh | file từng mesh + `summary.json`; thoát 1 nếu có failure | Duyệt reference, ghi `passed`/`failed`/`skipped` |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Thư viện | NumPy; `argparse`, `hashlib`, `json`, `math`, `pathlib` | Mảng đỉnh, hash, ghi kết quả |
+| Nội bộ | `algo/funnel_tree.py: solve` | Đường ngắn nhất tới **mọi** đỉnh của mesh nhỏ |
+| Nội bộ | `lib/mesh_off.py: read_mesh` | Dựng mesh từ OFF |
+| Dữ liệu | `data/expected/<mesh>.paths.json` | Đường tham chiếu, làm tròn 4 chữ số |
+
+## Chạy
+
+```bash
+.venv/bin/python tools/plan/compare.py
+.venv/bin/python tools/plan/compare.py --meshes L cliff
+.venv/bin/python tools/plan/compare.py --tolerance 1e-5   # bắt đầu fail ở cliff
+```
 
 ## Reference là gì
 
@@ -101,3 +144,10 @@ toán; các mesh không có reference (kể cả city) chưa có đối chiếu 
   cùng độ dài).
 - Không kiểm tra tuyến nằm trên mặt (việc đó cần một phép kiểm khác).
 - `solve` cho mọi đỉnh chỉ hợp với mesh nhỏ; reference hiện tại đều ≤31 đỉnh.
+
+## Liên quan
+
+- [`run_funnel.md`](run_funnel.md) — cùng thuật toán, nhưng cho mission thật.
+- [`../funnel_tree.md`](../funnel_tree.md) — `solve` và giới hạn của nó.
+- [`compare_runs.md`](compare_runs.md) — so sánh giữa các lần chạy, không phải với reference.
+- [`../../data-format.md`](../../data-format.md) — schema `compare.json` và `.paths.json`.

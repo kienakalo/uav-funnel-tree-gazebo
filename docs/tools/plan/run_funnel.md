@@ -1,11 +1,48 @@
+---
+title: run_funnel.py
+aliases:
+  - run_funnel
+type: tool
+stage: plan
+source: tools/plan/run_funnel.py
+tags:
+  - funnel-tree/tool
+  - funnel-tree/stage/plan
+---
+
 # `run_funnel.py`
 
-| | |
-| --- | --- |
-| Stage | `plan` bước 1 |
-| Vào | `data/processed/missions/*.mission.json` và mesh ghi trong mission |
-| Ra | `generated/routes/<mission>.routes.json` |
-| Cờ | `--mission` (lặp lại), `--input`, `--output`, `--seconds` (300), `--max-nodes` (200 000), `--no-clipping` |
+> [!abstract] Mục đích
+> Chạy Funnel Tree trên các mission đã lưu và ghi **một file route cho mỗi
+> mission**, kèm hash của mission/mesh/module và giới hạn tài nguyên, để một con
+> số luôn truy được về đúng đầu vào sinh ra nó.
+
+> [!info] Vị trí
+> **File** `tools/plan/run_funnel.py` — stage `plan`, bước 1  
+> **Thuật toán** Funnel Tree: Dijkstra trên secondary source, mỗi source một lần `propagate`, dựng lại bằng `reconstruct`  
+> **Vào** `data/processed/missions/*.mission.json` và mesh ghi trong mission  
+> **Ra** `generated/routes/<mission>.routes.json`  
+> **Cờ** `--mission` (lặp lại), `--input`, `--output`, `--seconds` (300), `--max-nodes` (200 000), `--no-clipping`  
+
+## API chính
+
+| Hàm | Vào | Ra | Việc |
+| --- | --- | --- | --- |
+| `mission_id(path)` | đường dẫn mission | stem | `cliff.mission.json → cliff`; chấp nhận cả file không hậu tố |
+| `load_mission(path)` | JSON mission | `dict` đã kiểm | Kiểm `mesh_sha256`, số đỉnh/mặt và ít nhất một GOAL |
+| `route_length(waypoints)` | danh sách `[x, y, z]` | mét | Tổng khoảng cách Euclid giữa các waypoint liên tiếp trên mặt |
+| `plan_mission(path, seconds, max_nodes, clipping)` | mission + giới hạn tài nguyên | `dict` route của mission | Gọi `solve_targets` (mỗi goal một lượt với `explicit` nhiều goal), gom `solver`, `routes`, `stats`, `planning_seconds`, `environment` |
+| `sha256(path)`, `relative(path)`, `fail(message)` | đường dẫn / chuỗi | hash, đường dẫn gọn, thoát 1 | Ghi hash và in lỗi theo cùng một kiểu |
+| `main()` | cờ dòng lệnh | route JSON + `Save at:` | Duyệt mission theo tên, in `[i/N] <tên>: solving` |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Thư viện | NumPy; `argparse`, `hashlib`, `json`, `math`, `platform`, `time` | Mảng đỉnh, hash, đồng hồ, phiên bản môi trường |
+| Nội bộ | `algo/funnel_tree.py: solve_targets` | Tìm đường ngắn nhất tới các goal |
+| Nội bộ | `lib/mesh_off.py: read_mesh` | Dựng `Mesh` có kề, góc, khoảng cách |
+| Dữ liệu | `data/processed/missions/*.mission.json` | Nguồn START/GOAL duy nhất |
 
 ## Quy trình
 
@@ -103,3 +140,10 @@ nên khi so sánh chỉ dùng số lần lan truyền và độ dài.
 .venv/bin/python tools/plan/run_funnel.py --mission data/processed/missions/cliff.mission.json
 .venv/bin/python tools/plan/run_funnel.py --seconds 600
 ```
+
+## Liên quan
+
+- [`../funnel_tree.md`](../funnel_tree.md) — thuật toán `solve_targets` mà bước này gọi.
+- [`route_viz.md`](route_viz.md) — vẽ route đã lập mà không chạy lại solver.
+- [`compare.md`](compare.md) — đối chiếu độ dài với reference.
+- [`../../data-format.md`](../../data-format.md) — schema `routes.json`.

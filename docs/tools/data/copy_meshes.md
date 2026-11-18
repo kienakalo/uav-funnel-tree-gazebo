@@ -1,11 +1,51 @@
+---
+title: copy_meshes.py
+aliases:
+  - copy_meshes
+type: tool
+stage: data
+source: tools/data/copy_meshes.py
+tags:
+  - funnel-tree/tool
+  - funnel-tree/stage/data
+---
+
 # `copy_meshes.py`
 
-| | |
-| --- | --- |
-| Stage | `data` bước 1 |
-| Vào | `data/raw/meshes/*.off` (9 fixture) |
-| Ra | `data/processed/meshes/*.off` |
-| Cờ | `--write` hoặc `--check` (bắt buộc một trong hai) |
+> [!abstract] Mục đích
+> Sao chép **nguyên byte** 9 fixture OFF từ `data/raw/meshes/` sang
+> `data/processed/meshes/` sau khi kiểm cú pháp, để mọi stage sau chỉ đọc một thư
+> mục đã được xác nhận.
+
+> [!info] Vị trí
+> **File** `tools/data/copy_meshes.py` — stage `data`, bước 1  
+> **Thuật toán** Kiểm cú pháp bằng `read_off` rồi `shutil.copyfile` — không parse lại, không biến đổi hình học  
+> **Vào** `data/raw/meshes/*.off` (9 fixture, bất biến)  
+> **Ra** `data/processed/meshes/*.off`, byte-identical với nguồn  
+> **Cờ** `--write` hoặc `--check` (bắt buộc chọn một)  
+
+## API chính
+
+| Hàm | Vào | Ra | Việc |
+| --- | --- | --- | --- |
+| `write_all()` | — | tạo `data/processed/meshes/`, in `Save at:` từng file | Đọc và kiểm mọi `.off` bằng `read_off`, rồi `shutil.copyfile` sang đích |
+| `check_all(root=ROOT)` | thư mục gốc repo | in số cặp khớp; thoát mã 1 nếu lệch | So byte từng cặp `raw/` ↔ `processed/` |
+| `main()` | `--write` / `--check` | mã thoát | Chọn chế độ rồi gọi hàm trên |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Thư viện | `argparse`, `shutil`, `sys`, `pathlib` | CLI, copy byte, đường dẫn |
+| Nội bộ | `lib/mesh_off.py: read_off` | Kiểm cú pháp OFF trước khi copy |
+| Dữ liệu | `data/raw/meshes/*.off` | Nguồn fixture gốc, không sửa |
+
+## Chạy
+
+```bash
+.venv/bin/python tools/data/copy_meshes.py --write    # copy rồi in Save at từng file
+.venv/bin/python tools/data/copy_meshes.py --check    # so byte, thoát 1 nếu lệch
+```
 
 ## Việc nó làm
 
@@ -43,3 +83,10 @@ Processed meshes: 9 copies consistent        (khi --check)
 
 Chỉ kiểm cấu trúc file, không kiểm topology (non-manifold, fan rời). Việc đó do
 `Mesh` làm khi `set_start_goal` hoặc `run_funnel` đọc mesh.
+
+## Liên quan
+
+- [`set_start_goal.md`](set_start_goal.md) — bước 7 chọn START/GOAL trên chính các mesh này.
+- [`off2glb.md`](off2glb.md) — cùng fixture, chuyển sang GLB để mở bằng viewer.
+- [`../../data-format.md`](../../data-format.md) — quy tắc định dạng OFF.
+- [`../lib.md`](../lib.md) — `read_off`, `write_off`, `inspect_mesh`, `Mesh`.

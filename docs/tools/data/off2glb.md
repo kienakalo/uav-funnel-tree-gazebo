@@ -1,11 +1,52 @@
+---
+title: off2glb.py
+aliases:
+  - off2glb
+type: tool
+stage: data
+source: tools/data/off2glb.py
+tags:
+  - funnel-tree/tool
+  - funnel-tree/stage/data
+---
+
 # `off2glb.py`
 
-| | |
-| --- | --- |
-| Stage | `data` bước 4 |
-| Vào | `data/raw/meshes/*.off` |
-| Ra | `data/processed/scenes/meshes/<mesh>.off2glb.glb` |
-| Cờ | `--input`, `--output`, `--mesh` (lặp lại), `--keep-z-up` |
+> [!abstract] Mục đích
+> Chuyển từng fixture OFF sang glTF nhị phân (Y-up mặc định) để mở bằng
+> Blender, MeshLab hay bất kỳ viewer glTF nào; chỉ đổi định dạng, không sửa hình
+> học.
+
+> [!info] Vị trí
+> **File** `tools/data/off2glb.py` — stage `data`, bước 4  
+> **Thuật toán** Đổi trục `(x, y, z) → (x, z, −y)`, ghi GLB float32, đọc lại đối chiếu số đỉnh/mặt  
+> **Vào** `data/raw/meshes/*.off`  
+> **Ra** `data/processed/scenes/meshes/<mesh>.off2glb.glb`  
+> **Cờ** `--input`, `--output`, `--mesh` (lặp lại), `--keep-z-up`  
+
+## API chính
+
+| Hàm | Vào | Ra | Việc |
+| --- | --- | --- | --- |
+| `convert(source, output, keep_z_up=False)` | một `.off`, đích `.glb`, cờ trục | `report` của `write_glb` (số mesh/đỉnh/mặt/byte) | Đọc OFF, đổi `(x, y, z) → (x, z, −y)` trừ khi `keep_z_up`, ghi GLB kèm extras, đọc lại so số đỉnh/mặt |
+| `main()` | `--input`, `--output`, `--mesh`, `--keep-z-up` | mỗi file một dòng JSON + `Save at:` | Lọc fixture theo `--mesh` rồi gọi `convert` |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Thư viện | NumPy; `argparse`, `hashlib`, `json`, `pathlib` | Đổi trục, CLI, hash nguồn |
+| Nội bộ | `lib/mesh_off.py: read_off` | Đọc fixture thành mảng float64 + chỉ số |
+| Nội bộ | `lib/mesh_glb.py: write_glb, read_glb` | Ghi GLB và đọc lại để tự kiểm |
+| Dữ liệu | `data/raw/meshes/*.off` | Fixture gốc, 9 file |
+
+## Chạy
+
+```bash
+.venv/bin/python tools/data/off2glb.py                       # cả 9 fixture
+.venv/bin/python tools/data/off2glb.py --mesh terrain        # một fixture
+.venv/bin/python tools/data/off2glb.py --mesh cube --keep-z-up
+```
 
 ## Việc nó làm
 
@@ -51,3 +92,10 @@ Save at: data/processed/scenes/meshes/terrain.off2glb.glb
 - Chỉ đổi hệ trục, không sửa hình học, không weld, không chuẩn hoá tỉ lệ.
 - Float32 khi ghi, nên toạ độ double của fixture bị làm tròn (xem
   [`../../data/README.md`](../../../data/README.md) mục định dạng).
+
+## Liên quan
+
+- [`copy_meshes.md`](copy_meshes.md) — bước 1 đưa fixture vào `processed/`.
+- [`standardize.md`](standardize.md) — chuẩn hoá scene thành phố theo cùng định dạng.
+- [`../../data-format.md`](../../data-format.md) — quy ước trục và float32 khi ghi GLB.
+- [`../lib.md`](../lib.md) — `write_glb`/`read_glb` và cách ghi accessor.

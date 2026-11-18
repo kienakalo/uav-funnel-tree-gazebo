@@ -1,4 +1,52 @@
+---
+title: lib/ — thư viện dùng chung
+aliases:
+  - lib
+  - mesh_off
+  - mesh_glb
+  - figstamp
+  - plotting
+type: module
+stage: all
+source:
+  - lib/mesh_off.py
+  - lib/mesh_glb.py
+  - lib/figstamp.py
+  - lib/plotting.py
+tags:
+  - funnel-tree/library
+---
+
 # `lib/` — thư viện dùng chung
+
+> [!abstract] Mục đích
+> Bốn module không phải package, import theo tên sau khi thêm `lib/` vào
+> `sys.path`. Chúng gom những quy tắc dùng ở nhiều tool: định dạng OFF, container
+> GLB, đóng dấu ảnh và chọn backend đồ hoạ.
+
+> [!info] Vị trí
+> **File** `lib/mesh_off.py`, `lib/mesh_glb.py`, `lib/figstamp.py`, `lib/plotting.py`  
+> **Vào** mảng NumPy, đường dẫn file, figure Matplotlib  
+> **Ra** `Mesh` có kề, byte GLB, ảnh có dấu tham số, tên backend  
+> **Nguyên tắc** một quy tắc định dạng chỉ sửa ở một chỗ; không module nào đọc `generated/`  
+
+## API chính
+
+| Module | Xuất chính | Dùng bởi |
+| --- | --- | --- |
+| `mesh_off.py` | `read_off`, `write_off`, `read_mesh`, `inspect_mesh`, `unique_edge_count`, `Mesh`, `Point` | `copy_meshes`, `glb2off`, `off2glb`, `triangulation`, `data_viz`, `set_start_goal`, `run_funnel`, `route_viz`, `compare`, `build_world` |
+| `mesh_glb.py` | `write_glb`, `read_glb`, `indexed_from_triangles` | `standardize`, `off2glb`, `build_world` |
+| `figstamp.py` | `save`, `read_sidecar`, `index`, `relative`, `sha256`, `now` | `data_viz`, `route_viz`, `validate`, `glb2off`, `figures` |
+| `plotting.py` | `use_interactive`, `unavailable_message` | `data_viz --show`, `route_viz --show`, `set_start_goal --pick` |
+
+## Phụ thuộc
+
+| Loại | Tên | Dùng để |
+| --- | --- | --- |
+| Thư viện | NumPy | Mảng đỉnh/mặt và phép tính hình học |
+| Thư viện | Matplotlib (`figstamp` qua `savefig`, `plotting`) | Vẽ chân ảnh, ghi metadata PNG, chọn backend |
+| Import | `sys.path.insert(0, 'lib')` | Bốn module phẳng, không có `__init__.py` |
+| Không phụ thuộc | `generated/`, `results/` | Thư viện thuần, không đọc kết quả |
 
 Bốn module, không phải package: import theo tên sau khi thêm `lib/` vào
 `sys.path`.
@@ -86,3 +134,10 @@ Matplotlib lặng lẽ rơi về `Agg` khi không nạp được toolkit, và `p
 khi import `pyplot`, và trả `None` nếu không backend nào nạp được.
 
 Dùng ở: `data_viz --show`, `route_viz --show`, `set_start_goal --pick`.
+
+## Liên quan
+
+- [`funnel_tree.md`](funnel_tree.md) — thuật toán chạy trên `Mesh`.
+- [`data/glb2off.md`](data/glb2off.md) — nơi `mesh_glb`/`mesh_off` gặp nhau.
+- [`figures.md`](figures.md) — đọc lại dấu do `figstamp` ghi.
+- [`../data-format.md`](../data-format.md) — quy tắc OFF và GLB ở mức dữ liệu.
