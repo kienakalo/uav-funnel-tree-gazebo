@@ -228,7 +228,7 @@ commit file đó, vì `--fresh` không xoá và không sinh lại được lựa
 | Hợp lệ / mốc 1 m | cả ba `valid`; g2 vượt mốc 2 % tại một góc cua |
 | Đối chiếu reference | 5/5 mesh đạt, 5 bỏ qua (không có reference) |
 
-g2 không phải nhiễu: năm lần bay cho 1,0247 · 1,019 · 1,022 · 1,026 · 1,022 m,
+g2 không phải nhiễu: sáu lần bay cho 1,0247 · 1,019 · 1,022 · 1,026 · 1,022 · 1,024 m,
 cùng một góc cua (đoạn 8→9, drone chậm 4,9 → 4,2 m/s trong 0,2 s trong khi setpoint
 giữ 5,0 m/s). Đó là đặc tính của tuyến, và là lý do `valid` được tách khỏi
 `passed`.

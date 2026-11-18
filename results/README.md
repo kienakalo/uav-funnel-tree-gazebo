@@ -52,6 +52,7 @@ Quy ước:
 | `city792` | START 792 (−38,75, 22,10) → g1 1810, g2 1910, g3 1518 | bay 35,4 s / 33,2 s / 24,6 s; `max_error` 0,365 / 1,022 / 0,851 m; cả ba `valid`, g2 trượt mốc 1 m 2 % tại một góc cua |
 | `city792b` | như trên, chạy lại `main.py` cả ba stage (máy đang tải khác) | bay 36,4 s / 33,0 s / 24,3 s; `max_error` 0,365 / 1,026 / 0,852 m; `mean_error` 0,066 / 0,111 / 0,092 m; cùng kết luận — dùng để nói độ lặp lại |
 | `city792c` | như trên, chạy lại lần ba (22:33, 262 s cả ba stage) | bay 35,7 s / 32,9 s / 24,2 s; `max_error` 0,365 / 1,022 / 0,852 m; `mean_error` 0,067 / 0,111 / 0,092 m — lần đo thứ năm của góc cua g2 |
+| `city792d` | như trên, chạy lại lần bốn (08:27, 247 s cả ba stage) | bay 35,5 s / 33,2 s / 24,4 s; `max_error` 0,365 / 1,024 / 0,851 m; `mean_error` 0,067 / 0,110 / 0,091 m — lần đo thứ sáu của g2, cùng kết luận |
 
 Mission hiện tại của thành phố là START 792 → 1810 / 1910 / 1518 (xem
 [`../docs/tools/data/set_start_goal.md`](../docs/tools/data/set_start_goal.md));

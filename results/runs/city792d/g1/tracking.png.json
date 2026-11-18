@@ -1,0 +1,33 @@
+{
+  "image": "results/runs/city792d/g1/tracking.png",
+  "image_sha256": "99ee300e1160931996d2ce34ac36ea624c78c00dcbf6d0c2b2fb22f391b80c48",
+  "generated_at": "2026-11-18T08:29:40+07:00",
+  "parameters": {
+    "speed": 5.0,
+    "max_acceleration": 3.0,
+    "dwell": 0.0,
+    "start_delay": 2.0,
+    "simplify": 0.1,
+    "collision_grid": 1.0,
+    "max_error_limit": 1.0
+  },
+  "facts": {
+    "goal": "g1",
+    "rows": 353,
+    "duration": "35.5 s",
+    "max_error": "0.365 m",
+    "mean_error": "0.067 m",
+    "completed": true,
+    "valid": true,
+    "final_error": "0.001 m"
+  },
+  "sources": {
+    "scene_sha256": "cdd605eedc01011c5c39408ce167fca6244d1a9e0a7527450d13861570a837cb",
+    "surface_sha256": "f6e01c6d421f71aec828ae2f71593e7b2d0460604453459eb5e86b2ea47b28df",
+    "route_sha256": "e9f5f820515dfa93a2c1afe7fc3d7192bc0b416e381dd7ba79adfb5e9ba9a010",
+    "telemetry_sha256": "6b6e48b1826597fa94060d0eaf4cba2d375a10d0107bc16bb7f5c5774fd0c9d9"
+  },
+  "script": "tools/simulate/validate.py",
+  "script_sha256": "824212d122a355d58d91cbd03bd9c8e6de46de4b0837bfbaf4c9d801066a581b",
+  "command": "tools/simulate/validate.py --mission city.standardized.triangulation --goal g1 --max-error 1"
+}
