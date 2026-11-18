@@ -10,7 +10,7 @@
 ## Vì sao cần archive
 
 Đổi `cell` từ 5 m sang 4 m làm bề mặt, route và kết quả bay đều khác, nhưng mọi
-tool ghi vào cùng đường dẫn: `generated/routes/<mission>.json`,
+tool ghi vào cùng đường dẫn: `generated/routes/<mission>.routes.json`,
 `generated/simulate/<mission>-g1/validation.json`, … Chạy lần thứ hai là mất số
 liệu lần thứ nhất. Vì vậy `main.py --label` chép bộ kết quả sang
 `results/runs/<label>/`, nơi không stage nào xoá.
@@ -77,7 +77,8 @@ Không có giá trị nào được suy ra từ mặc định của tool: thiế
 
 ## Ảnh cạnh bảng
 
-Mỗi archive có `route.png` và `gN/tracking.png`. Tool chép ra:
+Mỗi archive có ảnh tuyến (`routes.png`; archive cũ dùng `route.png`) và
+`gN/tracking.png`. Tool chép ra:
 
 ```text
 results/comparison/grid5-route.png

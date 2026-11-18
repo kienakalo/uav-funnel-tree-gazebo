@@ -12,7 +12,7 @@ Nguồn nằm ở [`data/raw/`](../raw).
 | `meshes/city.standardized.triangulation.params.json` | Tham số + SHA đã sinh ra bề mặt | `tools/data/triangulation.py` |
 | `meshes/city.standardized.glb2off.off` | Bản OFF của scene để xem, không phải đầu vào thuật toán | `tools/data/glb2off.py` |
 | `meshes/city.standardized.glb2off.params.json` | `width` + SHA của scene và file OFF | `tools/data/glb2off.py` |
-| `missions/<mesh>.json` | START/GOAL đã chọn | `tools/data/set_start_goal.py` |
+| `missions/<mesh>.mission.json` | START/GOAL đã chọn | `tools/data/set_start_goal.py` |
 
 Tên file theo quy trình. Bề mặt và bản xem thành phố có sidecar `.params.json`
 ghi tham số và SHA; các file khác ghi tham số trong chính nội dung (mission,
@@ -58,13 +58,13 @@ Bước `data_viz` render mỗi mesh `.off` thành một ảnh PNG trong
 `generated/data_viz/`, kèm các đường tham chiếu trong `data/expected/` nếu có.
 Dùng `--show` để mở cửa sổ 3D tương tác thay vì ghi PNG.
 
-Bước cuối **không tự chọn hộ**: nó đọc `data/processed/missions/<mesh>.json` đã
+Bước cuối **không tự chọn hộ**: nó đọc `data/processed/missions/<mesh>.mission.json` đã
 lưu. Lần đầu, khi file chưa có, tool hỏi chọn START/GOAL trên terminal rồi ghi
 file — kể cả khi stdout bị pipe, vì prompt đi qua `/dev/tty`. Muốn chọn lại dù
 đã có file: `--force`, thêm `--pick` nếu muốn click trong cửa sổ 3D.
 
 Không có file mission nào được ship sẵn trong Git. Chạy stage một lần rồi commit
-`data/processed/missions/<mesh>.json` nếu muốn lựa chọn đó tái lập ở máy khác.
+`data/processed/missions/<mesh>.mission.json` nếu muốn lựa chọn đó tái lập ở máy khác.
 
 Stage `plan` đọc chính các file này (`python3 main.py plan`) và ghi tuyến vào
 `generated/routes/`.
@@ -121,7 +121,7 @@ màu đỏ. `python3 main.py data` render tất cả ở bước 6 của stage `
 `tools/data/set_start_goal.py` quét mesh `.off`, in kích thước, số cạnh biên và
 bước lưới, rồi lấy lựa chọn theo thứ tự:
 
-1. **JSON đã lưu** — `data/processed/missions/<mesh>.json`; có file thì dùng
+1. **JSON đã lưu** — `data/processed/missions/<mesh>.mission.json`; có file thì dùng
    luôn, không hỏi lại.
 2. **Tham số dòng lệnh** — `--start-vertex`, `--goal-vertex`, `--start`,
    `--goal`, `--all-goals`.
@@ -207,8 +207,8 @@ python3 main.py data --force-missions   # chọn lại cả mesh đã có
   gốc để thấy đoạn tiếp cận.
 - START không được trùng GOAL; hai GOAL không được trùng nhau.
 - `--all-goals` chỉ dùng cho mesh tối đa 300 đỉnh.
-- Tên file theo mesh: `missions/cliff.json`,
-  `missions/city.standardized.triangulation.json`; `--mission` đổi đường dẫn,
+- Tên file theo mesh: `missions/cliff.mission.json`,
+  `missions/city.standardized.triangulation.mission.json`; `--mission` đổi đường dẫn,
   `--output` đổi thư mục.
 
 ## Tham số bề mặt hiện tại

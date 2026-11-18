@@ -74,7 +74,7 @@ sửa mesh thì phải cập nhật cả tệp này.
 
 ## Mission JSON
 
-`data/processed/missions/<mesh>.json` lưu lựa chọn START/GOAL cho một mesh.
+`data/processed/missions/<mesh>.mission.json` lưu lựa chọn START/GOAL cho một mesh.
 Tool tạo file này khi bạn chọn; không có file mẫu nào được ship sẵn:
 
 ```json
@@ -104,11 +104,11 @@ Tool tạo file này khi bạn chọn; không có file mẫu nào được ship 
 
 ## Route JSON
 
-`generated/routes/<mission>.json` là kết quả của stage `plan`:
+`generated/routes/<mission>.routes.json` là kết quả của stage `plan`:
 
 ```json
 {
-  "mission": "data/processed/missions/cliff.json",
+  "mission": "data/processed/missions/cliff.mission.json",
   "mission_sha256": "…",
   "mesh": "data/processed/meshes/cliff.off",
   "mesh_sha256": "…",
@@ -143,7 +143,7 @@ Tool tạo file này khi bạn chọn; không có file mẫu nào được ship 
 
 ## Compare JSON
 
-`generated/compare/<mesh>.json` so độ dài từng đỉnh với
+`generated/compare/<mesh>.compare.json` so độ dài từng đỉnh với
 `data/expected/<mesh>.paths.json`:
 
 ```json

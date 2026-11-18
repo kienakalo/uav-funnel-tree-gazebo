@@ -5,7 +5,7 @@
 | Stage | `simulate` bước 2 |
 | File | `tools/simulate/plugin/trajectory.py`, `funnel_drone_system.py` |
 | Chạy trong | tiến trình Gazebo, system Python 3.12 có `gz.sim10` (source build) hoặc `gz.sim` (gói Debian/Ubuntu) |
-| Vào | `route.json` (qua `FUNNEL_ROUTE`) |
+| Vào | `flown_route.json` (qua `FUNNEL_ROUTE`) |
 | Ra | `physics_telemetry.csv`, `telemetry_metadata.json` (trong `FUNNEL_OUTPUT_DIR`) |
 
 ## Vai trò
@@ -18,7 +18,7 @@ theo kế hoạch.
 
 | Biến | Bắt buộc | Ý nghĩa |
 | --- | --- | --- |
-| `FUNNEL_ROUTE` | Có | Đường dẫn tuyệt đối tới `route.json` |
+| `FUNNEL_ROUTE` | Có | Đường dẫn tuyệt đối tới `flown_route.json` |
 | `FUNNEL_OUTPUT_DIR` | Có | Thư mục ghi CSV + metadata; tạo nếu chưa có |
 | `FUNNEL_RUN_ID` | Không | Định danh phiên, ghi vào metadata |
 

@@ -3,7 +3,7 @@
 | | |
 | --- | --- |
 | Stage | `simulate` bước 1 |
-| Vào | `generated/routes/<mission>.json`, bề mặt trong `route.mesh`, scene chuẩn hoá |
+| Vào | `generated/routes/<mission>.routes.json`, bề mặt trong `route.mesh`, scene chuẩn hoá |
 | Ra | `generated/simulate/<mission>-<goal>/` — 6 file |
 | Cờ | `--mission`, `--route`, `--goal`, `--list-goals`, `--scene`, `--output`, `--collision-grid`, `--collision {decimated,full}`, `--visual {glb,stl}`, `--simplify M`, `--speed`, `--max-accel`, `--dwell`, `--start-delay`, `--surface`, `--check` |
 
@@ -11,7 +11,7 @@
 
 | File | Vai trò | Bắt buộc |
 | --- | --- | --- |
-| `generated/routes/<mission>.json` | Tuyến của stage `plan`; chứa `waypoints`, `mesh`, `mesh_sha256`, `mission` | Có |
+| `generated/routes/<mission>.routes.json` | Tuyến của stage `plan`; chứa `waypoints`, `mesh`, `mesh_sha256`, `mission` | Có |
 | `data/processed/meshes/<...>.off` | Bề mặt: kiểm SHA khớp route, dùng cho `surface.stl` | Có (đường dẫn lấy từ route) |
 | `data/processed/scenes/city.standardized.glb` | Hình học thành phố cho visual + collision | Có (`--scene` đổi) |
 
@@ -31,7 +31,7 @@ Lý do: một phiên Gazebo bay một tuyến; đoán hộ sẽ tốn vài phút
 
 ## Tham số bay
 
-`route.json` là hợp đồng giữa world và plugin; bốn giá trị dưới đây quyết định
+`flown_route.json` là hợp đồng giữa world và plugin; bốn giá trị dưới đây quyết định
 cách bay và đều ghi trong file đó (và trong `world_metadata.json`, khóa
 `flight`):
 
@@ -53,7 +53,7 @@ generated/simulate/city.standardized.triangulation-g1/
 ├── city.sim.collision.stl     1,3 MB    26.296 tam giác (collision, decimate 1 m)
 ├── surface.stl                220 KB    chỉ khi --surface
 ├── funnel_physics.sdf          20 KB    world + route + drone
-├── route.json                 1,5 KB    18 waypoint (đã rút gọn)
+├── flown_route.json           1,5 KB    18 waypoint (đã rút gọn)
 └── world_metadata.json        1,3 KB
 ```
 
@@ -108,11 +108,11 @@ chấp nhận: `cell`). `--collision full` giữ đủ 301.482 tam giác
 
 ### 4. Route cho plugin
 
-Chọn goal, ghi `route.json`:
+Chọn goal, ghi `flown_route.json`:
 
 ```json
 {
-  "mission": "data/processed/missions/city.standardized.triangulation.json",
+  "mission": "data/processed/missions/city.standardized.triangulation.mission.json",
   "goal": "g1", "goal_vertex": 1275,
   "world": "funnel_sim_city_standardized_triangulation_g1",
   "waypoints": [[x, y, z], …],
@@ -172,7 +172,7 @@ Không ghi gì, chỉ kiểm:
 
 1. SDF parse được, có `world`, model `city` và `drone`, plugin đúng tên.
 2. Mọi `<uri>` là **tên file tương đối** và tồn tại cạnh SDF.
-3. `route.json` có ≥2 waypoint, `world` khớp tên world trong SDF, `mission`
+3. `flown_route.json` có ≥2 waypoint, `world` khớp tên world trong SDF, `mission`
    khớp route gốc.
 4. Kích thước STL khớp số tam giác trong header (`84 + 50·F`).
 

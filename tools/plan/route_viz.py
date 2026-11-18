@@ -5,16 +5,16 @@
 # pathlib); local modules (mesh_off).
 """Render saved Funnel routes to PNG, or show them in a 3D window.
 
-Input:  generated/routes/*.json   (written by tools/plan/run_funnel.py)
+Input:  generated/routes/*.routes.json   (written by tools/plan/run_funnel.py)
         the mesh named in each file
-Output: generated/routes/<mission>.png
+Output: generated/routes/<mission>.routes.png
 
 Rendering is separate from planning so a view can be redrawn without running
 the solver again.
 
 Examples:
   .venv/bin/python tools/plan/route_viz.py
-  .venv/bin/python tools/plan/route_viz.py --routes generated/routes/cliff.json
+  .venv/bin/python tools/plan/route_viz.py --routes generated/routes/cliff.routes.json
   .venv/bin/python tools/plan/route_viz.py --show
 """
 import argparse
@@ -41,6 +41,13 @@ from figstamp import save as save_stamped
 from figstamp import sha256
 
 DEFAULT_INPUT = ROOT / 'generated/routes'
+ROUTES_SUFFIX = '.routes.json'
+
+
+def mission_of(path):
+    """cliff.routes.json -> cliff; tolerate an explicit file without suffix."""
+    name = path.name
+    return name[:-len(ROUTES_SUFFIX)] if name.endswith(ROUTES_SUFFIX) else path.stem
 COLOURS = ('#c0392b', '#8e44ad', '#e67e22', '#16a085', '#2c3e50',
            '#7f8c8d', '#2980b9', '#d35400')
 LABELS = {
@@ -98,7 +105,7 @@ def stamp_data(path, record, shown, limit):
     }
     if limit > 0 and len(record['routes']) > limit:
         parameters['shown'] = shown
-    parameters.update(flight_settings(path.stem))
+    parameters.update(flight_settings(mission_of(path)))
     sources = {
         'mesh_sha256': record.get('mesh_sha256'),
         'mission_sha256': record.get('mission_sha256'),
@@ -143,7 +150,7 @@ def render(path, output, limit, show):
     axes.set_xlabel('X')
     axes.set_ylabel('Y')
     axes.set_zlabel('Z')
-    title = f'{path.stem} — {len(record["routes"])} route(s)'
+    title = f'{mission_of(path)} — {len(record["routes"])} route(s)'
     if record.get('planning_seconds') is not None:
         title += f', {record["planning_seconds"]:.1f}s'
     axes.set_title(title)
@@ -184,7 +191,7 @@ def main():
     else:
         # The folder also holds the figure sidecars (<name>.png.json), which
         # have no route in them; the glob used to pick them up and crash.
-        paths = [path for path in sorted(args.input.glob('*.json'))
+        paths = [path for path in sorted(args.input.glob(f'*{ROUTES_SUFFIX}'))
                  if path.name != 'summary.json'
                  and not path.name.endswith('.png.json')]
     if not paths:
@@ -193,7 +200,7 @@ def main():
     for path in paths:
         if not path.is_file():
             raise SystemExit(f'route_viz: missing {path}')
-        output = args.output / f'{path.stem}.png'
+        output = args.output / f'{mission_of(path)}.routes.png'
         render(path, output, args.max_routes, args.show)
     print(f'Rendered {len(paths)} route file(s) to {args.output}')
 

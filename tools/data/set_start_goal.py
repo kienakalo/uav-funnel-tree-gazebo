@@ -7,7 +7,7 @@
 """Choose START and GOAL vertices on an OFF mesh and save them as JSON.
 
 Input:  data/processed/meshes/city.standardized.triangulation.off (or --mesh)
-Output: data/processed/missions/<mesh-stem>.json
+Output: data/processed/missions/<mesh-stem>.mission.json
 
 The tool reads the mesh first and prints its size, bounds and grid spacing.
 Then it takes the choice from the saved JSON, from the command line, or from an
@@ -321,7 +321,7 @@ def ask_pick(points, faces):
 
 
 def mission_path(mesh, output, explicit):
-    return (explicit or (output / f'{mesh.stem}.json')).resolve()
+    return (explicit or (output / f'{mesh.stem}.mission.json')).resolve()
 
 
 def mission_record(mesh_path, points, faces, boundary, spacing, start, goals,
@@ -599,7 +599,7 @@ def main():
     parser.add_argument('--list-meshes', action='store_true',
                         help='List the meshes and their mission state, then exit')
     parser.add_argument('--mission', type=Path,
-                        help='Mission file (default: data/processed/missions/<mesh>.json)')
+                        help='Mission file (default: data/processed/missions/<mesh>.mission.json)')
     parser.add_argument('--output', type=Path, default=DEFAULT_OUTPUT,
                         help='Folder for the default mission file')
     parser.add_argument('--start', nargs=3, type=float, metavar=('X', 'Y', 'Z'),

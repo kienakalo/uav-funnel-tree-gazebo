@@ -5,7 +5,7 @@
 # pathlib, xml.etree.ElementTree); local modules (glb2off, mesh_glb, mesh_off).
 """Build the Gazebo world and meshes for one planned Funnel route.
 
-Input:  generated/routes/<mission>.json      (stage plan)
+Input:  generated/routes/<mission>.routes.json   (stage plan)
         data/processed/meshes/...off         (the surface named in the route)
         data/processed/scenes/city.standardized.glb   (or --scene)
 Output: generated/simulate/<mission>-<goal>/
@@ -13,7 +13,7 @@ Output: generated/simulate/<mission>-<goal>/
           city.sim.collision.stl     decimated collision mesh
           surface.stl                optional visual of the envelope
           funnel_physics.sdf
-          route.json                 route in the plugin's schema
+          flown_route.json           route in the plugin's schema
           world_metadata.json        hashes and counts of this build
 
 The city visual is a Z-up GLB: Gazebo does not rotate glTF from Y-up, so the
@@ -466,20 +466,20 @@ def check_world(out, route_record, meshes):
         mesh_path = out / uri
         if not mesh_path.is_file():
             fail(f'SDF mesh does not exist: {mesh_path}')
-    route_path = out / 'route.json'
+    route_path = out / 'flown_route.json'
     payload = json.loads(route_path.read_text(encoding='utf-8'))
     waypoints = payload.get('waypoints') or []
     if len(waypoints) < 2:
-        fail('route.json has fewer than two waypoints')
+        fail('flown_route.json has fewer than two waypoints')
     if payload['world'] != world.get('name'):
-        fail('route.json world does not match the SDF world')
+        fail('flown_route.json world does not match the SDF world')
     if payload['mission'] != route_record['mission']:
-        fail('route.json mission does not match the plan record')
+        fail('flown_route.json mission does not match the plan record')
     header = np.fromfile(meshes['collision'], dtype='<u4', count=1, offset=80)
     expected = 84 + 50 * int(header[0])
     if meshes['collision'].stat().st_size != expected:
         fail('collision STL size does not match its triangle count')
-    print('check: SDF, URIs, route.json and collision STL are consistent')
+    print('check: SDF, URIs, flown_route.json and collision STL are consistent')
 
 
 def main():
@@ -522,7 +522,7 @@ def main():
     if args.route is not None:
         route_path = args.route.resolve()
     elif args.mission:
-        route_path = (DEFAULT_ROUTES / f'{args.mission}.json').resolve()
+        route_path = (DEFAULT_ROUTES / f'{args.mission}.routes.json').resolve()
     else:
         parser.error('pass --mission or --route')
     if not route_path.is_file():
@@ -548,7 +548,12 @@ def main():
     if not (args.start_delay >= 0 and math.isfinite(args.start_delay)):
         parser.error('--start-delay must be zero or positive and finite')
     waypoints = simplify(waypoints, args.simplify)
-    mission = Path(record['mission']).stem
+    mission = Path(record['mission']).name
+    # The mission file is <stem>.mission.json; the world is named after the stem.
+    for suffix in ('.mission.json', '.json'):
+        if mission.endswith(suffix):
+            mission = mission[:-len(suffix)]
+            break
     out = args.output / f'{mission}-{goal}'
 
     surface = (ROOT / record['mesh']).resolve()
@@ -578,7 +583,8 @@ def main():
     payload = build_route(record, goal, goal_vertex, waypoints, world,
                           args.speed, args.max_accel, args.dwell,
                           args.start_delay)
-    (out / 'route.json').write_text(json.dumps(payload, indent=2) + '\n', encoding='utf-8')
+    (out / 'flown_route.json').write_text(json.dumps(payload, indent=2) + '\n',
+                                          encoding='utf-8')
     sdf = build_sdf(out, world, payload, meshes, meshes['surface_stl'])
 
     metadata = {
@@ -623,7 +629,7 @@ def main():
     print(f'Collision: {relative(meshes["collision"])} — '
           f'{stats["faces_after"]}/{stats["faces_before"]} triangles, '
           f'{stats["vertices_after"]}/{stats["vertices_before"]} vertices')
-    for name in ('funnel_physics.sdf', 'route.json', 'world_metadata.json'):
+    for name in ('funnel_physics.sdf', 'flown_route.json', 'world_metadata.json'):
         print(f'Save at: {out / name}')
     check_world(out, record, meshes)
 

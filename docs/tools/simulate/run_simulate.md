@@ -3,7 +3,7 @@
 | | |
 | --- | --- |
 | Stage | `simulate` (bước chạy) |
-| Vào | `generated/simulate/<mission>-<goal>/funnel_physics.sdf` + `route.json` (do `build_world.py` sinh) |
+| Vào | `generated/simulate/<mission>-<goal>/funnel_physics.sdf` + `flown_route.json` (do `build_world.py` sinh) |
 | Ra | `generated/simulate/<mission>-<goal>/` — telemetry, metadata, `gazebo.log`, ảnh chụp |
 | Cờ | `--mission`, `--goal`, `--headless`, `--software`, `--show-surface`, `--timeout S`, `--check`, `--no-build`, `--container/--native`, `--image`, `--gpu`, `--keep-open`, `--pull` |
 
@@ -108,7 +108,7 @@ Nó kiểm:
 2. Image tồn tại và `gz sim --versions` chạy được trong image.
 3. Bindings `gz.sim`/`gz.math` hoặc `gz.sim10`/`gz.math9` import được.
 4. Plugin `funnel_drone_system` import được.
-5. `funnel_physics.sdf`, `route.json` tồn tại; `gz sdf -k` chấp nhận SDF.
+5. `funnel_physics.sdf`, `flown_route.json` tồn tại; `gz sdf -k` chấp nhận SDF.
 6. Assimp trong image đọc được `city.sim.glb` (`check_glb.py`). Bước này bắt
    đúng lỗi bufferView từng làm thành phố biến mất trong Gazebo.
 
@@ -123,7 +123,7 @@ rõ nguồn và phiên chạy theo `AGENTS.md`.
 
 | Biến | Giá trị |
 | --- | --- |
-| `FUNNEL_ROUTE` | `/work/generated/simulate/<mission>-<goal>/route.json` (hoặc đường dẫn tuyệt đối khi `--native`) |
+| `FUNNEL_ROUTE` | `/work/generated/simulate/<mission>-<goal>/flown_route.json` (hoặc đường dẫn tuyệt đối khi `--native`) |
 | `FUNNEL_OUTPUT_DIR` | thư mục run |
 | `FUNNEL_RUN_ID` | `<timestamp>-<pid>` |
 | `FUNNEL_GPU` | nhãn GPU đã chọn |

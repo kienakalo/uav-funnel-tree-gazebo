@@ -11,19 +11,19 @@ data/raw/scenes/city.glb ──standardize──► data/processed/scenes/city.s
                                                   ├─glb2off───────► city.standardized.glb2off.off (+ .params.json)
                                                   └─triangulation──► city.standardized.triangulation.off
                                                                           │
-data/processed/missions/<mesh>.json ──────────────────────────────────────┤
+data/processed/missions/<mesh>.mission.json ──────────────────────────────────────┤
                                                                           ▼
-                                                                    run_funnel ──► generated/routes/<mission>.json
+                                                                    run_funnel ──► generated/routes/<mission>.routes.json
                                                                                         │
                                                                     route_viz ──────────┴──► .png
-                                                                    compare   ──► generated/compare/*.json
+                                                                    compare   ──► generated/compare/*.compare.json
 
 data/raw/meshes/*.off ──copy_meshes──► data/processed/meshes/*.off
                       └─off2glb──────► data/processed/scenes/meshes/*.off2glb.glb
 
-generated/routes/*.json ──build_world──► generated/simulate/<mission>-<goal>/
+generated/routes/*.routes.json ──build_world──► generated/simulate/<mission>-<goal>/
                                           (city.sim.glb, collision.stl,
-                                           funnel_physics.sdf, route.json)
+                                           funnel_physics.sdf, flown_route.json)
                                             │
                                run_simulate ─┴─► physics_telemetry.csv
                                                  telemetry_metadata.json

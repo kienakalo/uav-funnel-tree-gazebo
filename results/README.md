@@ -9,8 +9,8 @@ các cấu hình sau khi `generated/` bị ghi đè.
 | `runs/<label>/manifest.json` | `main.py --label` / `--archive` | Tham số + nguồn, `commit` (HEAD lúc lưu), SHA scene/bề mặt/route, START/GOAL đã snap, độ dài route, thời lượng bay, `max_error`, `mean_error`, `valid`, `passed`, danh sách file kèm SHA |
 | `runs/<label>/parameters.json` | như trên | Bản sao `generated/parameters.json` của lần `main.py` **cuối cùng** (file gốc bị ghi đè mỗi run) |
 | `runs/<label>/surface.params.json` | như trên | Tham số + SHA của bề mặt đã dùng, để biết hai archive có cùng hình học hay không |
-| `runs/<label>/mission.json`, `route.json`, `route.png` | như trên | Mission, route đã lập và ảnh tuyến; ảnh có chân ghi tham số |
-| `runs/<label>/gN/` | như trên | `validation.json`, `world_metadata.json`, `route.json` (tuyến đã rút gọn mà plugin bay), `tracking.png` + sidecar, `telemetry_metadata.json` của từng goal |
+| `runs/<label>/mission.json`, `routes.json`, `routes.png` | như trên | Mission, route đã lập và ảnh tuyến; ảnh có chân ghi tham số |
+| `runs/<label>/gN/` | như trên | `validation.json`, `world_metadata.json`, `flown_route.json` (tuyến đã rút gọn mà plugin bay), `tracking.png` + sidecar, `telemetry_metadata.json` của từng goal |
 | `comparison/` | `tools/plan/compare_runs.py` | Bảng Markdown + JSON và ảnh của các lần chạy, tên file mang label |
 
 Quy ước:

@@ -95,7 +95,7 @@ Ví dụ của g2 (mission START 792): hợp lệ nhưng trượt mốc chất l
   "max_speed": 5.0413,
   "max_acceleration": 7.9832,
   "max_error_limit": 1.0,
-  "mission": "data/processed/missions/city.standardized.triangulation.json",
+  "mission": "data/processed/missions/city.standardized.triangulation.mission.json",
   "goal": "g2",
   "world": "funnel_sim_city_standardized_triangulation_g2",
   "route_sha256": "…",

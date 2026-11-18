@@ -149,9 +149,9 @@ Mỗi archive là một thư mục trong `results/runs/<label>/`:
 | `manifest.json` | tham số + nguồn, `commit` (HEAD lúc lưu), SHA scene/bề mặt/route, START/GOAL đã snap, độ dài route từng goal, thời lượng bay, `max_error`, `mean_error`, `valid`, `passed`, danh sách file kèm SHA |
 | `parameters.json` | bản sao `generated/parameters.json` của lần chạy `main.py` **cuối cùng** (với `--archive` có thể chỉ là một goal) |
 | `surface.params.json` | tham số + SHA của bề mặt đã dùng |
-| `mission.json`, `route.json`, `route.png`, `route.png.json` | mission, route đã lập và ảnh tuyến |
+| `mission.json`, `routes.json`, `routes.png`, `routes.png.json` | mission, route đã lập và ảnh tuyến |
 | `plan-summary.json` | `generated/compare/summary.json` (đối chiếu reference) |
-| `g1/`, `g2/`, `g3/` | `validation.json`, `world_metadata.json`, `route.json` (quỹ đạo bay), `tracking.png` + sidecar, `telemetry_metadata.json` |
+| `g1/`, `g2/`, `g3/` | `validation.json`, `world_metadata.json`, `flown_route.json` (tuyến đã rút gọn), `tracking.png` + sidecar, `telemetry_metadata.json` |
 
 - Label chỉ gồm chữ, số, dấu chấm, gạch dưới, gạch ngang; label đã có thì tool
   **dừng**, không ghi đè archive cũ.
@@ -263,7 +263,7 @@ Stage 2/3: plan — funnel routes, route images and the reference comparison
 [plan 1/3] tools/plan/run_funnel.py
     [1/10] J17: solving
     J17: 9 route(s), dài nhất 3.464, 0.0s
-    Save at: generated/routes/J17.json
+    Save at: generated/routes/J17.routes.json
     ...
     done in 190.4 s
 

@@ -20,9 +20,9 @@ Mỗi kết quả phải trả lời được: **dữ liệu nào, mã nào, tha
 | `data/processed/meshes/city.standardized.triangulation.off` | Có | Phụ thuộc scene + START/GOAL + hằng số |
 | `data/processed/scenes/meshes/*.off2glb.glb` | Có | |
 | `data/processed/scenes/city.standardized.glb` | Có | Có commit; SHA dưới đây |
-| `data/processed/missions/*.json` | Có | Không có timestamp |
-| `generated/routes/*.json` | **Không** | `planning_seconds` đổi mỗi lần chạy |
-| `generated/compare/*.json` | Có | Không chứa thời gian |
+| `data/processed/missions/*.mission.json` | Có | Không có timestamp |
+| `generated/routes/*.routes.json` | **Không** | `planning_seconds` đổi mỗi lần chạy |
+| `generated/compare/*.compare.json` | Có | Không chứa thời gian |
 | `generated/simulate/*/physics_telemetry.csv` | Không | Phụ thuộc physics Gazebo |
 | `generated/simulate/*/telemetry_metadata.json` | Không | Có `run_id` của phiên |
 | `generated/simulate/*/validation.json` | Không | Có `run_id` và số đo phiên |
@@ -108,8 +108,9 @@ quỹ đạo bay, `tracking.png` + sidecar, `telemetry_metadata.json`).
 Với `--label` (chạy rồi lưu ngay) hai thời điểm trùng nhau; với `--archive` (lưu
 kết quả đã có) thì không — `parameters.json` trong archive cũng chỉ là log của
 lần `main.py` **cuối cùng**, có thể chỉ là một goal. Muốn biết số liệu do commit
-nào sinh ra thì đọc `validation.json`/`route.json` (có `route_sha256`,
+nào sinh ra thì đọc `validation.json`/`routes.json` (có `route_sha256`,
 `telemetry_sha256`) và `created_at`/mtime của file; đừng suy từ `commit`.
+Archive lưu trước 18/11/2026 dùng tên cũ `route.json`/`route.png`.
 
 ## Môi trường
 

@@ -186,7 +186,10 @@ def aligned(labels, table, order):
 def copy_images(runs, labels, output):
     copied = []
     for label in labels:
-        source = runs / label / 'route.png'
+        # Archives written before the rename used route.png.
+        source = runs / label / 'routes.png'
+        if not source.is_file():
+            source = runs / label / 'route.png'
         if source.is_file():
             copied.append((source, output / f'{label}-route.png'))
         for folder in sorted(path for path in (runs / label).iterdir()

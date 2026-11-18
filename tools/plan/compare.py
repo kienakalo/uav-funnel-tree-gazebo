@@ -8,7 +8,7 @@
 Input:  data/expected/*.paths.json   (5 fixtures; source vertex and one path
         per vertex, coordinates rounded to four decimals)
         data/processed/meshes/<mesh>.off
-Output: generated/compare/<mesh>.json  (per-vertex lengths and differences)
+Output: generated/compare/<mesh>.compare.json  (per-vertex lengths and differences)
         generated/compare/summary.json (which meshes passed, failed, skipped)
 
 Meshes without a reference file are listed as skipped: the project does not
@@ -114,7 +114,7 @@ def main():
         print(f'\n{mesh_stem}:', flush=True)
         report = compare(mesh_stem, expected_path, args.meshes, args.seconds,
                          args.tolerance)
-        output = args.output / f'{mesh_stem}.json'
+        output = args.output / f'{mesh_stem}.compare.json'
         temporary = output.with_suffix('.tmp')
         temporary.write_text(json.dumps(report, indent=2, allow_nan=False) + '\n',
                              encoding='utf-8')

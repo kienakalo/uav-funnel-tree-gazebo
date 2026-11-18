@@ -4,7 +4,7 @@
 | --- | --- |
 | Stage | `plan` bước 3 |
 | Vào | `data/expected/*.paths.json` + mesh tương ứng |
-| Ra | `generated/compare/<mesh>.json`, `generated/compare/summary.json` |
+| Ra | `generated/compare/<mesh>.compare.json`, `generated/compare/summary.json` |
 | Cờ | `--expected`, `--meshes`, `--output`, `--seconds` (300), `--tolerance` (1e-4) |
 
 ## Reference là gì

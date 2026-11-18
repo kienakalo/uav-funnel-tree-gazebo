@@ -253,7 +253,7 @@ def short(path):
 
 def mission_goals(mission):
     """Goal ids of a planned route, for the default all-goal simulate run."""
-    path = ROOT / 'generated/routes' / f'{mission}.json'
+    path = ROOT / 'generated/routes' / f'{mission}.routes.json'
     try:
         record = json.loads(path.read_text(encoding='utf-8'))
     except (OSError, ValueError):
@@ -625,20 +625,22 @@ def archive_files(mission, goals):
     """Source path -> path inside the archive, for one run."""
     mapping = [
         (Path('generated/parameters.json'), Path('parameters.json')),
-        (Path('data/processed/missions') / f'{mission}.json',
+        (Path('data/processed/missions') / f'{mission}.mission.json',
          Path('mission.json')),
         (Path('data/processed/meshes') / f'{mission}.params.json',
          Path('surface.params.json')),
-        (Path('generated/routes') / f'{mission}.json', Path('route.json')),
-        (Path('generated/routes') / f'{mission}.png', Path('route.png')),
-        (Path('generated/routes') / f'{mission}.png.json',
-         Path('route.png.json')),
+        (Path('generated/routes') / f'{mission}.routes.json',
+         Path('routes.json')),
+        (Path('generated/routes') / f'{mission}.routes.png',
+         Path('routes.png')),
+        (Path('generated/routes') / f'{mission}.routes.png.json',
+         Path('routes.png.json')),
         (Path('generated/compare') / 'summary.json', Path('plan-summary.json')),
     ]
     for goal in goals:
         folder = Path('generated/simulate') / f'{mission}-{goal}'
-        for name in ('validation.json', 'world_metadata.json', 'route.json',
-                     'tracking.png', 'tracking.png.json',
+        for name in ('validation.json', 'world_metadata.json',
+                     'flown_route.json', 'tracking.png', 'tracking.png.json',
                      'telemetry_metadata.json'):
             mapping.append((folder / name, Path(goal) / name))
     return mapping
@@ -694,7 +696,7 @@ def archive_details(mission, goals):
             'parameters': record.get('parameters'),
         }
     routes = {}
-    route_file = ROOT / 'generated/routes' / f'{mission}.json'
+    route_file = ROOT / 'generated/routes' / f'{mission}.routes.json'
     if route_file.is_file():
         try:
             record = json.loads(route_file.read_text(encoding='utf-8'))

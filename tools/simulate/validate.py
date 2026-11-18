@@ -147,7 +147,10 @@ def render(rows, folder, title, limit, metadata, result):
     errors = [float(row['error']) for row in rows]
     xs = [float(row['x']) for row in rows]
     ys = [float(row['y']) for row in rows]
-    route_path = folder / 'route.json'
+    # Older run folders called this route.json; new ones use flown_route.json.
+    route_path = folder / 'flown_route.json'
+    if not route_path.is_file():
+        route_path = folder / 'route.json'
     waypoints = []
     if route_path.is_file():
         waypoints = json.loads(route_path.read_text(encoding='utf-8')).get('waypoints') or []

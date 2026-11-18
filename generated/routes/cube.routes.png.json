@@ -1,0 +1,30 @@
+{
+  "image": "generated/routes/cube.routes.png",
+  "image_sha256": "a05ccf32db1f89529f0fe2033fb11aaaea525b9139c889af50b87b863e69c756",
+  "generated_at": "2026-11-18T08:07:38+07:00",
+  "parameters": {
+    "seconds": 300.0,
+    "max_nodes": 200000,
+    "clipping": true
+  },
+  "facts": {
+    "routes": 7,
+    "planning": "0.0 s",
+    "v1": "1.0 m",
+    "v2": "1.4 m",
+    "v3": "1.0 m",
+    "v4": "1.0 m",
+    "v5": "1.4 m",
+    "v6": "2.2 m",
+    "v7": "1.4 m"
+  },
+  "sources": {
+    "mesh_sha256": "6b844f3cd49ee6ba473f01dea6e12caa82363181c557aad5dd89acc9c3db63a0",
+    "mission_sha256": "cacb9bace697df122a65d484138f1c9e8da9613d4490b4b090cddfab2cde4c12",
+    "module_sha256": "42465e58992c985455afddfa62d145febfc96cbbb0597b209c0a1c2ca2947bf2",
+    "routes_sha256": "9bc1b4ee4250c9faf2e21efd1b719da8d825177ad4ca5abe2c54b65c9147a92f"
+  },
+  "script": "tools/plan/route_viz.py",
+  "script_sha256": "351dd70c1d77c13639abf3390251a65c4bc975a561569fd9cf2e764edd8524e6",
+  "command": "tools/plan/route_viz.py"
+}

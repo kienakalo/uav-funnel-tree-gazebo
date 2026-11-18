@@ -41,7 +41,7 @@ ba chuyến bay 35,4 / 33,2 / 24,6 s với sai số bám lớn nhất **0,365 / 
 **Ba tuyến trên bề mặt dẫn đường** — nền là envelope tam giác phân (5 m/ô, khe
 hở dọc 1,5 m), ba màu là ba goal:
 
-![Ba tuyến trên bề mặt](generated/routes/city.standardized.triangulation.png)
+![Ba tuyến trên bề mặt](generated/routes/city.standardized.triangulation.routes.png)
 
 **Kết quả một chuyến bay** — panel trên: tuyến kế hoạch và đường bay thực; panel
 dưới: sai số theo thời gian kèm mốc chất lượng 1 m:
@@ -129,7 +129,7 @@ ln -sf "$(python3 -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])'
 
 # hoặc dùng PyQt6 trong môi trường FHS
 steam-run .venv/bin/python tools/plan/route_viz.py \
-  --routes generated/routes/city.standardized.triangulation.json --show
+  --routes generated/routes/city.standardized.triangulation.routes.json --show
 ```
 
 Chỉ cửa sổ 3D cần các gói này; chạy stage bằng PNG thì không cần.
@@ -183,7 +183,7 @@ Stage `data` có bảy bước, dừng ngay khi một bước lỗi:
 | 4 | `tools/data/off2glb.py` | `raw/meshes/*.off` → `scenes/meshes/*.off2glb.glb` |
 | 5 | `tools/data/triangulation.py --force` | `city.standardized.glb` → `meshes/city.standardized.triangulation.off` |
 | 6 | `tools/data/data_viz.py --all` | `processed/meshes/*.off` → `generated/data_viz/*.png` + sidecar |
-| 7 | `tools/data/set_start_goal.py --all-meshes --refresh-changed` | bề mặt → `data/processed/missions/<mesh>.json` |
+| 7 | `tools/data/set_start_goal.py --all-meshes --refresh-changed` | bề mặt → `data/processed/missions/<mesh>.mission.json` |
 
 Stage `plan` có ba bước: `run_funnel.py` (missions + `.off` → route JSON),
 `route_viz.py` (route → PNG), `compare.py` (route + `data/expected` → đối chiếu).
@@ -367,15 +367,15 @@ vào `sys.path`, xem [`lib/README.md`](lib/README.md).
 | `data/processed/scenes/meshes/*.off2glb.glb` | Mesh mẫu ở dạng GLB Y-up để mở bằng viewer |
 | `data/processed/meshes/city.standardized.triangulation.off` | Bề mặt dẫn đường 2.295 đỉnh / 4.400 tam giác |
 | `generated/data_viz/*.png` | Ảnh kiểm tra từng mesh, kèm đường tham chiếu |
-| `data/processed/missions/<mesh>.json` | START/GOAL đã chọn cho từng mesh |
+| `data/processed/missions/<mesh>.mission.json` | START/GOAL đã chọn cho từng mesh |
 
 ### Đầu ra của stage `plan`
 
 | Tệp | Nội dung |
 | --- | --- |
-| `generated/routes/<mission>.json` | Waypoint từng tuyến, độ dài, hash mesh/mission/mã thuật toán, tham số và thời gian chạy |
-| `generated/routes/<mission>.png` | Ảnh bề mặt + các tuyến |
-| `generated/compare/<mesh>.json` | So từng đỉnh với `data/expected/<mesh>.paths.json` |
+| `generated/routes/<mission>.routes.json` | Waypoint từng tuyến, độ dài, hash mesh/mission/mã thuật toán, tham số và thời gian chạy |
+| `generated/routes/<mission>.routes.png` | Ảnh bề mặt + các tuyến |
+| `generated/compare/<mesh>.compare.json` | So từng đỉnh với `data/expected/<mesh>.paths.json` |
 | `generated/compare/summary.json` | Mesh nào đạt, không đạt, bị bỏ qua |
 
 ### Đầu ra của stage `simulate`
@@ -384,7 +384,7 @@ vào `sys.path`, xem [`lib/README.md`](lib/README.md).
 | --- | --- |
 | `generated/simulate/<mission>-<goal>/city.sim.glb` | Bản visual của thành phố trong world đó (có `NORMAL` để Gazebo tô sáng) |
 | `generated/simulate/<mission>-<goal>/city.sim.collision.stl` | Bản collision đã decimate theo `--collision-grid` |
-| `generated/simulate/<mission>-<goal>/funnel_physics.sdf`, `route.json` | World và tuyến đã rút gọn mà plugin thực sự bay |
+| `generated/simulate/<mission>-<goal>/funnel_physics.sdf`, `flown_route.json` | World và tuyến đã rút gọn mà plugin thực sự bay |
 | `generated/simulate/<mission>-<goal>/physics_telemetry.csv` | Telemetry từng bước: `sim_time`, vị trí, setpoint, `error`, `phase` |
 | `generated/simulate/<mission>-<goal>/validation.json` | `max_error`, `mean_error`, `final_error`, `valid`, `passed` |
 | `generated/simulate/<mission>-<goal>/tracking.png` + `.png.json` | Ảnh tuyến + sai số theo thời gian, có dấu tham số |

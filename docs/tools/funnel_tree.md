@@ -111,7 +111,7 @@ Nếu đường thẳng ra ngoài dải mặt (`r` ngoài `[0,1]`) → `ValueErr
 | 1518 | 21 | 14,5 s | 86,15 m |
 
 Số đọc từ `results/runs/city792/route.json` (bản sao của
-`generated/routes/city.standardized.triangulation.json` lúc lưu): tổng 104 lần
+`generated/routes/city.standardized.triangulation.routes.json` lúc lưu): tổng 104 lần
 lan truyền, 646 source, cả ba goal 62,3 s.
 
 Thời gian phụ thuộc tải máy, không phải chỉ số của thuật toán: cùng mission này

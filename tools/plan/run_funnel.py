@@ -5,8 +5,8 @@
 # sys, time, pathlib); local modules (funnel_tree, mesh_off).
 """Run Funnel on the saved missions and write one route file per mission.
 
-Input:  data/processed/missions/*.json  (or --mission)
-Output: generated/routes/<mission>.json
+Input:  data/processed/missions/*.mission.json  (or --mission)
+Output: generated/routes/<mission>.routes.json
 
 For a mission with explicit goals only those routes are kept; for an
 "all-goals" mission every vertex except START is kept. Each route lists the
@@ -17,7 +17,7 @@ it.
 
 Examples:
   .venv/bin/python tools/plan/run_funnel.py
-  .venv/bin/python tools/plan/run_funnel.py --mission data/processed/missions/cliff.json
+  .venv/bin/python tools/plan/run_funnel.py --mission data/processed/missions/cliff.mission.json
   .venv/bin/python tools/plan/run_funnel.py --seconds 600 --no-clipping
 """
 import argparse
@@ -38,6 +38,13 @@ from funnel_tree import solve_targets
 from mesh_off import read_mesh
 
 DEFAULT_MISSIONS = ROOT / 'data/processed/missions'
+MISSION_SUFFIX = '.mission.json'
+
+
+def mission_id(path):
+    """cliff.mission.json -> cliff; tolerate an explicit file without suffix."""
+    name = Path(path).name
+    return name[:-len(MISSION_SUFFIX)] if name.endswith(MISSION_SUFFIX) else Path(path).stem
 DEFAULT_OUTPUT = ROOT / 'generated/routes'
 ALGORITHM = ROOT / 'algo/funnel_tree.py'
 
@@ -173,7 +180,7 @@ def main():
     if args.max_nodes < 1:
         parser.error('--max-nodes must be positive')
     missions = ([path.resolve() for path in args.mission] if args.mission
-                else sorted(args.input.glob('*.json')))
+                else sorted(args.input.glob(f'*{MISSION_SUFFIX}')))
     if not missions:
         fail(f'no mission in {args.input}; run "python3 main.py data" first')
     args.output.mkdir(parents=True, exist_ok=True)
@@ -184,16 +191,17 @@ def main():
             fail(f'missing mission {path}')
         # The city mission needs about three minutes, so announce each solve:
         # without this line a silent terminal looks like a hang.
-        print(f'[{index}/{total}] {path.stem}: solving', flush=True)
+        mission = mission_id(path)
+        print(f'[{index}/{total}] {mission}: solving', flush=True)
         record, elapsed = plan_mission(path, args.seconds, args.max_nodes,
                                        not args.no_clipping)
-        output = args.output / f'{path.stem}.json'
+        output = args.output / f'{mission}.routes.json'
         temporary = output.with_suffix('.tmp')
         temporary.write_text(json.dumps(record, indent=2, allow_nan=False) + '\n',
                              encoding='utf-8')
         temporary.replace(output)
         longest = max(route['length'] for route in record['routes'])
-        print(f'{path.stem}: {len(record["routes"])} route(s), '
+        print(f'{mission}: {len(record["routes"])} route(s), '
               f'dài nhất {longest:.3f}, {elapsed:.1f}s', flush=True)
         print(f'Save at: {output}')
 

@@ -76,7 +76,7 @@ done
 folder="generated/simulate/${mission}-${goal}"
 world="funnel_sim_$(printf '%s_%s' "$mission" "$goal" | sed 's/[^A-Za-z0-9]/_/g')"
 sdf="$PWD/$folder/funnel_physics.sdf"
-route="$PWD/$folder/route.json"
+route="$PWD/$folder/flown_route.json"
 output="$PWD/$folder"
 log="$folder/gazebo.log"
 csv="$folder/physics_telemetry.csv"
@@ -272,7 +272,7 @@ if [[ "$container" == true ]]; then
   prepare_gui_home
   docker_args=(--rm --name "$container_name" --user "$(id -u):$(id -g)"
                -v "$PWD:/work" -w /work
-               -e FUNNEL_ROUTE="/work/$folder/route.json"
+               -e FUNNEL_ROUTE="/work/$folder/flown_route.json"
                -e FUNNEL_OUTPUT_DIR="/work/$folder"
                -e FUNNEL_RUN_ID -e FUNNEL_GPU
                -e PYTHONPATH=/work/tools/simulate/plugin:/usr/lib/python3/dist-packages)

@@ -4,7 +4,7 @@
 | --- | --- |
 | Stage | `data` bước 7 |
 | Vào | Một `.off` + lựa chọn của người dùng |
-| Ra | `data/processed/missions/<mesh>.json` |
+| Ra | `data/processed/missions/<mesh>.mission.json` |
 | Cờ | `--mesh`, `--mission`, `--output`, `--list-meshes`, `--all-meshes`, `--start`, `--start-vertex`, `--goal`, `--goal-vertex`, `--all-goals`, `--pick`, `--snap`, `--max-snap`, `--force` |
 | Ghi chú | `--all-meshes` bỏ qua `*.glb2off.off`: đó là bản xem toàn scene, các vỏ lặp toạ độ đỉnh nên không dựng được `Mesh` |
 
@@ -27,7 +27,7 @@
    từ chối.
 4. **Kiểm tra.** START không trùng GOAL, hai GOAL không trùng nhau, `all-goals`
    chỉ cho mesh ≤300 đỉnh.
-5. **Ghi JSON** (đường dẫn mặc định `data/processed/missions/<mesh>.json`).
+5. **Ghi JSON** (đường dẫn mặc định `data/processed/missions/<mesh>.mission.json`).
 
 ## Giao diện chọn điểm
 
@@ -95,11 +95,11 @@ id `g1..g3` giữ nguyên, rồi ghi lại SHA/kích thước.
 ```
 
 ```text
-data/processed/missions/city.standardized.triangulation.json: bề mặt đã đổi, cập nhật lại lựa chọn cũ
+data/processed/missions/city.standardized.triangulation.mission.json: bề mặt đã đổi, cập nhật lại lựa chọn cũ
   START đỉnh 792 -> 792 (0.000 m)
   g1 đỉnh 1810 -> 1810 (0.000 m)
   ...
-Save at: data/processed/missions/city.standardized.triangulation.json
+Save at: data/processed/missions/city.standardized.triangulation.mission.json
 
 1 mission(s) cập nhật theo bề mặt mới.
 ```

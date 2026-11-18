@@ -3,8 +3,8 @@
 | | |
 | --- | --- |
 | Stage | `plan` bước 2 |
-| Vào | `generated/routes/*.json` + mesh ghi trong file; bỏ qua `<tên>.png.json` (sidecar ảnh) và `summary.json` |
-| Ra | `generated/routes/<mission>.png` + `<mission>.png.json` (dấu tham số) |
+| Vào | `generated/routes/*.routes.json` + mesh ghi trong file; bỏ qua `<tên>.png.json` (sidecar ảnh) và `summary.json` |
+| Ra | `generated/routes/<mission>.routes.png` + `<mission>.png.json` (dấu tham số) |
 | Cờ | `--routes` (lặp lại), `--input`, `--output`, `--max-routes N` (60), `--show` |
 
 ## Vì sao tách khỏi `run_funnel`
@@ -35,7 +35,7 @@ và chạy được trên máy không có cửa sổ.
 
 Nguồn:
 
-- `generated/routes/<mission>.json`: `solver.timeout_seconds`,
+- `generated/routes/<mission>.routes.json`: `solver.timeout_seconds`,
   `solver.max_nodes`, `solver.clipping`, `planning_seconds`, `mesh_sha256`,
   `mission_sha256`, `solver.module_sha256`, danh sách route + độ dài.
 - `generated/simulate/<mission>-g*/world_metadata.json` nếu đã dựng world:
@@ -52,8 +52,8 @@ theo `length`). Với `terrain` (48 goal) dùng `--max-routes 12` cho ảnh dễ
 ## Đầu ra
 
 ```
-generated/routes/cliff.png      1069×1104, ~258 KB
-generated/routes/city.standardized.triangulation.png   1184×1101, ~380 KB
+generated/routes/cliff.routes.png      1069×1104, ~258 KB
+generated/routes/city.standardized.triangulation.routes.png   1184×1101, ~380 KB
 ```
 
 150 dpi, `bbox_inches='tight'`. Ảnh và sidecar **có commit** cùng JSON (kết quả
@@ -69,7 +69,7 @@ thông báo nêu cách cài (xem [`lib.md`](../lib.md)). Trên NixOS có thể c
 
 ```bash
 .venv/bin/python tools/plan/route_viz.py
-.venv/bin/python tools/plan/route_viz.py --routes generated/routes/cliff.json
-.venv/bin/python tools/plan/route_viz.py --routes generated/routes/terrain.json --max-routes 12
+.venv/bin/python tools/plan/route_viz.py --routes generated/routes/cliff.routes.json
+.venv/bin/python tools/plan/route_viz.py --routes generated/routes/terrain.routes.json --max-routes 12
 .venv/bin/python tools/plan/route_viz.py --output /tmp/routes
 ```

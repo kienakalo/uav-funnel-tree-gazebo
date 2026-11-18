@@ -3,8 +3,8 @@
 | | |
 | --- | --- |
 | Stage | `plan` bước 1 |
-| Vào | `data/processed/missions/*.json` và mesh ghi trong mission |
-| Ra | `generated/routes/<mission>.json` |
+| Vào | `data/processed/missions/*.mission.json` và mesh ghi trong mission |
+| Ra | `generated/routes/<mission>.routes.json` |
 | Cờ | `--mission` (lặp lại), `--input`, `--output`, `--seconds` (300), `--max-nodes` (200 000), `--no-clipping` |
 
 ## Quy trình
@@ -38,7 +38,7 @@ secondary source) điều đó làm số lần lan truyền tăng mạnh. Đo đ
 
 ```json
 {
-  "mission": "data/processed/missions/city.standardized.triangulation.json",
+  "mission": "data/processed/missions/city.standardized.triangulation.mission.json",
   "mission_sha256": "…",
   "mesh": "data/processed/meshes/city.standardized.triangulation.off",
   "mesh_sha256": "…",
@@ -86,6 +86,6 @@ secondary source) điều đó làm số lần lan truyền tăng mạnh. Đo đ
 
 ```bash
 .venv/bin/python tools/plan/run_funnel.py                      # mọi mission
-.venv/bin/python tools/plan/run_funnel.py --mission data/processed/missions/cliff.json
+.venv/bin/python tools/plan/run_funnel.py --mission data/processed/missions/cliff.mission.json
 .venv/bin/python tools/plan/run_funnel.py --seconds 600
 ```
