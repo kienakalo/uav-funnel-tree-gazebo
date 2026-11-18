@@ -53,6 +53,11 @@ Mission hiện tại của thành phố là START 792 → 1810 / 1910 / 1518 (xe
 [`../docs/tools/data/set_start_goal.md`](../docs/tools/data/set_start_goal.md));
 `city792e` là archive của nó.
 
+Cấu hình hiện tại --- 15 tham số của `data`, `plan` và `simulate` --- được
+đánh dấu bằng tag
+`cell5-clearance1.5-halfwidth1.6-slope0.5-coveragecity-solver300-maxnodes200000-clipping-simplify0.1-collisiongrid1-speed5-accel3-dwell0-delay2-timeout900-maxerror1`;
+`git show <tag>` in lại bảng tham số và kết quả của lần chạy đó.
+
 Đọc và so sánh:
 
 ```bash
