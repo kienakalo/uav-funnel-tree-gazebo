@@ -30,13 +30,27 @@ tags:
 | Hàm / lớp | Vào | Ra | Việc |
 | --- | --- | --- | --- |
 | `Param` | tên, nhãn, mặc định, kiểu, cờ, khoảng khuyến nghị | — | Mô tả một giá trị sẽ hỏi và cờ tương ứng |
-| `stage_commands(name, args)` | tên stage + cờ | danh sách lệnh | Dựng lệnh từng bước, áp mission/goal/cờ cho `simulate` |
+| `display(command)`, `short(path)` | lệnh / đường dẫn | chuỗi gọn | Đổi interpreter thành tên ngắn khi in, cắt đường dẫn về tương đối repo |
+| `step_label(command)` | lệnh đầy đủ | nhãn bước | Bỏ interpreter và tiền tố repo để tiêu đề bước ngắn |
+| `mission_goals(mission)` | tên mission | danh sách goal | Đọc `generated/routes/<mission>.routes.json`; thiếu file thì trả `[DEFAULT_GOAL]` |
+| `simulate_folders(args)` | mission + goal | thư mục run | Xác định đúng thư mục `simulate` sẽ ghi đè |
+| `copy_step(step)` | một bước trong `STAGES` | bản sao `{run, params, note}` | Sao chép để stage `simulate` sửa lệnh mà không đụng bảng gốc |
+| `stage_commands(name, args)` | tên stage + cờ | danh sách lệnh | Dựng lệnh từng bước, nhân bản theo goal và áp cờ cho `simulate` |
+| `show_flow(args)` | cờ | in | In stage, từng bước và nhóm tham số sẽ hỏi (`main.py flow`) |
 | `run_stage(name, args, index, total, state)` | stage, cờ, vị trí | mã thoát | Chạy tuần tự, dừng ngay ở bước lỗi |
 | `stream(command)`, `capture(command)` | lệnh | mã thoát | In output theo dòng, hoặc giữ lại chỉ in khi lỗi (`--quiet`) |
-| `choose_group(group, args, state)` | nhóm tham số | `dict` giá trị | Hỏi một lần cho cả run, Enter giữ mặc định, cảnh báo ngoài khoảng |
-| `cleared_folders(stages, args)`, `ask_fresh(args, folders, stages)`, `clear_artifacts(...)` | stage + cờ | danh sách thư mục | Chỉ xoá những gì các stage được chọn sinh lại |
-| `simulate_folders(args)` | mission + goal | thư mục run | Xác định đúng thư mục `simulate` sẽ ghi đè |
-| `archive_files(mission, goals)`, `archive_details(...)`, `archive_run(...)` | mission, goal | thư mục archive | Chép số liệu + ảnh vào `results/runs/<label>/` |
+| `default_value(item, group, args)`, `format_default(item, value)`, `format_group(group, values)` | tham số + giá trị | giá trị / chuỗi | Lấy mặc định (`--max-error` ghi đè), định dạng `Y/N` và số, ghép `key=value` |
+| `prompt_text(item, default)`, `warn_outside(item, value)` | tham số | câu hỏi / cảnh báo | In câu hỏi kèm mặc định; cảnh báo ngoài khoảng khuyến nghị nhưng vẫn dùng |
+| `ask_value(item, default)` | một tham số | giá trị | Enter giữ mặc định; sai kiểu, không hữu hạn hoặc ngoài biên thì hỏi lại; `EOFError` trả mặc định |
+| `choose_group(group, args, state)` | nhóm tham số | `dict` giá trị | Hỏi một lần cho cả run, ghi lại nguồn `default`/`answer`/`flag` |
+| `group_flags(group, values)` | nhóm + giá trị | danh sách cờ | Dựng `--flag value`, bỏ giá trị rỗng, dùng `false_flag` cho bool sai |
+| `cleared_folders(stages, args)` | stage + cờ | danh sách thư mục | Chỉ chọn những gì các stage được chọn sinh lại |
+| `folder_stats(folder)`, `stale_containers()` | thư mục / `docker ps` | `(số file, byte)`, danh sách tên | Đo dung lượng sắp xoá, tìm container `funnel-*` còn sót |
+| `print_manifest(folders, stages)` | thư mục + stage | `(file, byte, container)` | In bảng sẽ xoá gì, giữ gì, trước khi hỏi |
+| `clear_artifacts(args, folders, stages)`, `ask_fresh(args, folders, stages)` | stage + cờ | danh sách đã xoá | `--fresh` xoá ngay; không có terminal thì giữ; `--dry-run` chỉ in lệnh |
+| `sha256(path)`, `timestamp()`, `commit()` | đường dẫn / — | hash, ISO time, commit ngắn | Ghi manifest; commit `None` khi không phải repo Git |
+| `archive_target(label)` | label | `Path` | Kiểm label chỉ gồm chữ, số, `.`, `_`, `-`; từ chối label lạ |
+| `archive_files(mission, goals)`, `archive_details(mission, goals)`, `archive_run(...)` | mission, goal | thư mục archive | Chép số liệu + ảnh vào `results/runs/<label>/`, ghi `manifest.json` |
 | `retarget_sidecars(target)` | thư mục archive | sửa sidecar | Trỏ `image` của sidecar sang bản sao, giữ nguyên SHA |
 | `report_quality(args, since=0.0)` | `--max-error`, mốc thời gian | in bảng | In `max`/`mean error` từng goal kể cả khi `--quiet` |
 | `write_parameters(args, stages, state, cleared, started)` | toàn bộ run | `generated/parameters.json` | Ghi giá trị đã dùng, nguồn của từng giá trị, commit, thời gian |

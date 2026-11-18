@@ -29,15 +29,29 @@ tags:
 
 | Hàm | Vào | Ra | Việc |
 | --- | --- | --- | --- |
+| `fail(message)` | chuỗi | thoát 1 | In `set_start_goal: …` rồi dừng, dùng chung cho mọi lỗi |
+| `relative(path)` | đường dẫn | đường dẫn gọn | Cắt về tương đối repo khi có thể, để JSON không ghi đường dẫn tuyệt đối |
 | `read_mesh(path)` | đường dẫn OFF | `Mesh` đã kiểm | Kiểm đỉnh trùng, mặt suy biến, cạnh kề >2 mặt, đỉnh rỗng |
 | `vertex_spacing(points)` | mảng đỉnh | mét | Trung vị khoảng cách giữa các cột lưới kề nhau |
-| `resolve(text, points, mode, max_snap, label)` | chuỗi `N` hoặc `x y z` | `(index, snap_record)` | Chuyển lựa chọn người dùng thành đỉnh đã snap |
+| `describe(points, vertex, target=None, distance=0.0)` | đỉnh + toạ độ người nhập | `dict` `vertex/xyz/input/snap` | Ghi lại lựa chọn đã snap để mission truy được về câu trả lời gốc |
+| `parse_index(text, count, label)` | chuỗi | chỉ số | Kiểm là số nguyên trong `0..count-1`, sai thì dừng |
+| `parse_point(text, label)` | `"x y z"` hoặc `"x,y,z"` | ba float | Kiểm đủ ba số và đều hữu hạn |
 | `snap(points, target, mode, max_snap, label)` | toạ độ đích | `(index, distance)` | Snap XY (hoặc 3D), từ chối nếu quá `--max-snap` |
-| `terminal_streams()` | — | `(read_line, write)` | Đọc/ghi `/dev/tty` kể cả khi stdout bị pipe |
-| `ask_console(...)`, `ask_pick(...)` | mesh + quy tắc snap | START/GOAL | Hỏi trên terminal; `--pick` mở cửa sổ 3D, thiếu backend thì lùi về bàn phím |
+| `resolve(text, points, mode, max_snap, label)` | chuỗi `N` hoặc `x y z` | `(index, snap_record)` | Chuyển lựa chọn người dùng thành đỉnh đã snap |
+| `terminal_streams()` | — | `(read_line, write)` | Đọc/ghi `/dev/tty` kể cả khi stdin/stdout bị pipe |
+| `print_vertices(points, faces, limit=TABLE_LIMIT, write=print)` | mesh | in bảng | Bảng `# / x / y / z / số mặt kề`; quá `limit` thì in phần đầu và nhắc dùng `--pick` |
+| `ask_console(...)` | mesh + quy tắc snap | START/GOAL | Hỏi trên terminal, nhận chỉ số hoặc toạ độ, `all` lấy mọi đỉnh còn lại |
+| `gui_backend()` | — | tên backend hoặc `None` | Bọc `plotting.use_interactive` để biết có mở được cửa sổ 3D |
+| `ask_pick(points, faces)` | mesh | START/GOAL hoặc `None` | Mở cửa sổ 3D để click; thiếu backend hoặc Matplotlib thì trả `None` |
+| `choose_console(path, points, faces, mode, max_snap)` | mesh + quy tắc snap | START/GOAL | In bảng đỉnh rồi hỏi qua `/dev/tty`, dùng khi không có JSON và không có cờ |
+| `mission_path(mesh, output, explicit)` | mesh + `--output`/`--mission` | `Path` | Chọn `<mesh>.mission.json` trong thư mục đích |
 | `mission_record(...)` | mesh, điểm, chế độ | `dict` mission | Dựng toàn bộ trường JSON (hash, kích thước, snap, selected_by) |
 | `check_saved(record, mesh_path, points, faces)` | mission đã lưu | `bool` / lỗi | Từ chối mission khi mesh đổi hash hoặc số đỉnh/mặt |
+| `write_json(path, data)` | `dict` mission | ghi file | Ghi `*.tmp` rồi `replace`, không để lại JSON dở khi bị ngắt |
+| `summary(record, path)` | mission | in | In mesh, START, từng GOAL, snap và đường dẫn đã lưu |
 | `refresh_mission(mesh_path, path, args)` | mission cũ + bề mặt mới | ghi lại JSON | Snap lại START/GOAL đã lưu, giữ id `g1..gN`; điểm quá xa thì dừng |
+| `mesh_list(folder)` | thư mục mesh | danh sách `.off` theo tên | Bỏ `*.glb2off.off`: vỏ của bản xem lặp toạ độ nên không dựng được `Mesh` |
+| `show_meshes(args)` | cờ | in | Liệt kê mesh kèm số đỉnh/mặt và trạng thái đã có mission hay chưa |
 | `process_mesh(mesh_path, args)`, `main()` | một mesh / cả thư mục | mission JSON, `Save at:` | Điều phối đọc → chọn → kiểm → ghi |
 
 ## Phụ thuộc

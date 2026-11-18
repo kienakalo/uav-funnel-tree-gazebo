@@ -36,6 +36,7 @@ tags:
 | `Trajectory(points, max_speed=5.0, dwell=0.0, max_acceleration=3.0, descent_speed=None)` | waypoint đã rút gọn + tham số bay | đối tượng quỹ đạo | Lấy mẫu Catmull-Rom bước 0,2 m, đo độ dài cung, dựng profile tốc độ hình thang |
 | `Trajectory.state(t)` | thời gian mô phỏng | `(position, velocity, acceleration, segment, phase)` | Tra vị trí và đạo hàm; pha `waiting / moving / dwell / complete` |
 | `control_acceleration(position, velocity, goal, goal_velocity, goal_acceleration)` | trạng thái thật và đích | gia tốc 3D (m/s²) | Feedforward + PD (2,5 và 3,2), kẹp ±6 m/s²; plugin cộng `g` |
+| `required_env(name)` | tên biến môi trường | `Path` | Đọc `FUNNEL_ROUTE`/`FUNNEL_OUTPUT_DIR`, thiếu thì báo lỗi thay vì đoán |
 | `FunnelDroneSystem.configure(entity, sdf, ecm, event_mgr)` | entity, SDF, ECM | — | Đọc biến môi trường, `flown_route.json`, mở CSV |
 | `FunnelDroneSystem.pre_update(info, ecm)` | thời gian mô phỏng | lực đẩy mỗi bước | Lấy `state(t)`, tính lực, ghi telemetry 10 Hz, publish `/marker` |
 | `get_system()` | — | lớp system | Điểm vào mà `gz-sim-python-system-loader-system` gọi |

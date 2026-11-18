@@ -172,8 +172,25 @@ rõ nguồn và phiên chạy theo `AGENTS.md`.
 | `FUNNEL_TRAIL` | `0` để tắt vệt bay trên `/marker` (mặc định bật) |
 | `PYTHONPATH` | plugin + `/usr/lib/python3/dist-packages` |
 
-`tools/simulate/gazebo_system_python.sh` xoá `VIRTUAL_ENV`/`PYTHONHOME` trước khi
-`exec gz` khi chạy native, để Gazebo dùng Python hệ thống có binding.
+### `gazebo_system_python.sh`
+
+Script 14 dòng, chỉ dùng ở nhánh `--native` — tức trên máy có Gazebo, hoặc trong
+image pipeline vì image đặt `FUNNEL_RUNTIME=native`. `run_simulate.sh` gọi
+`bash tools/simulate/gazebo_system_python.sh sim … <sdf>` thay cho `gz sim`;
+nhánh container gọi thẳng `gz sim` trong `docker run`.
+
+| Bước | Việc | Vì sao |
+| --- | --- | --- |
+| `cd "$(dirname "$0")/../.."` | về gốc repo | Script chạy được từ thư mục khác, không phụ thuộc `cwd` |
+| `unset VIRTUAL_ENV PYTHONHOME` | bỏ dấu vết venv | Gazebo nhúng Python hệ thống; nếu còn `VIRTUAL_ENV`, `gz` nạp `libpython` của venv và không thấy binding `gz.sim` cài bằng apt |
+| `PATH=/usr/bin:/bin:$PATH` | ưu tiên lệnh hệ thống | Tránh một `gz` khác trong `PATH` (bản build tay, shim) |
+| `PYTHONPATH=$PWD/tools/simulate/plugin:/usr/lib/python3/dist-packages` | đường dẫn import | Plugin tìm thấy `trajectory.py`; Python thấy binding Gazebo của hệ thống |
+| `PYTHONNOUSERSITE=1` | bỏ `site-packages` của người dùng | Kết quả không phụ thuộc gói cài bằng `pip --user` |
+| `exec /usr/bin/gz "$@"` | thay tiến trình | PID, tín hiệu và mã thoát đi thẳng cho `run_simulate.sh` |
+
+Hệ quả khi viết plugin: chỉ được dùng thư viện có trong Python hệ thống — đó là
+lý do `trajectory.py` chỉ cần stdlib. Chạy trong container thì script này không
+được gọi: image đã có `gz` ở `/usr/bin` và `PYTHONPATH` do `docker run` đặt.
 
 ## Backup
 

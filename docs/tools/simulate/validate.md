@@ -29,6 +29,7 @@ tags:
 | Hàm | Vào | Ra | Việc |
 | --- | --- | --- | --- |
 | `run_folder(args)` | `--run` hoặc root + mission + goal | `Path` thư mục run | Xác định thư mục cần chấm |
+| `relative(path)` | đường dẫn | đường dẫn gọn | Bỏ tiền tố repo khi ghi `validation.json` và chân ảnh |
 | `read_rows(path)` | CSV telemetry | danh sách dòng đã đổi kiểu | Đọc 16 cột do plugin ghi |
 | `analyse(rows, max_error)` | dòng + mốc | `dict` kết quả | Tính `completed`, `duration`, `final_error`, `max_error`, `mean_error`, `max_speed`, `max_acceleration`, `valid`, `passed` |
 | `render(rows, folder, title, limit, metadata, result)` | telemetry + metadata | `tracking.png` + sidecar | Vẽ mặt bằng tuyến và sai số theo thời gian |

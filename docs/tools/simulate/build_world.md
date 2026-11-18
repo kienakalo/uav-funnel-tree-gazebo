@@ -28,6 +28,9 @@ tags:
 
 | Hàm | Vào | Ra | Việc |
 | --- | --- | --- | --- |
+| `fail(message)` | chuỗi | thoát 1 | In `build_world: …` rồi dừng |
+| `relative(path)`, `sha256(path)` | đường dẫn | đường dẫn gọn / hash | Ghi hash bề mặt, scene và route vào `world_metadata.json` |
+| `triangle_areas(points, faces)` | lưới | mảng diện tích `M` | Loại tam giác suy biến (`≤ 1e-12`) và đếm tam giác còn lại sau decimate |
 | `load_route(path)` | route JSON | `dict` + hash | Đọc tuyến của stage `plan`, kiểm mesh/SHA |
 | `choose_goal(record, goal)` | route + `--goal` | `(goal, vertex, waypoints)` | Fail-closed: thiếu hoặc sai goal thì dừng kèm danh sách |
 | `world_name(mission, goal)` | mission + goal | `funnel_sim_<stem>_<goal>` | Đặt tên world và model nhất quán |
@@ -38,6 +41,7 @@ tags:
 | `camera_pose(waypoints)` | waypoint | 6 số (độ) | Camera phía tây-nam, khung trọn tuyến |
 | `build_route(...)` | route, goal, waypoint, tham số bay | `dict` `flown_route.json` | Hợp đồng world ↔ plugin: waypoint, speed, accel, delay, dwell |
 | `add_route_line(world_element, waypoints, radius=0.15)` | cây SDF | thêm phần tử | Ống tuyến + chấm màu ở start/goal/waypoint |
+| `mesh_element(parent, uri, scale=None)` | cây SDF + URI tương đối | phần tử `<mesh>` | Gắn visual/collision vào file, không nhúng dữ liệu vào SDF |
 | `build_sdf(out, world, route, meshes, surface_stl)` | mọi mảnh đã dựng | `funnel_physics.sdf` | Ghép physics, ánh sáng, city, drone, plugin loader |
 | `check_world(out, route_record, meshes)` | thư mục run | lỗi hoặc `ok` | Kiểm SDF, URI tương đối, `flown_route.json`, kích thước STL |
 | `main()` | cờ dòng lệnh | 6 file + `Save at:` | Điều phối toàn bộ, kể cả `--check` |

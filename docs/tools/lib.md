@@ -36,7 +36,7 @@ tags:
 | --- | --- | --- |
 | `mesh_off.py` | `read_off`, `write_off`, `read_mesh`, `inspect_mesh`, `unique_edge_count`, `Mesh`, `Point` | `copy_meshes`, `glb2off`, `off2glb`, `triangulation`, `data_viz`, `set_start_goal`, `run_funnel`, `route_viz`, `compare`, `build_world` |
 | `mesh_glb.py` | `write_glb`, `read_glb`, `indexed_from_triangles` | `standardize`, `off2glb`, `build_world` |
-| `figstamp.py` | `save`, `read_sidecar`, `index`, `relative`, `sha256`, `now` | `data_viz`, `route_viz`, `validate`, `glb2off`, `figures` |
+| `figstamp.py` | `save`, `footer_lines`, `draw_footer`, `pairs`, `wrapped`, `read_sidecar`, `index`, `relative`, `sha256`, `now` | `data_viz`, `route_viz`, `validate`, `glb2off`, `figures` |
 | `plotting.py` | `use_interactive`, `unavailable_message` | `data_viz --show`, `route_viz --show`, `set_start_goal --pick` |
 
 ## Phụ thuộc
@@ -101,8 +101,15 @@ thì ném lỗi vì thuật toán cần mesh hợp lệ.
 | Hàm | Việc |
 | --- | --- |
 | `save(figure, output, parameters, facts, sources, labels, script, subject, dpi)` | Vẽ chân ảnh, lưu PNG kèm metadata `tEXt`, ghi sidecar `<tên>.png.json`; trả `(ảnh, sidecar)` |
+| `footer_lines(parameters, facts, sources, labels, generated)` | Dựng các dòng chân ảnh: tham số, facts, SHA rút gọn và thời điểm; luôn có ít nhất dòng thời điểm |
+| `draw_footer(figure, lines)` | Đặt các dòng dưới trục toạ độ, font monospace 7 pt; `bbox_inches='tight'` giữ lại khi lưu |
+| `pairs(values, labels)` | Mỗi mục thành `tên giá trị đơn vị`, bỏ qua giá trị `None` |
+| `value_text(value)`, `short(value)` | `bool` → `Y/N`, `float` → 6 chữ số có nghĩa; chuỗi dài cắt còn 8 ký tự (dùng cho SHA) |
+| `wrapped(items, width=112)` | Nối bằng ` · ` và xuống dòng trước khi vượt 112 ký tự |
+| `command()` | Dòng lệnh đã chạy (script + `argv`, đường dẫn tương đối) để ghi vào sidecar |
 | `relative(path)`, `sha256(path)`, `now()` | Đường dẫn tương đối theo repo, SHA256, thời điểm có múi giờ |
 | `read_sidecar(image)` | Đọc sidecar của một ảnh, `None` nếu không có |
+| `index(values)` | Tóm tắt sidecar thành một dòng để in |
 
 Ba bản ghi, cùng một lần gọi:
 

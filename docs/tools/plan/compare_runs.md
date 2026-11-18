@@ -28,6 +28,8 @@ tags:
 
 | Hàm | Vào | Ra | Việc |
 | --- | --- | --- | --- |
+| `fail(message)` | chuỗi | thoát 1 | In `compare_runs: …` rồi dừng khi thiếu archive |
+| `relative(path)` | đường dẫn | đường dẫn gọn | In và ghi `.md`/`.json` không kèm tiền tố tuyệt đối |
 | `flatten(manifest)` | một `manifest.json` | `dict` tham số phẳng | Gộp tham số manifest với `surface.params.json` và `routes.solver` khi lần chạy thiếu nhóm |
 | `labels_in(runs)`, `read_manifest(runs, label)` | thư mục archive | danh sách label, manifest | Liệt kê và đọc archive, báo lỗi nếu thiếu |
 | `rows_of(manifest)` | manifest phẳng | danh sách `(label, value)` | Dựng đúng thứ tự dòng của bảng |
