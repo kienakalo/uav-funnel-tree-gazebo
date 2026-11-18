@@ -99,7 +99,8 @@ Mọi ảnh trong repo đều có ba lớp mô tả: chân ảnh, metadata PNG v
 - **Python 3.12+** cho `data` và `plan` (numpy 2.5.4 yêu cầu 3.12; repo đo bằng
   3.14.8 trên host và 3.12.3 trong image).
 - **Docker** nếu chạy `simulate` theo cách mặc định (image Gazebo ~3 GB), hoặc
-  **Gazebo Jetty** cài trên máy nếu dùng `--native`.
+  **Gazebo Jetty** cài trên máy nếu dùng `--no-container` (hoặc gọi thẳng
+  `tools/simulate/run_simulate.sh --native`).
 - **GPU** không bắt buộc: NVIDIA qua CDI, Intel/AMD qua `/dev/dri`, hoặc
   llvmpipe (chậm). Vật lý chạy trên CPU nên số đo không phụ thuộc GPU.
 - **Linux** với `bash`; đã đo trên NixOS 26.11 và Ubuntu 24.04 (trong image).
@@ -228,7 +229,7 @@ commit file đó, vì `--fresh` không xoá và không sinh lại được lựa
 | Hợp lệ / mốc 1 m | cả ba `valid`; g2 vượt mốc 2 % tại một góc cua |
 | Đối chiếu reference | 5/5 mesh đạt, 5 bỏ qua (không có reference) |
 
-g2 không phải nhiễu: sáu lần bay cho 1,0247 · 1,019 · 1,022 · 1,026 · 1,022 · 1,024 m,
+g2 không phải nhiễu: bốn lần bay có archive cho 1,022 · 1,026 · 1,022 · 1,024 m,
 cùng một góc cua (đoạn 8→9, drone chậm 4,9 → 4,2 m/s trong 0,2 s trong khi setpoint
 giữ 5,0 m/s). Đó là đặc tính của tuyến, và là lý do `valid` được tách khỏi
 `passed`.
@@ -404,7 +405,8 @@ file mô tả thuật toán ở [`docs/tools/`](docs/tools/README.md).
 
 ### Lưu trong Git
 
-- Commit: dữ liệu `raw/`, đầu ra `processed/` (kể cả `missions/*.json`), mã
+- Commit: dữ liệu `raw/`, đầu ra `processed/` (kể cả
+  `missions/*.mission.json`), mã
   nguồn, tài liệu, kết quả `plan` (`generated/routes/**`,
   `generated/compare/**`).
 - Commit cả `generated/simulate/**` và `results/runs/**` của những chuyến bay

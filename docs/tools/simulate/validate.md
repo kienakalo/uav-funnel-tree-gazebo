@@ -3,9 +3,13 @@
 | | |
 | --- | --- |
 | Stage | `simulate` (bước cuối) |
-| Vào | `generated/simulate/<mission>-<goal>/physics_telemetry.csv` + `telemetry_metadata.json` + `world_metadata.json` |
+| Vào | `generated/simulate/<mission>-<goal>/physics_telemetry.csv` + `telemetry_metadata.json` + `world_metadata.json` + `flown_route.json` |
 | Ra | `validation.json`, `tracking.png` + `tracking.png.json` (dấu tham số) trong cùng thư mục |
 | Cờ | `--run DIR`, `--root DIR`, `--mission`, `--goal`, `--max-error M`, `--arrival-tolerance M`, `--no-png` |
+
+`flown_route.json` chỉ dùng để vẽ tuyến trong `tracking.png`. Thư mục của archive
+lưu trước 18/11/2026 còn tên cũ `route.json`; tool đọc tên đó khi không có
+`flown_route.json`.
 
 ## Chỉ số
 

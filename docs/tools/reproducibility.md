@@ -100,16 +100,17 @@ python3 tools/plan/compare_runs.py   # bảng cho báo cáo
 ```
 
 Archive nằm ở `results/runs/<label>/`, ngoài mọi vùng xoá. Mỗi archive giữ
-`manifest.json`, `parameters.json`, sidecar bề mặt, mission, route + ảnh route,
+`manifest.json`, `parameters.json`, sidecar bề mặt, mission, `routes.json` + `routes.png`,
 `plan-summary.json` và thư mục từng goal (`validation.json`, `world_metadata.json`,
-quỹ đạo bay, `tracking.png` + sidecar, `telemetry_metadata.json`).
+`flown_route.json` (tuyến đã rút gọn), `tracking.png` + sidecar,
+`telemetry_metadata.json`).
 
 `commit` trong `manifest.json` là `HEAD` **lúc lưu archive**, không phải lúc bay.
 Với `--label` (chạy rồi lưu ngay) hai thời điểm trùng nhau; với `--archive` (lưu
 kết quả đã có) thì không — `parameters.json` trong archive cũng chỉ là log của
 lần `main.py` **cuối cùng**, có thể chỉ là một goal. Muốn biết số liệu do commit
-nào sinh ra thì đọc `validation.json`/`routes.json` (có `route_sha256`,
-`telemetry_sha256`) và `created_at`/mtime của file; đừng suy từ `commit`.
+nào sinh ra thì đọc `validation.json` (có `route_sha256`, `telemetry_sha256`) và
+`created_at`/mtime của file; đừng suy từ `commit`.
 Archive lưu trước 18/11/2026 dùng tên cũ `route.json`/`route.png`.
 
 ## Môi trường
@@ -163,9 +164,9 @@ ghi nguồn và phiên chạy khi chèn vào báo cáo. Số đo nằm trong
 | Route city (polyline) | 142,42 m · 125,64 m · 86,15 m (mission START 792 → 1810 / 1910 / 1518) |
 | Cung spline | không được ghi lại: `world_metadata.json` chỉ có độ dài polyline đã rút gọn (142,42 · 125,63 · 86,14 m). Số cung spline của mission cũ (134,9 · 286,8 · 142,4 m) đo tay, không có script tái lập — đừng trích như số chính thức |
 | Bay g1 / g2 / g3 | 35,4 s / 33,2 s / 24,6 s; `max_error` 0,365 / 1,022 / 0,851 m, `mean_error` 0,068 / 0,110 / 0,091 m (mission START 792, lưu ở `results/runs/city792`) |
-| Lặp lại cùng mission | `city792b`: 36,4 s / 33,0 s / 24,3 s, `max_error` 0,365 / 1,026 / 0,852 m; `city792c`: 35,7 / 32,9 / 24,2 s, 0,365 / 1,022 / 0,852 m; `city792d`: 35,5 / 33,2 / 24,4 s, 0,365 / 1,024 / 0,851 m — g2 nằm trong 1,02–1,03 m qua sáu lần bay, không phải nhiễu |
+| Lặp lại cùng mission | `city792b`: 36,4 s / 33,0 s / 24,3 s, `max_error` 0,365 / 1,026 / 0,852 m; `city792c`: 35,7 / 32,9 / 24,2 s, 0,365 / 1,022 / 0,852 m; `city792d`: 35,5 / 33,2 / 24,4 s, 0,365 / 1,024 / 0,851 m — bốn lần bay có archive cho g2 ở 1,022–1,026 m, không phải nhiễu |
 | Mốc chất lượng bám tuyến | 1,0 m — cả ba lần bay đều `valid`; g2 vượt mốc 2 % tại một góc cua (xem `simulate/validate.md`) |
-| Thời gian `main.py plan` | 70–90 s cho cả 10 mission, riêng city 62–78 s; phụ thuộc tải máy nên chỉ ghi khoảng |
+| Thời gian `main.py plan` | 63–90 s cho cả 10 mission, riêng city 45–78 s; phụ thuộc tải máy nên chỉ ghi khoảng |
 | Đối chiếu reference | 5/5 fixture, sai lệch lớn nhất 1,7e-5 |
 | Trạng thái thuật toán | experimental, chưa chứng nhận tối ưu |
 

@@ -63,8 +63,9 @@ lưu. Lần đầu, khi file chưa có, tool hỏi chọn START/GOAL trên termi
 file — kể cả khi stdout bị pipe, vì prompt đi qua `/dev/tty`. Muốn chọn lại dù
 đã có file: `--force`, thêm `--pick` nếu muốn click trong cửa sổ 3D.
 
-Không có file mission nào được ship sẵn trong Git. Chạy stage một lần rồi commit
-`data/processed/missions/<mesh>.mission.json` nếu muốn lựa chọn đó tái lập ở máy khác.
+Repo đã commit 10 mission cho các mesh mẫu, nên chạy lại không hỏi. Mesh chưa có
+file thì tool hỏi rồi ghi `data/processed/missions/<mesh>.mission.json`; commit
+file mới nếu muốn lựa chọn đó tái lập ở máy khác.
 
 Stage `plan` đọc chính các file này (`python3 main.py plan`) và ghi tuyến vào
 `generated/routes/`.

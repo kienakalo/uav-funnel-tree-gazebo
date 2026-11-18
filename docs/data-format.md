@@ -1,7 +1,9 @@
 # Định dạng dữ liệu
 
-Ba định dạng được dùng: **OFF** cho mesh tam giác, **GLB** cho scene và mesh để
-xem, **JSON** cho đường tham chiếu. Không có định dạng trung gian nào khác.
+Ba định dạng dữ liệu chính: **OFF** cho mesh tam giác, **GLB** cho scene và mesh
+để xem, **JSON** cho mọi bản ghi (mission, tuyến, đối chiếu, kết quả bay). Kết
+quả mô phỏng còn có CSV telemetry, SDF và STL collision; schema từng loại ở bảng
+dưới.
 
 ## OFF
 
@@ -75,7 +77,8 @@ sửa mesh thì phải cập nhật cả tệp này.
 ## Mission JSON
 
 `data/processed/missions/<mesh>.mission.json` lưu lựa chọn START/GOAL cho một mesh.
-Tool tạo file này khi bạn chọn; không có file mẫu nào được ship sẵn:
+Tool tạo file này khi bạn chọn. Repo đã có 10 mission cho các mesh mẫu; mesh
+chưa có file thì tool hỏi và ghi thêm:
 
 ```json
 {
@@ -173,11 +176,34 @@ làm tròn 4 chữ số nên sai lệch cỡ `1e-5`; `--tolerance` mặc định
 | `.standardized.glb` | Scene đã bake transform, đổi tên node, bỏ material/texture |
 | `.off2glb.glb` | Fixture chuyển sang GLB Y-up để mở bằng viewer |
 | `.standardized.triangulation.off` | Bề mặt dẫn đường dựng từ scene chuẩn hoá |
+| `.mission.json` | Lựa chọn START/GOAL của một mesh |
+| `.routes.json` | Tuyến stage `plan` lập: waypoint, độ dài, thống kê solver |
+| `.compare.json` | Đối chiếu từng đỉnh với `data/expected/<mesh>.paths.json` |
+| `.params.json` | Tham số + SHA của bề mặt hoặc scene đã sinh ra file bên cạnh |
+| `.png.json` | Sidecar của ảnh: tham số, SHA, dòng lệnh |
 | `.paths.json` | Đường tham chiếu |
 | `.off`, `.glb` (không hậu tố) | Nguồn chưa qua xử lý |
 
 Hậu tố mô tả **các bước đã qua, theo đúng thứ tự**: `city.standardized.
 triangulation.off` là `city` → standardize → triangulation.
+
+`<stem>` là tên mesh hoặc mission, không gồm hậu tố: `cliff.mission.json` →
+mission id `cliff`. `flown_route.json` là tên cố định trong
+`generated/simulate/<mission>-<goal>/`: tuyến đã rút gọn mà plugin thật sự bay,
+khác với bản đầy đủ `<mission>.routes.json`. `generated/compare/summary.json` là
+bảng gộp duy nhất nên không mang tên mesh. Archive trong `results/runs/` lưu
+trước 18/11/2026 giữ tên cũ `route.json`/`route.png`; archive mới dùng
+`routes.json`/`routes.png`.
+
+## Schema từng loại JSON
+
+| Tệp | Schema ở |
+| --- | --- |
+| `<mesh>.mission.json`, `<mission>.routes.json`, `<mesh>.compare.json` | trang này |
+| `flown_route.json`, `world_metadata.json` | [`tools/simulate/build_world.md`](tools/simulate/build_world.md) |
+| `validation.json` | [`tools/simulate/validate.md`](tools/simulate/validate.md) |
+| `manifest.json`, `parameters.json` | [`tools/main.md`](tools/main.md) |
+| `.png.json` (sidecar ảnh) | [`tools/figures.md`](tools/figures.md) |
 
 ## Vì sao không dùng STL
 

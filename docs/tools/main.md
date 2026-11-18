@@ -94,11 +94,11 @@ chọn** sẽ ghi lại:
 
 ```text
 Trả lời y sẽ xoá và sinh lại (data, plan):
-    data/processed/meshes/  12 file · 18.5 MB
+    data/processed/meshes/  13 file · 18.4 MB
     data/processed/scenes/  10 file · 6.1 MB
-    generated/data_viz/  22 file · 2.5 MB
-    generated/routes/  20 file · 1.4 MB
-    generated/compare/  6 file · 0.1 MB
+    generated/data_viz/  22 file · 2.7 MB
+    generated/routes/  30 file · 3.4 MB
+    generated/compare/  6 file · 0.0 MB
     Giữ lại: data/processed/missions/ (START/GOAL), data/raw/, data/expected/, results/runs/ (archive)
 Chạy lại từ đầu? (y/N): 
 ```
@@ -180,7 +180,7 @@ bằng cùng bộ tham số.
 | | `clearance` (m) | 1,5 | Khe hở dọc trên nóc công trình; 0,5–3 | `--clearance` |
 | | `half-width` (m) | 1,6 | Nới ngang khi truy vấn; 0,2–1,6, nhỏ = bám footprint | `--half-width` |
 | | `max-slope` (m/m) | 0,5 | Độ dốc ramp; 0,5–2, lớn = lên/xuống dốc hơn | `--max-slope` |
-| `run_funnel` | thời gian tối đa mỗi goal (s) | 300 | Chặn tìm kiếm; 60–900, city g2 cần khoảng 190 | `--seconds` |
+| `run_funnel` | thời gian tối đa mỗi goal (s) | 300 | Chặn tìm kiếm; 30–900, city g2 cần khoảng 20 | `--seconds` |
 | | số node tối đa | 200 000 | Giới hạn bộ nhớ; 50 000–1 000 000 | `--max-nodes` |
 | | `clipping` | Y | Procedure 2; Y cho route ngắn hơn, N để so sánh | `--no-clipping` khi N |
 | `build_world` | `simplify` (m) | 0,1 | Dung sai rút gọn waypoint; 0–1, 0 giữ mọi điểm | `--simplify` |
@@ -265,9 +265,9 @@ Stage 2/3: plan — funnel routes, route images and the reference comparison
     J17: 9 route(s), dài nhất 3.464, 0.0s
     Save at: generated/routes/J17.routes.json
     ...
-    done in 190.4 s
+    done in 63.0 s
 
-plan: ok in 191.2 s
+plan: ok in 63.7 s
 ```
 
 - Đường dẫn tuyệt đối dưới repo được rút thành đường dẫn tương đối.

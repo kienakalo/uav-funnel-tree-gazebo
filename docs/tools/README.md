@@ -36,6 +36,7 @@ Mỗi ảnh .png ở trên đều có sidecar .png.json và chân ảnh ghi tham
 (lib/figstamp.py); tools/figures.py kiểm tra lại.
 
 main.py --label <tên> ──► results/runs/<tên>/manifest.json + số liệu + ảnh
+                          routes.json, routes.png, gN/flown_route.json
                           (không stage nào xoá; compare_runs.py đọc để so sánh)
 ```
 
@@ -83,6 +84,7 @@ vẫn chạy cả ba theo thứ tự.
 | Ghi số | `%.17g` trong OFF, float32 trong GLB |
 | Sai số so sánh | Độ dài: tương đối `1e-6` (nội bộ), `1e-4` (reference, do làm tròn 4 chữ số) |
 | Hash | SHA256 của mesh, mission, module thuật toán được ghi trong kết quả |
+| Tên tệp | `<stem>.<kind>.json` (`mission`, `routes`, `compare`, `params`); `flown_route.json` cho tuyến plugin bay; archive lưu trước 18/11/2026 giữ `route.json`/`route.png` |
 | Ảnh | 150 dpi, `bbox_inches='tight'`, backend `Agg` trừ khi có `--show` |
 | World Gazebo | Z-up, tên `funnel_sim_<mission>_<goal>`; visual GLB (có NORMAL), collision STL; URI tương đối |
 | Runtime | Container `ghcr.io/openrobotics/gazebo:jetty-full`, GPU NVIDIA qua CDI hoặc Intel qua `/dev/dri` |

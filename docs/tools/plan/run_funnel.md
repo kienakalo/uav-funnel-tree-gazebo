@@ -19,20 +19,34 @@
    - một goal hoặc `all-goals`: một lượt chung.
 4. **Ghi JSON** với hash, tham số, số đo.
 
+Mission id lấy từ tên file sau khi bỏ `.mission.json`: `cliff.mission.json` →
+`cliff`, route ghi vào `generated/routes/cliff.routes.json` và world là
+`cliff-<goal>`. Đặt tên khác (ví dụ `--mission my.cliff.json`) thì id là
+`my.cliff`.
+
 Trước mỗi mission, tool in `[i/N] <tên>: solving` để thấy tiến trình. Mission
 `city.standardized.triangulation` là ngoại lệ về thời gian: 3 goal, mỗi goal một
-lượt tìm kiếm với clipping, mất khoảng **176 s**; các fixture còn lại dưới 1 s.
-Vì vậy một lần `python3 main.py plan` mất khoảng 3 phút, phần lớn là city.
+lượt tìm kiếm với clipping. Lần đo 18/11/2026 mất **45,0 s** (g1 19,4 s · g2
+14,9 s · g3 10,7 s), lần khác 62,3 s; các fixture còn lại dưới 1 s. Vì vậy
+`python3 main.py plan` mất khoảng 1 phút, phần lớn là city — máy chậm hoặc đang
+tải thì lâu hơn.
 
 ## Vì sao mỗi goal một lượt
 
 Một lượt chung giữ frontier theo goal xa nhất; trên bề mặt thành phố (646
-secondary source) điều đó làm số lần lan truyền tăng mạnh. Đo được:
+secondary source) điều đó làm số lần lan truyền tăng mạnh. Cấu hình hiện tại
+chạy mỗi goal một lượt và ghi trong route JSON:
 
-| Cách | Số lần lan truyền | Thời gian |
+| Goal | Số lần lan truyền | Thời gian |
 | --- | --- | --- |
-| Gộp 3 goal | 395 | ~257 s |
-| Mỗi goal một lượt | 253 | ~187 s |
+| g1 | 49 | 19,4 s |
+| g2 | 34 | 14,9 s |
+| g3 | 21 | 10,7 s |
+| Tổng | 104 | 45,0 s |
+
+Số đọc từ `generated/routes/city.standardized.triangulation.routes.json`
+(`stats.propagations`, `routes[].search.seconds`). Thời gian phụ thuộc tải máy,
+nên khi so sánh chỉ dùng số lần lan truyền và độ dài.
 
 ## Schema đầu ra
 

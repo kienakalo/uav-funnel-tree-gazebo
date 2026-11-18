@@ -123,8 +123,8 @@ PARAM_GROUPS = {
     'solver': [
         Param('seconds', 'thời gian tối đa mỗi goal (s)', 300., 'float',
               '--seconds', minimum=1.,
-              note='chặn tìm kiếm, nên 60–900; city g2 cần khoảng 190',
-              advice=(60., 900.)),
+              note='chặn tìm kiếm, nên 30–900; city g2 cần khoảng 20',
+              advice=(30., 900.)),
         Param('max_nodes', 'số node tối đa', 200000, 'int', '--max-nodes',
               minimum=1,
               note='giới hạn bộ nhớ, nên 50 000–1 000 000',

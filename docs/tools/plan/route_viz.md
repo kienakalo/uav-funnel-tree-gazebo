@@ -4,13 +4,13 @@
 | --- | --- |
 | Stage | `plan` bước 2 |
 | Vào | `generated/routes/*.routes.json` + mesh ghi trong file; bỏ qua `<tên>.png.json` (sidecar ảnh) và `summary.json` |
-| Ra | `generated/routes/<mission>.routes.png` + `<mission>.png.json` (dấu tham số) |
+| Ra | `generated/routes/<mission>.routes.png` + `<mission>.routes.png.json` (dấu tham số) |
 | Cờ | `--routes` (lặp lại), `--input`, `--output`, `--max-routes N` (60), `--show` |
 
 ## Vì sao tách khỏi `run_funnel`
 
 Vẽ lại không cần chạy lại Funnel: trên bề mặt thành phố, lập tuyến mất khoảng
-60–80 s cho 3 goal (mission hiện tại), còn vẽ chỉ vài giây. Tách ra cũng giúp `run_funnel` không phụ thuộc Matplotlib
+45–62 s cho 3 goal (mission hiện tại), còn vẽ chỉ vài giây. Tách ra cũng giúp `run_funnel` không phụ thuộc Matplotlib
 và chạy được trên máy không có cửa sổ.
 
 ## Nội dung ảnh
@@ -31,7 +31,7 @@ và chạy được trên máy không có cửa sổ.
 | --- | --- |
 | Chân ảnh | `solve limit`, `max nodes`, `clipping`, `planning`, độ dài từng goal, tham số bay nếu đã dựng world, SHA ngắn, thời điểm |
 | Metadata PNG | cùng nội dung, dạng `tEXt` |
-| `<mission>.png.json` | tham số, facts, SHA của mesh/mission/module/route + SHA ảnh, dòng lệnh |
+| `<mission>.routes.png.json` | tham số, facts, SHA của mesh/mission/module/route + SHA ảnh, dòng lệnh |
 
 Nguồn:
 
