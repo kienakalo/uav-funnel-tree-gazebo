@@ -63,8 +63,9 @@ Mission id lấy từ tên file sau khi bỏ `.mission.json`: `cliff.mission.jso
 
 Trước mỗi mission, tool in `[i/N] <tên>: solving` để thấy tiến trình. Mission
 `city.standardized.triangulation` là ngoại lệ về thời gian: 3 goal, mỗi goal một
-lượt tìm kiếm với clipping. Lần đo 18/11/2026 mất **45,0 s** (g1 19,6 s · g2
-14,8 s · g3 10,6 s); các fixture còn lại dưới 1 s. Vì vậy `python3 main.py plan`
+lượt tìm kiếm với clipping. Lần đo 18/11/2026 trên lưới 5 m mất **45,0 s**
+(g1 19,6 s · g2 14,8 s · g3 10,6 s), lưới 4 m mất **186,2 s**; các fixture còn
+lại dưới 1 s. Vì vậy `python3 main.py plan`
 mất khoảng 1 phút, phần lớn là city — máy chậm hoặc đang tải thì lâu hơn, nên
 đừng dùng số giây để so thuật toán.
 
@@ -76,10 +77,14 @@ chạy mỗi goal một lượt và ghi trong route JSON:
 
 | Goal | Số lần lan truyền | Thời gian |
 | --- | --- | --- |
-| g1 | 49 | 19,4 s |
-| g2 | 34 | 14,9 s |
-| g3 | 21 | 10,7 s |
+| g1 | 49 | 19,6 s |
+| g2 | 34 | 14,8 s |
+| g3 | 21 | 10,6 s |
 | Tổng | 104 | 45,0 s |
+
+Đó là lưới 5 m (`results/runs/city792e`). Lưới 4 m (`results/runs/cell4`) cần 81 /
+66 / 40 lần và 186,2 s — gấp 1,8 lần số lần lan truyền và 4,1 lần thời gian, trong
+khi số tam giác chỉ tăng 1,47 lần.
 
 Số đọc từ `generated/routes/city.standardized.triangulation.routes.json`
 (`stats.propagations`, `routes[].search.seconds`). Thời gian phụ thuộc tải máy,

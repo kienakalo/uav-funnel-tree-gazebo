@@ -8,8 +8,8 @@
     "name": "funnel_tree",
     "module": "algo/funnel_tree.py",
     "module_sha256": "42465e58992c985455afddfa62d145febfc96cbbb0597b209c0a1c2ca2947bf2",
-    "timeout_seconds": 300.0,
-    "max_nodes": 200000,
+    "timeout_seconds": 600.0,
+    "max_nodes": 400000,
     "clipping": true
   },
   "mode": "all-goals",
@@ -2983,7 +2983,7 @@
     "implementation_status": "experimental; validate per mesh",
     "mode": "combined"
   },
-  "planning_seconds": 0.138,
+  "planning_seconds": 0.239,
   "environment": {
     "python": "3.14.8",
     "numpy": "2.5.4"

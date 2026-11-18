@@ -183,15 +183,15 @@ Chọn goal, ghi `flown_route.json`:
 Waypoint lấy từ route của stage `plan`, sau đó **rút gọn Douglas–Peucker** với
 `--simplify` (mặc định **0,1 m**); `--simplify 0` tắt.
 
-Số của mission hiện tại (START 792 → 1810 / 1910 / 1518), đọc từ
+Số của lần chạy đang lưu (lưới 4 m, START 1133 → 2708 / 2829 / 2240), đọc từ
 `world_metadata.json` và `validation.json` của ba lần bay đã lưu ở
-`results/runs/city792e`:
+`results/runs/cell4`:
 
 | Goal | Trước | Sau | Độ dài polyline (đã rút gọn) | Thời gian bay |
 | --- | --- | --- | --- | --- |
-| g1 | 41 | **27** | 142,42 m | 35,9 s |
-| g2 | 46 | **25** | 125,63 m | 33,1 s |
-| g3 | 40 | **24** | 86,14 m | 25,0 s |
+| g1 | 50 | **27** | 142,90 m | 35,9 s |
+| g2 | 59 | **24** | 127,28 m | 33,2 s |
+| g3 | 48 | **26** | 86,16 m | 25,1 s |
 
 (`world_metadata.json` không ghi độ dài cung spline, nên cột đó đã bỏ thay vì
 chép lại số của mission cũ.)

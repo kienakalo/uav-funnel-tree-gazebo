@@ -127,18 +127,20 @@ Nếu đường thẳng ra ngoài dải mặt (`r` ngoài `[0,1]`) → `ValueErr
 - Số lần lan truyền là số đo hiệu năng: `stats.propagations` là tổng của cả
   mission, `routes[].search.propagations` là của từng goal.
 
-Đo trên bề mặt thành phố 2.295 đỉnh, mission START 792 (ba goal của thí nghiệm
-3 goal trong repo cũ):
+Đo trên bề mặt thành phố ở hai độ mịn, cùng mission và cùng bộ tham số solver:
 
-| Goal | Số lần lan truyền | Thời gian | Độ dài |
-| --- | --- | --- | --- |
-| 1810 | 49 | 19,6 s | 142,42 m |
-| 1910 | 34 | 14,8 s | 125,64 m |
-| 1518 | 21 | 10,6 s | 86,15 m |
+| Bề mặt | Goal | Lan truyền | Thời gian | Độ dài |
+| --- | --- | --- | --- | --- |
+| 2.295 đỉnh (lưới 5 m) | 1810 | 49 | 19,6 s | 142,42 m |
+| | 1910 | 34 | 14,8 s | 125,64 m |
+| | 1518 | 21 | 10,6 s | 86,15 m |
+| 3.355 đỉnh (lưới 4 m) | 2708 | 81 | 70,5 s | 142,91 m |
+| | 2829 | 66 | 64,5 s | 127,30 m |
+| | 2240 | 40 | 51,2 s | 86,19 m |
 
-Số đọc từ `results/runs/city792e/routes.json` (bản sao của
-`generated/routes/city.standardized.triangulation.routes.json` lúc lưu): tổng 104
-lần lan truyền, 646 source, cả ba goal 45,0 s.
+Lưới 4 m có 1,47 lần số tam giác nhưng cần 1,8 lần số lần lan truyền và 4,1 lần
+thời gian (187 so với 104 lần, 186,2 so với 45,0 s). Số đọc từ
+`results/runs/cell4/routes.json` và `results/runs/city792e/routes.json`.
 
 Thời gian phụ thuộc tải máy, không phải chỉ số của thuật toán: cùng mission và
 cùng mã, hai lần đo khác nhau có thể lệch vài chục phần trăm. Kết luận về thuật

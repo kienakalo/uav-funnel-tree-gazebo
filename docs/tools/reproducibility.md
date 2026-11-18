@@ -191,15 +191,17 @@ ghi nguồn và phiên chạy khi chèn vào báo cáo. Số đo nằm trong
 
 | Hạng mục | Giá trị |
 | --- | --- |
-| Bề mặt thành phố | 2.295 đỉnh / 4.400 tam giác / 6.694 cạnh |
-| Tham số bề mặt | ô 5 m, clearance 1,5 m, half-width 1,6 m, slope 0,5 m/m |
+| Bề mặt thành phố (lưới 4 m) | 3.355 đỉnh / 6.480 tam giác / 9.834 cạnh |
+| Bề mặt thành phố (lưới 5 m) | 2.295 đỉnh / 4.400 tam giác / 6.694 cạnh |
+| Tham số bề mặt | ô 4 m hoặc 5 m; clearance 1,5 m, half-width 1,6 m, slope 0,5 m/m |
 | Tham số bay | 5 m/s, 3 m/s², dwell 0 s, start delay 2 s |
-| SHA256 bề mặt | `f6e01c6d421f71aec828ae2f71593e7b2d0460604453459eb5e86b2ea47b28df` |
+| SHA256 bề mặt | lưới 4 m: `052917db…`; lưới 5 m: `f6e01c6d421f71aec828ae2f71593e7b2d0460604453459eb5e86b2ea47b28df` |
 | SHA256 `city.standardized.glb` | `cdd605eedc01011c5c39408ce167fca6244d1a9e0a7527450d13861570a837cb` (sau khi sửa bufferView + thêm NORMAL) |
-| Route city (polyline) | 142,42 m · 125,64 m · 86,15 m (mission START 792 → 1810 / 1910 / 1518) |
+| Route city (polyline) | lưới 4 m: 142,91 · 127,30 · 86,19 m; lưới 5 m: 142,42 · 125,64 · 86,15 m |
 | Cung spline | không được ghi lại: `world_metadata.json` chỉ có độ dài polyline đã rút gọn (142,42 · 125,63 · 86,14 m). Số cung spline của mission cũ (134,9 · 286,8 · 142,4 m) đo tay, không có script tái lập — đừng trích như số chính thức |
-| Bay g1 / g2 / g3 | 35,9 s / 33,1 s / 25,0 s; `max_error` 0,365 / 1,022 / 0,852 m, `mean_error` 0,067 / 0,111 / 0,089 m (mission START 792, lưu ở `results/runs/city792e`) |
-| Lặp lại cùng mission | Chưa có: repo chỉ giữ archive của lần chạy cuối. Muốn nói về độ lặp lại thì chạy lại và lưu thêm label, rồi so bằng `tools/plan/compare_runs.py` |
+| Bay g1 / g2 / g3, lưới 4 m | 35,9 s / 33,2 s / 25,1 s; `max_error` 0,399 / 0,591 / 0,601 m, `mean_error` 0,059 / 0,063 / 0,136 m (`results/runs/cell4`) |
+| Bay g1 / g2 / g3, lưới 5 m | 35,9 s / 33,1 s / 25,0 s; `max_error` 0,365 / 1,022 / 0,852 m, `mean_error` 0,067 / 0,111 / 0,089 m (`results/runs/city792e`) |
+| So hai cấu hình | `cell4` và `city792e` khác nhau ở `cell` (4 so với 5); mọi tham số khác giữ nguyên. Không phải phép đo độ lặp lại, vì bề mặt khác nhau |
 | Mốc chất lượng bám tuyến | 1,0 m — cả ba lần bay đều `valid`; g2 vượt mốc 2 % tại một góc cua (xem `simulate/validate.md`) |
 | Thời gian `main.py plan` | 63–90 s cho cả 10 mission, riêng city 45–78 s; phụ thuộc tải máy nên chỉ ghi khoảng |
 | Đối chiếu reference | 5/5 fixture, sai lệch lớn nhất 1,7e-5 |

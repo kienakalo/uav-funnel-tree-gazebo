@@ -107,22 +107,22 @@ delivery trong repo cũ (`generated/city_three_goals/cases.json`, commit
 
 | | Đỉnh | xyz (m) | Vai trò |
 | --- | --- | --- | --- |
-| START | 792 | −38,7521 · 22,1034 · 8,6430 | xuất phát, phía tây-trung tâm |
-| g1 | 1810 | 74,7366 · −55,3572 · 8,9476 | đích xa, góc đông-nam |
-| g2 | 1910 | 80,0000 · −10,0000 · 10,4556 | đích phía đông |
-| g3 | 1518 | 40,0000 · 50,0000 · 15,1724 | đích phía bắc |
+| START | 1133 | −38,7521 · 22,1034 · 7,7372 | xuất phát, phía tây-trung tâm |
+| g1 | 2708 | 74,7366 · −55,3572 · 8,5793 | đích xa, góc đông-nam |
+| g2 | 2829 | 80,0000 · −12,0000 · 8,4556 | đích phía đông |
+| g3 | 2240 | 40,0000 · 48,0000 · 15,1724 | đích phía bắc |
 
-```bash
-.venv/bin/python tools/data/set_start_goal.py --force \
-    --start-vertex 792 --goal-vertex 1810 --goal-vertex 1910 --goal-vertex 1518
-```
+Bảng trên là bề mặt lưới 4 m (`results/runs/cell4`). Với lưới 5 m
+(`results/runs/city792e`) các đỉnh là 792 / 1810 / 1910 / 1518, cùng toạ độ x/y
+nhưng z cao hơn — mission ghi z của bề mặt tại thời điểm chọn.
 
-- x/y và chỉ số đỉnh khớp bản cũ; z cao hơn 1,44 m (START) và 1,74 m (g1) vì
-  envelope đã đổi sau thí nghiệm đó — mission ghi z của bề mặt hiện tại.
+Hai đích phía đông và phía bắc lệch 2 m so với toạ độ gốc (`y = −10` và
+`y = 50`), vì lưới 4 m không có đường tại đúng hai giá trị đó; `refresh_mission`
+snap sang đỉnh gần nhất và ghi khoảng cách vào trường `snap`.
+
 - Bề mặt **không** phụ thuộc mission: đổi START/GOAL chỉ đổi route, SHA bề mặt
-  vẫn `f6e01c6d…`.
-- Mission cũ (START 182 ở góc −100, −95) và các lần bay của nó nằm trong
-  [`results/runs/`](../../../results/README.md).
+  giữ nguyên.
+- Các lần bay cũ nằm trong [`results/runs/`](../../../results/README.md).
 
 ## Schema JSON
 

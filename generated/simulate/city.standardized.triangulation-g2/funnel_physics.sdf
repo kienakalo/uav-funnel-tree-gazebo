@@ -47,11 +47,11 @@
       <static>true</static>
       <link name="link">
         <visual name="segment_0">
-          <pose>-36.876 21.847 8.190 0 1.805573 -0.135948</pose>
+          <pose>-35.376 21.580 7.813 0 1.548574 -0.153806</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>3.893890</length>
+              <length>6.834471</length>
             </cylinder>
           </geometry>
           <material>
@@ -61,11 +61,11 @@
           </material>
         </visual>
         <visual name="segment_1">
-          <pose>-34.076 21.458 8.101 0 1.199024 -0.141953</pose>
+          <pose>-30.662 20.876 8.149 0 1.380634 -0.133954</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>2.003475</length>
+              <length>2.750373</length>
             </cylinder>
           </geometry>
           <material>
@@ -75,11 +75,11 @@
           </material>
         </visual>
         <visual name="segment_2">
-          <pose>-31.576 21.064 8.885 0 1.313703 -0.164464</pose>
+          <pose>-26.662 20.245 8.609 0 1.496957 -0.167981</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>3.303872</length>
+              <length>5.414154</length>
             </cylinder>
           </geometry>
           <material>
@@ -89,11 +89,11 @@
           </material>
         </visual>
         <visual name="segment_3">
-          <pose>-28.300 20.401 9.506 0 1.456356 -0.231960</pose>
+          <pose>-22.000 19.315 8.775 0 1.587156 -0.234590</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>3.515622</length>
+              <length>4.113197</length>
             </cylinder>
           </geometry>
           <material>
@@ -103,11 +103,11 @@
           </material>
         </visual>
         <visual name="segment_4">
-          <pose>-23.300 19.122 9.707 0 1.570796 -0.259935</pose>
+          <pose>-18.000 18.362 9.001 0 1.444869 -0.233425</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>6.830370</length>
+              <length>4.144321</length>
             </cylinder>
           </geometry>
           <material>
@@ -117,11 +117,11 @@
           </material>
         </visual>
         <visual name="segment_5">
-          <pose>-17.500 17.576 9.484 0 1.656554 -0.261427</pose>
+          <pose>-12.000 16.943 9.262 0 1.570796 -0.231543</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>5.194956</length>
+              <length>8.219346</length>
             </cylinder>
           </geometry>
           <material>
@@ -131,11 +131,11 @@
           </material>
         </visual>
         <visual name="segment_6">
-          <pose>-12.500 16.240 9.279 0 1.563914 -0.260705</pose>
+          <pose>-6.000 15.348 9.694 0 1.367954 -0.315308</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>5.174989</length>
+              <length>4.295488</length>
             </cylinder>
           </geometry>
           <material>
@@ -145,11 +145,11 @@
           </material>
         </visual>
         <visual name="segment_7">
-          <pose>-9.020 15.286 9.560 0 1.318850 -0.284312</pose>
+          <pose>-2.936 14.284 10.480 0 1.270503 -0.369186</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>2.108805</length>
+              <length>2.388888</length>
             </cylinder>
           </geometry>
           <material>
@@ -159,11 +159,11 @@
           </material>
         </visual>
         <visual name="segment_8">
-          <pose>-6.520 14.602 10.080 0 1.408533 -0.256112</pose>
+          <pose>3.967 12.033 10.895 0 1.560724 -0.305130</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>3.184076</length>
+              <length>12.244434</length>
             </cylinder>
           </geometry>
           <material>
@@ -173,11 +173,11 @@
           </material>
         </visual>
         <visual name="segment_9">
-          <pose>-4.386 13.988 10.548 0 1.257956 -0.337873</pose>
+          <pose>10.903 9.842 10.875 0 1.641614 -0.310296</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>1.367044</length>
+              <length>2.309323</length>
             </cylinder>
           </geometry>
           <material>
@@ -187,11 +187,11 @@
           </material>
         </visual>
         <visual name="segment_10">
-          <pose>5.614 11.205 10.857 0 1.560579 -0.267057</pose>
+          <pose>14.000 8.695 9.875 0 1.974085 -0.378354</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>19.463785</length>
+              <length>4.679877</length>
             </cylinder>
           </geometry>
           <material>
@@ -201,11 +201,11 @@
           </material>
         </visual>
         <visual name="segment_11">
-          <pose>15.951 8.367 10.686 0 1.838139 -0.276239</pose>
+          <pose>18.000 7.166 9.245 0 1.436296 -0.351582</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>2.050451</length>
+              <length>4.299458</length>
             </cylinder>
           </geometry>
           <material>
@@ -215,11 +215,11 @@
           </material>
         </visual>
         <visual name="segment_12">
-          <pose>18.451 7.657 10.123 0 1.750331 -0.276757</pose>
+          <pose>22.000 5.677 10.114 0 1.305791 -0.361437</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>3.272491</length>
+              <length>4.430974</length>
             </cylinder>
           </geometry>
           <material>
@@ -229,11 +229,11 @@
           </material>
         </visual>
         <visual name="segment_13">
-          <pose>22.500 6.268 10.739 0 1.243537 -0.362880</pose>
+          <pose>25.271 4.460 10.697 0 1.568835 -0.347367</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>5.648049</length>
+              <length>2.704497</length>
             </cylinder>
           </geometry>
           <material>
@@ -243,11 +243,11 @@
           </material>
         </visual>
         <visual name="segment_14">
-          <pose>25.619 5.160 11.610 0 1.627104 -0.252140</pose>
+          <pose>29.271 3.112 11.143 0 1.417485 -0.314572</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>1.281104</length>
+              <length>5.806752</length>
             </cylinder>
           </geometry>
           <material>
@@ -257,11 +257,11 @@
           </material>
         </visual>
         <visual name="segment_15">
-          <pose>30.619 3.965 12.092 0 1.456346 -0.231980</pose>
+          <pose>34.000 1.112 11.138 0 1.763921 -0.507516</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>9.061804</length>
+              <length>4.663597</length>
             </cylinder>
           </geometry>
           <material>
@@ -271,11 +271,11 @@
           </material>
         </visual>
         <visual name="segment_16">
-          <pose>36.912 2.053 12.092 0 1.811969 -0.430131</pose>
+          <pose>42.000 -2.740 9.040 0 1.816106 -0.428445</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>4.332829</length>
+              <length>13.599565</length>
             </cylinder>
           </geometry>
           <material>
@@ -285,11 +285,11 @@
           </material>
         </visual>
         <visual name="segment_17">
-          <pose>39.412 0.950 11.522 0 1.653437 -0.366499</pose>
+          <pose>49.271 -6.011 7.121 0 1.762655 -0.395299</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>1.263777</length>
+              <length>2.805074</length>
             </cylinder>
           </geometry>
           <material>
@@ -299,11 +299,11 @@
           </material>
         </visual>
         <visual name="segment_18">
-          <pose>40.767 0.362 11.138 0 1.943240 -0.441068</pose>
+          <pose>51.271 -6.791 6.900 0 1.510427 -0.330251</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>1.821992</length>
+              <length>1.544896</length>
             </cylinder>
           </geometry>
           <material>
@@ -313,11 +313,11 @@
           </material>
         </visual>
         <visual name="segment_19">
-          <pose>44.472 -1.204 9.941 0 1.837240 -0.389123</pose>
+          <pose>53.253 -7.521 7.573 0 1.133891 -0.365319</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>6.580542</length>
+              <length>2.961734</length>
             </cylinder>
           </geometry>
           <material>
@@ -327,11 +327,11 @@
           </material>
         </visual>
         <visual name="segment_20">
-          <pose>48.704 -2.880 8.808 0 1.761712 -0.349336</pose>
+          <pose>59.253 -9.549 9.799 0 1.260918 -0.315471</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>2.809223</length>
+              <length>10.485817</length>
             </cylinder>
           </geometry>
           <material>
@@ -341,11 +341,11 @@
           </material>
         </visual>
         <visual name="segment_21">
-          <pose>52.500 -4.176 8.244 0 1.683285 -0.318303</pose>
+          <pose>69.368 -11.718 11.088 0 1.628034 -0.114852</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>5.297928</length>
+              <length>10.825520</length>
             </cylinder>
           </geometry>
           <material>
@@ -355,25 +355,11 @@
           </material>
         </visual>
         <visual name="segment_22">
-          <pose>60.000 -6.637 9.628 0 1.261414 -0.316338</pose>
+          <pose>77.368 -12.168 9.617 0 1.985592 0.063939</pose>
           <geometry>
             <cylinder>
               <radius>0.15</radius>
-              <length>11.046566</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>1 0.5 0.03 1</ambient>
-            <diffuse>1 0.5 0.03 1</diffuse>
-            <emissive>0.5 0.2 0.0 1</emissive>
-          </material>
-        </visual>
-        <visual name="segment_23">
-          <pose>72.500 -9.137 10.883 0 1.627316 -0.114609</pose>
-          <geometry>
-            <cylinder>
-              <radius>0.15</radius>
-              <length>15.123205</length>
+              <length>5.762889</length>
             </cylinder>
           </geometry>
           <material>
@@ -383,7 +369,7 @@
           </material>
         </visual>
         <visual name="point_0">
-          <pose>-38.752 22.103 8.643 0 0 0</pose>
+          <pose>-38.752 22.103 7.737 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.7</radius>
@@ -396,7 +382,7 @@
           </material>
         </visual>
         <visual name="point_1">
-          <pose>-35.000 21.590 7.737 0 0 0</pose>
+          <pose>-32.000 21.057 7.889 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -409,7 +395,7 @@
           </material>
         </visual>
         <visual name="point_2">
-          <pose>-33.152 21.326 8.465 0 0 0</pose>
+          <pose>-29.323 20.696 8.409 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -422,7 +408,7 @@
           </material>
         </visual>
         <visual name="point_3">
-          <pose>-30.000 20.803 9.305 0 0 0</pose>
+          <pose>-24.000 19.793 8.808 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -435,7 +421,7 @@
           </material>
         </visual>
         <visual name="point_4">
-          <pose>-26.601 20.000 9.707 0 0 0</pose>
+          <pose>-20.000 18.837 8.741 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -448,7 +434,7 @@
           </material>
         </visual>
         <visual name="point_5">
-          <pose>-20.000 18.244 9.707 0 0 0</pose>
+          <pose>-16.000 17.886 9.262 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -461,7 +447,7 @@
           </material>
         </visual>
         <visual name="point_6">
-          <pose>-15.000 16.907 9.262 0 0 0</pose>
+          <pose>-8.000 16.000 9.262 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -474,7 +460,7 @@
           </material>
         </visual>
         <visual name="point_7">
-          <pose>-10.000 15.573 9.297 0 0 0</pose>
+          <pose>-4.000 14.695 10.127 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -487,7 +473,7 @@
           </material>
         </visual>
         <visual name="point_8">
-          <pose>-8.040 15.000 9.823 0 0 0</pose>
+          <pose>-1.872 13.872 10.834 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -500,7 +486,7 @@
           </material>
         </visual>
         <visual name="point_9">
-          <pose>-5.000 14.204 10.337 0 0 0</pose>
+          <pose>9.806 10.194 10.957 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -513,7 +499,7 @@
           </material>
         </visual>
         <visual name="point_10">
-          <pose>-3.773 13.773 10.758 0 0 0</pose>
+          <pose>12.000 9.490 10.793 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -526,7 +512,7 @@
           </material>
         </visual>
         <visual name="point_11">
-          <pose>15.000 8.637 10.957 0 0 0</pose>
+          <pose>16.000 7.900 8.957 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -539,7 +525,7 @@
           </material>
         </visual>
         <visual name="point_12">
-          <pose>16.903 8.097 10.415 0 0 0</pose>
+          <pose>20.000 6.433 9.533 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -552,7 +538,7 @@
           </material>
         </visual>
         <visual name="point_13">
-          <pose>20.000 7.218 9.831 0 0 0</pose>
+          <pose>24.000 4.921 10.694 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -565,7 +551,7 @@
           </material>
         </visual>
         <visual name="point_14">
-          <pose>25.000 5.319 11.646 0 0 0</pose>
+          <pose>26.543 4.000 10.699 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -578,7 +564,7 @@
           </material>
         </visual>
         <visual name="point_15">
-          <pose>26.239 5.000 11.574 0 0 0</pose>
+          <pose>32.000 2.224 11.586 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -591,7 +577,7 @@
           </material>
         </visual>
         <visual name="point_16">
-          <pose>35.000 2.930 12.609 0 0 0</pose>
+          <pose>36.000 0.000 10.691 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -604,7 +590,7 @@
           </material>
         </visual>
         <visual name="point_17">
-          <pose>38.824 1.176 11.574 0 0 0</pose>
+          <pose>48.000 -5.481 7.388 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -617,7 +603,7 @@
           </material>
         </visual>
         <visual name="point_18">
-          <pose>40.000 0.724 11.470 0 0 0</pose>
+          <pose>50.541 -6.541 6.853 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -630,7 +616,7 @@
           </material>
         </visual>
         <visual name="point_19">
-          <pose>41.535 0.000 10.807 0 0 0</pose>
+          <pose>52.000 -7.041 6.947 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -643,7 +629,7 @@
           </material>
         </visual>
         <visual name="point_20">
-          <pose>47.408 -2.408 9.074 0 0 0</pose>
+          <pose>54.506 -8.000 8.200 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -656,7 +642,7 @@
           </material>
         </visual>
         <visual name="point_21">
-          <pose>50.000 -3.352 8.541 0 0 0</pose>
+          <pose>64.000 -11.098 11.397 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -669,7 +655,7 @@
           </material>
         </visual>
         <visual name="point_22">
-          <pose>55.000 -5.000 7.947 0 0 0</pose>
+          <pose>74.737 -12.337 10.778 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.45</radius>
@@ -682,20 +668,7 @@
           </material>
         </visual>
         <visual name="point_23">
-          <pose>65.000 -8.273 11.310 0 0 0</pose>
-          <geometry>
-            <sphere>
-              <radius>0.45</radius>
-            </sphere>
-          </geometry>
-          <material>
-            <ambient>1 0.65 0.05 1</ambient>
-            <diffuse>1 0.65 0.05 1</diffuse>
-            <emissive>1 0.65 0.05 1</emissive>
-          </material>
-        </visual>
-        <visual name="point_24">
-          <pose>80.000 -10.000 10.456 0 0 0</pose>
+          <pose>80.000 -12.000 8.456 0 0 0</pose>
           <geometry>
             <sphere>
               <radius>0.7</radius>
@@ -710,7 +683,7 @@
       </link>
     </model>
     <model name="drone">
-      <pose>-38.752124 22.103392 8.643046 0.000000 0.000000 0.000000</pose>
+      <pose>-38.752124 22.103392 7.737228 0.000000 0.000000 0.000000</pose>
       <link name="body">
         <gravity>true</gravity>
         <inertial>

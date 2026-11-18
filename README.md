@@ -27,9 +27,9 @@ hay `generated/routes/`. Repo **không** có benchmark so với thuật toán kh
 mô hình bay là point-mass có bộ điều khiển PD, không phải mô hình rotor hay
 autopilot.
 
-Kết quả định lượng của lần chạy đang lưu: 3 tuyến dài 142,42 / 125,64 / 86,15 m;
-ba chuyến bay 35,9 / 33,1 / 25,0 s với sai số bám lớn nhất **0,365 / 1,022 /
-0,852 m**; đối chiếu đường tham chiếu **5/5** mesh đạt.
+Kết quả định lượng của lần chạy đang lưu (lưới 4 m): 3 tuyến dài 142,91 /
+127,30 / 86,19 m; ba chuyến bay 35,9 / 33,2 / 25,1 s với sai số bám lớn nhất
+**0,399 / 0,591 / 0,601 m**; đối chiếu đường tham chiếu **5/5** mesh đạt.
 
 ## 2. Ảnh minh hoạ
 
@@ -219,21 +219,24 @@ commit file đó, vì `--fresh` không xoá và không sinh lại được lựa
 
 | Hạng mục | Giá trị |
 | --- | --- |
-| Bề mặt thành phố | 2.295 đỉnh / 4.400 tam giác / 6.694 cạnh; SHA `f6e01c6d…` |
-| Tham số bề mặt | ô 5 m, clearance 1,5 m, half-width 1,6 m, slope 0,5 m/m |
-| Mission thành phố | START 792 (−38,752, 22,103) → g1 1810, g2 1910, g3 1518 |
-| Tuyến | 142,42 / 125,64 / 86,15 m; 41 / 46 / 40 waypoint |
-| Lan truyền | 49 / 34 / 21 lần (tổng 104, 646 source) |
-| Bay | 35,9 / 33,1 / 25,0 s; `max_error` 0,365 / 1,022 / 0,852 m |
-| `mean_error` | 0,067 / 0,111 / 0,089 m |
-| Hợp lệ / mốc 1 m | cả ba `valid`; g2 vượt mốc 2 % tại một góc cua |
+| Bề mặt thành phố | 3.355 đỉnh / 6.480 tam giác / 9.834 cạnh; SHA `052917db…` |
+| Tham số bề mặt | ô **4 m**, clearance 1,5 m, half-width 1,6 m, slope 0,5 m/m |
+| Mission thành phố | START 1133 (−38,752, 22,103) → g1 2708, g2 2829, g3 2240 |
+| Tuyến | 142,91 / 127,30 / 86,19 m; 50 / 59 / 48 waypoint |
+| Lan truyền | 81 / 66 / 40 lần (tổng 187, 808 source); lập tuyến 186,2 s |
+| Bay | 35,9 / 33,2 / 25,1 s; `max_error` 0,399 / 0,591 / 0,601 m |
+| `mean_error` | 0,059 / 0,063 / 0,136 m |
+| Hợp lệ / mốc 1 m | cả ba `valid` **và cả ba đạt mốc 1 m** |
 | Đối chiếu reference | 5/5 mesh đạt, 5 bỏ qua (không có reference) |
 
-g2 vượt mốc 1,0 m ở **1,0224 m**, dù chuyến bay vẫn `valid` (hết tuyến, dừng
-cách đích 0,0004 m). Đó là lý do `valid` được tách khỏi `passed`: một chuyến bay
-hoàn thành nhiệm vụ vẫn có thể trượt chỉ tiêu chất lượng. Chỉ lần chạy cuối được
-lưu archive (`results/runs/city792e`); muốn có bằng chứng lặp lại thì chạy lại và
-lưu thêm label.
+Hai cấu hình đang có archive cho hai kết luận khác nhau về `g2`. Với lưới 5 m
+(`results/runs/city792e`), `g2` vượt mốc ở 1,0224 m dù chuyến bay vẫn `valid`;
+với lưới 4 m (`results/runs/cell4`), cùng mission, `g2` xuống **0,591 m** và đạt
+mốc. Nguyên nhân không phải thuật toán tìm đường: lưới mịn hơn cho 59 waypoint
+thay vì 46, nên khoảng cách giữa chúng đều hơn và tiếp tuyến Catmull–Rom không
+còn dài gấp 7,6 lần đoạn ngắn (xuống 3,15). Quỹ đạo thôi lùi, sai số rơi.
+Đó cũng là lý do `valid` được tách khỏi `passed`: hoàn thành nhiệm vụ và đạt chỉ
+tiêu chất lượng là hai câu hỏi khác nhau.
 
 ### Lưu và so sánh nhiều lần chạy
 
@@ -367,7 +370,7 @@ vào `sys.path`, xem [`lib/README.md`](lib/README.md).
 | `data/processed/meshes/*.off` | Chín mesh mẫu, copy byte-identical từ `data/raw/meshes/` |
 | `data/processed/scenes/city.standardized.glb` | Scene thành phố đã bake transform, bỏ material |
 | `data/processed/scenes/meshes/*.off2glb.glb` | Mesh mẫu ở dạng GLB Y-up để mở bằng viewer |
-| `data/processed/meshes/city.standardized.triangulation.off` | Bề mặt dẫn đường 2.295 đỉnh / 4.400 tam giác |
+| `data/processed/meshes/city.standardized.triangulation.off` | Bề mặt dẫn đường 3.355 đỉnh / 6.480 tam giác (lưới 4 m) |
 | `generated/data_viz/*.png` | Ảnh kiểm tra từng mesh, kèm đường tham chiếu |
 | `data/processed/missions/<mesh>.mission.json` | START/GOAL đã chọn cho từng mesh |
 
