@@ -27,9 +27,11 @@ hay `generated/routes/`. Repo **không** có benchmark so với thuật toán kh
 mô hình bay là point-mass có bộ điều khiển PD, không phải mô hình rotor hay
 autopilot.
 
-Kết quả định lượng của lần chạy đang lưu (lưới 4 m): 3 tuyến dài 142,91 /
-127,30 / 86,19 m; ba chuyến bay 35,9 / 33,2 / 25,1 s với sai số bám lớn nhất
-**0,399 / 0,591 / 0,601 m**; đối chiếu đường tham chiếu **5/5** mesh đạt.
+Ba cấu hình đang có archive: lưới 5 m (`city792e`), 4 m (`cell4`) và 3 m
+(`cell3close`). Lưới 4 m là cấu hình duy nhất cả ba chuyến bay đạt mốc 1 m
+(0,399 / 0,591 / 0,601 m); lưới 3 m sát hình học hơn nhưng `g2` vượt mốc ở
+1,381 m vì quỹ đạo đòi leo dốc nhanh hơn mức 5 m/s · 3 m/s² cho phép. Đối chiếu
+đường tham chiếu **5/5** mesh đạt ở cả ba.
 
 ## 2. Ảnh minh hoạ
 
@@ -215,28 +217,35 @@ commit file đó, vì `--fresh` không xoá và không sinh lại được lựa
 | `--no-png` | Không vẽ ảnh trong `validate` |
 | `--all-meshes` / `--no-all-meshes`, `--force-missions` | Phạm vi chọn START/GOAL ở bước 7 |
 
-### Kết quả của lần chạy đang lưu
+### Ba cấu hình đang lưu
 
-| Hạng mục | Giá trị |
-| --- | --- |
-| Bề mặt thành phố | 3.355 đỉnh / 6.480 tam giác / 9.834 cạnh; SHA `052917db…` |
-| Tham số bề mặt | ô **4 m**, clearance 1,5 m, half-width 1,6 m, slope 0,5 m/m |
-| Mission thành phố | START 1133 (−38,752, 22,103) → g1 2708, g2 2829, g3 2240 |
-| Tuyến | 142,91 / 127,30 / 86,19 m; 50 / 59 / 48 waypoint |
-| Lan truyền | 81 / 66 / 40 lần (tổng 187, 808 source); lập tuyến 186,2 s |
-| Bay | 35,9 / 33,2 / 25,1 s; `max_error` 0,399 / 0,591 / 0,601 m |
-| `mean_error` | 0,059 / 0,063 / 0,136 m |
-| Hợp lệ / mốc 1 m | cả ba `valid` **và cả ba đạt mốc 1 m** |
-| Đối chiếu reference | 5/5 mesh đạt, 5 bỏ qua (không có reference) |
+| Hạng mục | lưới 5 m (`city792e`) | lưới 4 m (`cell4`) | lưới 3 m (`cell3close`) |
+| --- | --- | --- | --- |
+| Bề mặt | 2.295 đ / 4.400 tg | 3.355 / 6.480 | 5.913 / 11.520 |
+| Tham số | half-width 1,6 · slope 0,5 | half-width 0,8 · slope 1,0 | half-width 0,6 · slope 1,0 |
+| Lập tuyến | 45,0 s | 186,2 s | **1.008 s** |
+| Lan truyền | 104 | 187 | 429 |
+| Tuyến (m) | 142,42 · 125,64 · 86,15 | 142,91 · 127,30 · 86,19 | 145,31 · 130,89 · 88,61 |
+| Bay (s) | 35,9 · 33,1 · 25,0 | 35,9 · 33,2 · 25,1 | 36,5 · 33,4 · 25,0 |
+| `max_error` (m) | 0,365 · 1,022 · 0,852 | 0,399 · **0,591** · 0,601 | 0,508 · **1,381** · 0,580 |
+| Đạt mốc 1 m | 2/3 | **3/3** | 2/3 |
+| Đối chiếu reference | 5/5 | 5/5 | 5/5 |
 
-Hai cấu hình đang có archive cho hai kết luận khác nhau về `g2`. Với lưới 5 m
-(`results/runs/city792e`), `g2` vượt mốc ở 1,0224 m dù chuyến bay vẫn `valid`;
-với lưới 4 m (`results/runs/cell4`), cùng mission, `g2` xuống **0,591 m** và đạt
-mốc. Nguyên nhân không phải thuật toán tìm đường: lưới mịn hơn cho 59 waypoint
-thay vì 46, nên khoảng cách giữa chúng đều hơn và tiếp tuyến Catmull–Rom không
-còn dài gấp 7,6 lần đoạn ngắn (xuống 3,15). Quỹ đạo thôi lùi, sai số rơi.
+Cả ba cấu hình đều `valid` ở cả ba goal; khác nhau nằm ở chỉ tiêu chất lượng.
+`g2` là goal duy nhất có ba kết quả khác nhau, và ba nguyên nhân cũng khác nhau:
+
+- **Lưới 5 m** (`city792e`, 1,0224 m): quỹ đạo lùi lại ở một chỗ nối waypoint
+  không đều — tiếp tuyến Catmull–Rom dài gấp 7,6 lần đoạn ngắn.
+- **Lưới 4 m** (`cell4`, 0,5910 m): 59 waypoint thay vì 46, khoảng cách đều hơn,
+  tỉ lệ đó xuống 3,15, quỹ đạo thôi lùi và sai số rơi.
+- **Lưới 3 m** (`cell3close`, 1,3808 m): sai số **100 % theo phương thẳng đứng**.
+  Lúc 8,19 s, máy bay ở cao độ 5,74 m trong khi đích đã lên 7,12 m; đích leo
+  2,08 m/s trong khi vận tốc đứng của máy bay còn âm. Bề mặt dốc 1,0 m/m đòi leo
+  nhanh hơn quỹ đạo 5 m/s · 3 m/s² có thể bám.
+
 Đó cũng là lý do `valid` được tách khỏi `passed`: hoàn thành nhiệm vụ và đạt chỉ
-tiêu chất lượng là hai câu hỏi khác nhau.
+tiêu chất lượng là hai câu hỏi khác nhau. Với lưới 3 m, cách sửa nằm ở tham số
+bay (giảm `speed` hoặc tăng `max-accel`), không phải ở bản đồ.
 
 ### Lưu và so sánh nhiều lần chạy
 

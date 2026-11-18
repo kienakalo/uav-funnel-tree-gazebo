@@ -183,7 +183,7 @@ Chọn goal, ghi `flown_route.json`:
 Waypoint lấy từ route của stage `plan`, sau đó **rút gọn Douglas–Peucker** với
 `--simplify` (mặc định **0,1 m**); `--simplify 0` tắt.
 
-Số của lần chạy đang lưu (lưới 4 m, START 1133 → 2708 / 2829 / 2240), đọc từ
+Số của lưới 4 m (START 1133 → 2708 / 2829 / 2240), đọc từ
 `world_metadata.json` và `validation.json` của ba lần bay đã lưu ở
 `results/runs/cell4`:
 

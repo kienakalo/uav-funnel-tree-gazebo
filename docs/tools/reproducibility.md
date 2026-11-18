@@ -191,6 +191,7 @@ ghi nguồn và phiên chạy khi chèn vào báo cáo. Số đo nằm trong
 
 | Hạng mục | Giá trị |
 | --- | --- |
+| Bề mặt thành phố (lưới 3 m) | 5.913 đỉnh / 11.520 tam giác / 17.432 cạnh |
 | Bề mặt thành phố (lưới 4 m) | 3.355 đỉnh / 6.480 tam giác / 9.834 cạnh |
 | Bề mặt thành phố (lưới 5 m) | 2.295 đỉnh / 4.400 tam giác / 6.694 cạnh |
 | Tham số bề mặt | ô 4 m hoặc 5 m; clearance 1,5 m, half-width 1,6 m, slope 0,5 m/m |
@@ -199,9 +200,10 @@ ghi nguồn và phiên chạy khi chèn vào báo cáo. Số đo nằm trong
 | SHA256 `city.standardized.glb` | `cdd605eedc01011c5c39408ce167fca6244d1a9e0a7527450d13861570a837cb` (sau khi sửa bufferView + thêm NORMAL) |
 | Route city (polyline) | lưới 4 m: 142,91 · 127,30 · 86,19 m; lưới 5 m: 142,42 · 125,64 · 86,15 m |
 | Cung spline | không được ghi lại: `world_metadata.json` chỉ có độ dài polyline đã rút gọn (142,42 · 125,63 · 86,14 m). Số cung spline của mission cũ (134,9 · 286,8 · 142,4 m) đo tay, không có script tái lập — đừng trích như số chính thức |
+| Bay g1 / g2 / g3, lưới 3 m | 36,5 s / 33,4 s / 25,0 s; `max_error` 0,508 / 1,381 / 0,580 m (`results/runs/cell3close`) |
 | Bay g1 / g2 / g3, lưới 4 m | 35,9 s / 33,2 s / 25,1 s; `max_error` 0,399 / 0,591 / 0,601 m, `mean_error` 0,059 / 0,063 / 0,136 m (`results/runs/cell4`) |
 | Bay g1 / g2 / g3, lưới 5 m | 35,9 s / 33,1 s / 25,0 s; `max_error` 0,365 / 1,022 / 0,852 m, `mean_error` 0,067 / 0,111 / 0,089 m (`results/runs/city792e`) |
-| So hai cấu hình | `cell4` và `city792e` khác nhau ở `cell` (4 so với 5); mọi tham số khác giữ nguyên. Không phải phép đo độ lặp lại, vì bề mặt khác nhau |
+| So ba cấu hình | `city792e` (5 m), `cell4` (4 m), `cell3close` (3 m). Không phải phép đo độ lặp lại: bề mặt khác nhau, và hai cấu hình mịn còn đổi cả half-width lẫn slope |
 | Mốc chất lượng bám tuyến | 1,0 m — cả ba lần bay đều `valid`; g2 vượt mốc 2 % tại một góc cua (xem `simulate/validate.md`) |
 | Thời gian `main.py plan` | 63–90 s cho cả 10 mission, riêng city 45–78 s; phụ thuộc tải máy nên chỉ ghi khoảng |
 | Đối chiếu reference | 5/5 fixture, sai lệch lớn nhất 1,7e-5 |

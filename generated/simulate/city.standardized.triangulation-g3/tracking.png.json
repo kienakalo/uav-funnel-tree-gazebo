@@ -1,7 +1,7 @@
 {
   "image": "generated/simulate/city.standardized.triangulation-g3/tracking.png",
-  "image_sha256": "fc6dbc2b9dd9f3e869dbfa4db4a0994d18236099219355fcb8a0adaef5fa8128",
-  "generated_at": "2026-11-18T22:51:47+07:00",
+  "image_sha256": "fdcc8220a5290a48c4823d273b7b7aecb060feb470876ebeab52714b641c9f4a",
+  "generated_at": "2026-11-18T23:45:33+07:00",
   "parameters": {
     "speed": 5.0,
     "max_acceleration": 3.0,
@@ -13,19 +13,19 @@
   },
   "facts": {
     "goal": "g3",
-    "rows": 250,
-    "duration": "25.1 s",
-    "max_error": "0.601 m",
-    "mean_error": "0.136 m",
+    "rows": 249,
+    "duration": "25.0 s",
+    "max_error": "0.580 m",
+    "mean_error": "0.091 m",
     "completed": true,
     "valid": true,
     "final_error": "0.001 m"
   },
   "sources": {
     "scene_sha256": "cdd605eedc01011c5c39408ce167fca6244d1a9e0a7527450d13861570a837cb",
-    "surface_sha256": "052917dbbcecc908a8cfac026cee11f3591a21733e87063edbe439230a3f2ae1",
-    "route_sha256": "3a6b88032415c9113d60357ec6a0e06affbe89d1c07011da7d3d90a200e550ba",
-    "telemetry_sha256": "ae7e4f7c4e3564d02e4bba40963c51ea878925dcf5c9a38264c1139033eb2dee"
+    "surface_sha256": "9cec5d09523e26375be0e491f4c92b366f1429af8976f4571c687ec330782b1d",
+    "route_sha256": "bd6e9e9ea777aeda1027918de6e5dcbcc4470e975a0f69e5172f6c36232f3f63",
+    "telemetry_sha256": "ff87888539cdb90adbd9f12d015cca5d1aaa4f31546304328fe93f8bd37978e4"
   },
   "script": "tools/simulate/validate.py",
   "script_sha256": "824212d122a355d58d91cbd03bd9c8e6de46de4b0837bfbaf4c9d801066a581b",

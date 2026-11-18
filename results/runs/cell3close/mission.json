@@ -1,0 +1,73 @@
+{
+  "mesh": "data/processed/meshes/city.standardized.triangulation.off",
+  "mesh_sha256": "9cec5d09523e26375be0e491f4c92b366f1429af8976f4571c687ec330782b1d",
+  "mesh_vertices": 5913,
+  "mesh_faces": 11520,
+  "boundary_edges": 304,
+  "vertex_spacing": 3.0,
+  "snap_mode": "xy",
+  "max_snap": 3.535534,
+  "mode": "explicit",
+  "selected_by": "cli",
+  "start": {
+    "vertex": 2015,
+    "xyz": [
+      -38.752124,
+      22.103392,
+      6.633836
+    ],
+    "input": [
+      -38.752124,
+      22.103392,
+      7.737228
+    ],
+    "snap": 0.0
+  },
+  "goals": [
+    {
+      "id": "g1",
+      "vertex": 4762,
+      "xyz": [
+        74.736587,
+        -55.357157,
+        7.772896
+      ],
+      "input": [
+        74.736587,
+        -55.357157,
+        8.579299
+      ],
+      "snap": 1e-06
+    },
+    {
+      "id": "g2",
+      "vertex": 4996,
+      "xyz": [
+        81.0,
+        -12.0,
+        4.455583
+      ],
+      "input": [
+        80.0,
+        -12.0,
+        8.455583
+      ],
+      "snap": 1.0
+    },
+    {
+      "id": "g3",
+      "vertex": 3922,
+      "xyz": [
+        39.0,
+        48.0,
+        12.172357
+      ],
+      "input": [
+        40.0,
+        48.0,
+        15.172357
+      ],
+      "snap": 1.0
+    }
+  ]
+}

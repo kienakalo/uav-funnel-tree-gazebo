@@ -137,10 +137,14 @@ Nếu đường thẳng ra ngoài dải mặt (`r` ngoài `[0,1]`) → `ValueErr
 | 3.355 đỉnh (lưới 4 m) | 2708 | 81 | 70,5 s | 142,91 m |
 | | 2829 | 66 | 64,5 s | 127,30 m |
 | | 2240 | 40 | 51,2 s | 86,19 m |
+| 5.913 đỉnh (lưới 3 m) | 4762 | 177 | 448,6 s | 145,31 m |
+| | 4996 | 150 | 337,8 s | 130,89 m |
+| | 3922 | 102 | 221,9 s | 88,61 m |
 
-Lưới 4 m có 1,47 lần số tam giác nhưng cần 1,8 lần số lần lan truyền và 4,1 lần
-thời gian (187 so với 104 lần, 186,2 so với 45,0 s). Số đọc từ
-`results/runs/cell4/routes.json` và `results/runs/city792e/routes.json`.
+Chi phí tăng nhanh hơn số tam giác: so với lưới 4 m, lưới 3 m có 1,78 lần số tam
+giác nhưng 2,29 lần số lần lan truyền và 5,4 lần thời gian (429 so với 187 lần,
+1.008 so với 186,2 s). Số đọc từ `routes.json` của `results/runs/cell3close`,
+`cell4` và `city792e`.
 
 Thời gian phụ thuộc tải máy, không phải chỉ số của thuật toán: cùng mission và
 cùng mã, hai lần đo khác nhau có thể lệch vài chục phần trăm. Kết luận về thuật

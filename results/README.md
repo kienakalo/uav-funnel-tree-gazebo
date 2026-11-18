@@ -28,9 +28,9 @@ Quy ước:
   archive tạo bằng `--archive` thì còn cách xa hơn. Đừng suy commit sinh ra số
   liệu từ trường này; dùng `route_sha256`/`telemetry_sha256` trong
   `validation.json`.
-- Mỗi cấu hình giữ một archive, không phải mỗi lần chạy: `city792e` (lưới 5 m)
-  và `cell4` (lưới 4 m). Chạy lại cùng cấu hình thì ghi đè `generated/` chứ
-  không tạo archive mới, trừ khi tự đặt label khác.
+- Mỗi cấu hình giữ một archive, không phải mỗi lần chạy: `city792e` (lưới 5 m),
+  `cell4` (lưới 4 m) và `cell3close` (lưới 3 m). Chạy lại cùng cấu hình thì ghi
+  đè `generated/` chứ không tạo archive mới, trừ khi tự đặt label khác.
 - `--fresh` và mọi stage đều không xoá `results/`.
 - Bản backup telemetry của lần bay trước (`physics_telemetry_<timestamp>.csv`,
   `telemetry_metadata_<timestamp>.json`) chỉ nằm trên máy và đã ignore; bằng
@@ -49,6 +49,7 @@ Quy ước:
 | --- | --- | --- |
 | `city792e` | START 792 (−38,75, 22,10) → g1 1810, g2 1910, g3 1518 | lưới 5 m; bay 35,9 s / 33,1 s / 25,0 s; `max_error` 0,365 / 1,022 / 0,852 m; `mean_error` 0,067 / 0,111 / 0,089 m; cả ba `valid`, g2 trượt mốc 1 m |
 | `cell4` | START 1133 → g1 2708, g2 2829, g3 2240 (snap lại theo lưới 4 m) | lưới 4 m; lập tuyến 186,2 s; bay 35,9 s / 33,2 s / 25,1 s; `max_error` 0,399 / **0,591** / 0,601 m; cả ba `valid` và **đạt** mốc 1 m |
+| `cell3close` | START 2015 → g1 4762, g2 4996, g3 3922 | lưới 3 m, half-width 0,6, slope 1,0; lập tuyến 1.008 s; bay 36,5 s / 33,4 s / 25,0 s; `max_error` 0,508 / **1,381** / 0,580 m; cả ba `valid`, g2 trượt mốc vì sai số thẳng đứng |
 
 Mission hiện tại của thành phố là START 792 → 1810 / 1910 / 1518 (xem
 [`../docs/tools/data/set_start_goal.md`](../docs/tools/data/set_start_goal.md));

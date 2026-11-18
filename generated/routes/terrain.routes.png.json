@@ -1,10 +1,10 @@
 {
   "image": "generated/routes/terrain.routes.png",
-  "image_sha256": "c05ea650a53a4a6932b70e42278e26ba184672874a2e3491e4a1de058ad581d4",
-  "generated_at": "2026-11-18T22:48:47+07:00",
+  "image_sha256": "5acfd25c58bce537f54d6622966b5c05d0c8e5dcdd4b6eb9a71715f77e95334e",
+  "generated_at": "2026-11-18T23:41:08+07:00",
   "parameters": {
-    "seconds": 600.0,
-    "max_nodes": 400000,
+    "seconds": 900.0,
+    "max_nodes": 800000,
     "clipping": true
   },
   "facts": {
@@ -27,7 +27,7 @@
     "mesh_sha256": "7a6cc43c45bdf57c3fdcd7849cec1a5b8e9a02e72bf5f15e985781fac5f4c3d1",
     "mission_sha256": "023b6f355065a4b3e586af3748afd602626de3068379c65b4a3a04302f36bb51",
     "module_sha256": "42465e58992c985455afddfa62d145febfc96cbbb0597b209c0a1c2ca2947bf2",
-    "routes_sha256": "d609acb9ba7525cf4288da629c8f818fa707eac17e024b6a46453bbf6ec81835"
+    "routes_sha256": "5c0899f03b8777bcef29d5a9d9d001fa3465988445777191ad1ee941a1a929fa"
   },
   "script": "tools/plan/route_viz.py",
   "script_sha256": "351dd70c1d77c13639abf3390251a65c4bc975a561569fd9cf2e764edd8524e6",

@@ -171,9 +171,12 @@ nên chạy lại với cùng tham số cho ra cùng file.
 
 ## Kết quả
 
-Với `--cell 4` (cấu hình đang lưu): 3.355 đỉnh, 6.480 tam giác, 9.834 cạnh,
-0 cạnh phi đa tạp, SHA256
-`052917dbbcec…` (`results/runs/cell4/surface.params.json` giữ bản đầy đủ).
+Với `--cell 3`, `--half-width 0.6`, `--max-slope 1.0` (cấu hình đang lưu):
+5.913 đỉnh, 11.520 tam giác, 17.432 cạnh, 0 cạnh phi đa tạp
+(`results/runs/cell3close/surface.params.json`).
+
+Với `--cell 4`: 3.355 đỉnh, 6.480 tam giác, 9.834 cạnh, SHA256
+`052917dbbcec…` (`results/runs/cell4`).
 
 Với `--cell 5`: 2.295 đỉnh, 4.400 tam giác, 6.694 cạnh, SHA256
 `f6e01c6d421f71aec828ae2f71593e7b2d0460604453459eb5e86b2ea47b28df`

@@ -1,23 +1,23 @@
 {
   "image": "generated/data_viz/city.standardized.triangulation.png",
-  "image_sha256": "825eb01bd54183b3fc88e0478f48dcf6d780d1c54f95b0175d7194c0acd61ece",
-  "generated_at": "2026-11-18T22:45:12+07:00",
+  "image_sha256": "23ac5040e1ca70a2768b9690063d9f3657993ed52116c8256d5482040e21d4d6",
+  "generated_at": "2026-11-18T23:23:49+07:00",
   "parameters": {
-    "cell": 4.0,
+    "cell": 3.0,
     "coverage": "city",
     "vertical_clearance": 1.5,
-    "horizontal_half_width": 1.6,
-    "max_axis_slope": 0.5,
+    "horizontal_half_width": 0.6,
+    "max_axis_slope": 1.0,
     "expected paths": true
   },
   "facts": {
-    "vertices": 3355,
-    "triangles": 6480
+    "vertices": 5913,
+    "triangles": 11520
   },
   "sources": {
-    "mesh_sha256": "052917dbbcecc908a8cfac026cee11f3591a21733e87063edbe439230a3f2ae1",
+    "mesh_sha256": "9cec5d09523e26375be0e491f4c92b366f1429af8976f4571c687ec330782b1d",
     "scene_sha256": "cdd605eedc01011c5c39408ce167fca6244d1a9e0a7527450d13861570a837cb",
-    "output_sha256": "052917dbbcecc908a8cfac026cee11f3591a21733e87063edbe439230a3f2ae1"
+    "output_sha256": "9cec5d09523e26375be0e491f4c92b366f1429af8976f4571c687ec330782b1d"
   },
   "script": "tools/data/data_viz.py",
   "script_sha256": "a69b5f0a20d641b042d6d1037a07a58631021f7b6c4cb3a3095a057dc9c21721",
