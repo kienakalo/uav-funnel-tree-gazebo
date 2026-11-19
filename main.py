@@ -319,6 +319,16 @@ def stage_commands(name, args):
                 pair[1]['run'] += ['--gpu', args.gpu]
             if args.keep_open:
                 pair[1]['run'].append('--keep-open')
+            if args.pause_at:
+                pair[1]['run'] += ['--pause-at', args.pause_at]
+            if args.pause_on_error is not None:
+                pair[1]['run'] += ['--pause-on-error', f'{args.pause_on_error:g}']
+            if args.slow is not None:
+                pair[1]['run'] += ['--slow', f'{args.slow:g}']
+            if args.hold is not None:
+                pair[1]['run'] += ['--hold', f'{args.hold:g}']
+            if args.keys:
+                pair[1]['run'].append('--keys')
             if args.pull:
                 pair[1]['run'].append('--pull')
             if args.no_png:
@@ -925,6 +935,19 @@ def main():
     parser.add_argument('--keep-open', action='store_true',
                         help='simulate: leave the window open after the route, '
                              'instead of closing it at completion')
+    parser.add_argument('--pause-at', metavar='S[,S...]',
+                        help='simulate: pause when simulated time reaches these '
+                             'seconds; kill -USR1 or --keys resumes')
+    parser.add_argument('--pause-on-error', type=float, metavar='M',
+                        help='simulate: pause the first time the tracking error '
+                             'passes M metres')
+    parser.add_argument('--slow', type=float, metavar='R',
+                        help='simulate: run the physics at R times real time '
+                             '(0.25 is quarter speed)')
+    parser.add_argument('--hold', type=float, metavar='S',
+                        help='simulate: resume by itself S seconds after a pause')
+    parser.add_argument('--keys', action='store_true',
+                        help='simulate: pause, step and stop from the terminal')
     parser.add_argument('--pull', action='store_true',
                         help='simulate: docker pull the Gazebo image first')
     args = parser.parse_args()
@@ -946,13 +969,25 @@ def main():
                       or args.show_surface or args.max_error is not None
                       or args.no_png or args.container is not None or args.image
                       or args.gpu
-                      or args.keep_open or args.pull)
+                      or args.keep_open or args.pull or args.pause_at
+                      or args.pause_on_error is not None or args.slow is not None
+                      or args.hold is not None or args.keys)
     if simulate_flags and 'simulate' not in (args.stages or DEFAULT_STAGES):
         parser.error('--mission/--goal/--headless/--software/--show-surface/'
                      '--max-error/--no-png/--container/--image/--gpu/'
-                     '--keep-open/--pull only apply to the simulate stage')
+                     '--keep-open/--pull/--pause-at/--pause-on-error/--slow/'
+                     '--hold/--keys only apply to the simulate stage')
     if args.max_error is not None and not (args.max_error > 0):
         parser.error('--max-error must be positive')
+    if args.pause_at and not all(part.strip().replace('.', '', 1).isdigit()
+                                 for part in args.pause_at.split(',')):
+        parser.error('--pause-at wants seconds, e.g. 8 or 8,15.5')
+    if args.pause_on_error is not None and not (args.pause_on_error > 0):
+        parser.error('--pause-on-error must be positive')
+    if args.slow is not None and not (args.slow > 0):
+        parser.error('--slow must be positive')
+    if args.hold is not None and args.hold < 0:
+        parser.error('--hold must be zero or positive')
     stages = [] if args.archive else (args.stages or list(DEFAULT_STAGES))
     if 'flow' in stages:
         show_flow(args)

@@ -142,6 +142,11 @@ Mốc bám tuyến (chất lượng, không phải điều kiện hợp lệ):
 | `--image NAME` | `simulate`: image Gazebo (mặc định `ghcr.io/openrobotics/gazebo:jetty-full`) |
 | `--gpu auto\|nvidia\|intel\|software` | `simulate`: đường render cho GUI |
 | `--keep-open` | `simulate`: không tự đóng cửa sổ khi route xong |
+| `--pause-at S[,S...]` | `simulate`: dừng đúng mốc thời gian mô phỏng; resume bằng `kill -USR1` hoặc `--keys` |
+| `--pause-on-error M` | `simulate`: dừng lần đầu sai số bám tuyến vượt `M` mét |
+| `--slow R` | `simulate`: đặt `real_time_factor` = `R` (0,25 là chậm 4 lần) |
+| `--hold S` | `simulate`: tự chạy tiếp sau `S` giây đang dừng |
+| `--keys` | `simulate`: `space`/`p` dừng-chạy tiếp, `s` +1 ms, `d` +100 ms, `q` dừng hẳn |
 | `--pull` | `simulate`: `docker pull` image trước khi chạy |
 
 `--force-missions` không đi cùng `--no-all-meshes` (báo lỗi), vì chọn lại một

@@ -22,7 +22,7 @@ tags:
 > **Thuật toán** Kiểm runtime → chạy `gz sim` trong container/máy → chờ `phase=complete` → in kết quả  
 > **Vào** `generated/simulate/<mission>-<goal>/funnel_physics.sdf` + `flown_route.json`  
 > **Ra** trong cùng thư mục: telemetry, metadata, `gazebo.log`, ảnh chụp (nếu có)  
-> **Cờ** `--mission`, `--goal`, `--headless`, `--software`, `--show-surface`, `--timeout S`, `--check`, `--no-build`, `--container/--native`, `--image`, `--gpu`, `--keep-open`, `--pull`  
+> **Cờ** `--mission`, `--goal`, `--headless`, `--software`, `--show-surface`, `--timeout S`, `--check`, `--no-build`, `--container/--native`, `--image`, `--gpu`, `--keep-open`, `--pull`, `--pause-at`, `--pause-on-error`, `--slow`, `--hold`, `--keys`  
 > **Cần** Docker (mặc định) hoặc Gazebo Jetty trên máy (`--native`)  
 
 ## Thành phần chính
@@ -34,8 +34,13 @@ tags:
 | `check_files()` | mission, goal | lỗi hoặc `ok` | Kiểm SDF, `flown_route.json`, `gz sdf -k`, Assimp đọc GLB |
 | `resolve_gpu()`, `gpu_label()` | `--gpu` | `nvidia`/`intel`/`software` + nhãn | Chọn thiết bị render và nhãn ghi vào `FUNNEL_GPU` |
 | `prepare_gui_home()` | `world_metadata.json` | `HOME` tạm | Gọi `gui_config.py` để có camera + `MarkerManager` |
-| `unpause_world()` | tên world | — | Gửi `/world/<world>/control` sau khi plugin đã nạp |
-| `wait_for_completion()` | chế độ chạy | mã thoát | GUI chờ hết tuyến; headless chờ `phase=complete` |
+| `world_service()` | hậu tố service | `gz service` trả về | Gọi `/world/<world>/<hậu tố>` trong container hoặc trên máy |
+| `world_control()`, `world_physics()` | request text | 0/1 | Gửi `WorldControl` (`pause`, `step`, `run_to_sim_time`) và `Physics` (`real_time_factor`) |
+| `arm_target()` | `--pause-at` | — | Chạy tới mốc kế tiếp bằng `run_to_sim_time`, dừng đúng mốc |
+| `read_sample()`, `print_state()` | CSV telemetry | dòng trạng thái | Đọc dòng cuối: `t`, `seg`, `err`, `phase` |
+| `pause_notice()`, `pause_now()`, `resume_world()`, `step_world()` | phím hoặc signal | — | Dừng, chạy tiếp, tiến 1 ms hoặc 100 ms |
+| `handle_key()` | một ký tự | — | `space`/`p` dừng-chạy tiếp, `s` +1 ms, `d` +100 ms, `q` dừng hẳn |
+| `wait_for_session()` | chế độ chạy | 0/1/2 | Chờ hết tuyến; 1 = timeout, 2 = người dùng dừng |
 | `cleanup()` | — | — | Đóng tiến trình và dọn container còn sót |
 
 ## Phụ thuộc
@@ -59,7 +64,8 @@ tags:
 5. dựng gui.config riêng (camera + MarkerManager) nếu chạy GUI
 6. chạy gz sim (-r cho GUI, -s -r cho headless) trong container hoặc trên máy
 7. chờ telemetry_metadata.json có đúng run_id
-8. unpause /world/<world>/control
+8. đặt real_time_factor nếu có --slow, rồi chạy: /world/<world>/control
+   (kèm run_to_sim_time khi có --pause-at để dừng đúng mốc)
 9. GUI: chờ route xong rồi đóng cửa sổ (trừ khi --keep-open)
    headless: chờ CSV có phase=complete rồi dừng
 10. in số dòng telemetry và Save at
@@ -85,6 +91,57 @@ ngoài các file trong thư mục run.
 | `--gpu auto\|nvidia\|intel\|software` | `auto` | Chọn đường render cho GUI |
 | `--keep-open` | tắt | Không tự đóng cửa sổ khi route xong |
 | `--pull` | tắt | `docker pull` image trước khi chạy |
+| `--pause-at S[,S...]` | không | Dừng khi thời gian mô phỏng chạm mốc (lặp lại cờ hoặc ngăn bằng dấu phẩy) |
+| `--pause-on-error M` | không | Dừng lần đầu sai số bám tuyến vượt `M` mét |
+| `--slow R` | 1,0 | Đặt `real_time_factor` = `R` (0,25 là chạy chậm 4 lần) |
+| `--hold S` | không | Tự chạy tiếp sau `S` giây đang dừng; không có thì chờ lệnh |
+| `--keys` | tắt | Bàn phím: `space`/`p` dừng-chạy tiếp, `s` +1 ms, `d` +100 ms, `c` chạy tiếp, `q` dừng hẳn |
+
+## Dừng, xem và chạy tiếp
+
+Cả bốn cách dưới đây đi qua `/world/<world>/control` (`gz.msgs.WorldControl`),
+nên plugin thấy `info.paused` và **bỏ qua tick**: thời gian mô phỏng đứng yên,
+telemetry không có mốc thời gian nào bị lệch.
+
+| Cách | Độ chính xác | Dùng khi |
+| --- | --- | --- |
+| `--pause-at 8.2` | đúng mốc (gửi `run_to_sim_time`) | muốn xem đúng chỗ `g2` lệch 1 m |
+| `--pause-on-error 0.8` | trễ khoảng 0,1–0,3 s mô phỏng (một đến ba dòng) và một lần gọi service | muốn dừng ngay khi vừa vượt mốc mà không biết trước mốc |
+| `kill -USR1 <pid>` | đúng lúc nhận signal | dừng ngẫu hứng khi đang xem GUI |
+| phím `p` (`--keys`) | như trên | dừng ngay trong terminal đang chạy |
+
+`--pause-at` dùng `run_to_sim_time`, nên Gazebo tự dừng đúng giây yêu cầu chứ
+không phải script dò CSV rồi gửi lệnh. Nhiều mốc thì script tự sắp xếp tăng dần
+và nạp mốc kế tiếp mỗi lần chạy tiếp. Sau khi dừng, `s`/`d` (hoặc
+`kill -USR2`) tiến thêm 1 ms/100 ms — `WorldControl` chỉ nhận `step` khi world
+đang pause, nên script luôn gửi `pause: true` kèm `step`: đúng một bước 1 ms,
+đúng `multi_step` bước khi xin 100 ms.
+
+Ví dụ:
+
+```bash
+# xem đúng chỗ g2 vượt mốc, chậm 4 lần, tự chạy tiếp sau 5 s
+python3 main.py simulate --goal g2 --pause-on-error 1.0 --slow 0.25 --hold 5
+
+# dừng ở 8 s và 15 s, mỗi lần chờ lệnh
+bash tools/simulate/run_simulate.sh --goal g2 --pause-at 8,15 --keys
+```
+
+Những điều script làm thêm khi có pause:
+
+| Việc | Vì sao |
+| --- | --- |
+| Chỉ tính giờ vào `--timeout` khi world đang chạy | Dừng 10 phút để xem không làm phiên bị timeout |
+| In trạng thái mỗi 10 s: `t`, `seg`, `err`, `phase` | Trước đây script im lặng cho tới khi xong |
+| Nhận ra world đứng yên (kể cả khi bấm nút pause trong GUI) | `--pause-at`/GUI pause đều làm CSV ngừng tiến |
+| `q` dừng hẳn nhưng giữ telemetry đã bay | `validate.py` sẽ báo lần bay dở là không hợp lệ — đúng như nó xảy ra |
+| Không ghi sự kiện dừng vào file nào | Dừng không đổi số liệu nên không có gì phải chấm; log terminal là biên bản nếu cần |
+
+Đo trên fixture `terrain-v6` (7,48 m, 8,5 s): một phiên có `--pause-at 2 --hold 1`
+vẫn kết thúc `phase=complete` và `validate.py` chấm `valid: true`, `max_error`
+0,778 m — giống phiên không dừng. Hai lần chạy cùng tuyến **không** trùng từng
+dòng CSV (mỗi dòng rơi vào một mili-giây khác nhau), nên đừng so hai phiên bằng
+`diff`; so bằng `validation.json` hoặc bằng `compare_runs.py`.
 
 ## Chế độ container (mặc định)
 
@@ -209,10 +266,14 @@ Cùng một mốc thời gian cho cả hai, để CSV và metadata luôn khớp 
 python3 main.py simulate --goal g2
 python3 main.py simulate --goal g1 --headless --gpu software
 python3 main.py simulate --goal g3 --native
+python3 main.py simulate --goal g2 --pause-on-error 1.0 --slow 0.25
 ```
 
 Stage gồm 3 bước: `build_world.py`, `run_simulate.sh --no-build`, `validate.py`.
-Chạy script trực tiếp thì nó tự dựng world (trừ khi thêm `--no-build`).
+Chạy script trực tiếp thì nó tự dựng world (trừ khi thêm `--no-build`). Các cờ
+điều khiển phiên (`--pause-at`, `--pause-on-error`, `--slow`, `--hold`,
+`--keys`) chỉ chuyển vào bước chạy và không nằm trong `generated/parameters.json`
+— chúng không đổi kết quả mô phỏng, chỉ đổi cách xem.
 
 ## Lỗi thường gặp
 
@@ -225,6 +286,8 @@ Chạy script trực tiếp thì nó tự dựng world (trừ khi thêm `--no-bu
 | `Gazebo exited before the controller loaded` | Plugin lỗi lúc `configure`; xem `gazebo.log` |
 | `gz sdf rejects ...` | SDF hỏng hoặc mesh URI không tồn tại |
 | `Assimp cannot import .../city.sim.glb` | GLB sai bufferView; dựng lại world (`build_world.py`) |
+| `could not pause /world/...` | World chưa lên hẳn hoặc đã đóng; xem `gazebo.log` |
+| `--keys needs a terminal on stdin` | Chạy qua pipe/CI; dùng `kill -USR1 <pid>` thay thế |
 | Không thấy cửa sổ Gazebo | Thiếu `DISPLAY`/X socket, hoặc chạy `--headless` |
 
 ## Liên quan

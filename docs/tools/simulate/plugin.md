@@ -67,6 +67,11 @@ theo kế hoạch.
 
 Thiếu biến bắt buộc → `ValueError` ngay trong `configure`; Gazebo ghi lỗi vào log.
 
+`pre_update` mở đầu bằng `if info.paused: return`, nên khi world bị dừng (phím
+`p`, `--pause-at`, nút pause trong GUI) plugin không ghi thêm dòng nào và không
+đẩy lực: `sim_time` đứng yên, telemetry giữ nguyên mốc thời gian. Dừng rồi chạy
+tiếp không tạo khoảng trống trong CSV và không dịch mốc nào.
+
 ## `trajectory.py`
 
 Bay **một mạch** qua toàn bộ tuyến, không dừng ở từng waypoint:

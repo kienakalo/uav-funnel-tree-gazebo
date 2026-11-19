@@ -11,12 +11,18 @@
 #                                       [--container|--native] [--image NAME]
 #                                       [--gpu auto|nvidia|intel|software]
 #                                       [--keep-open]
+#                                       [--pause-at S[,S...]] [--pause-on-error M]
+#                                       [--slow R] [--hold S] [--keys]
 #   bash tools/simulate/run_simulate.sh --check | --no-build
 #
 # The Gazebo container is the default so the same tree runs on any machine;
 # --native uses a Gazebo installed on the host. --check verifies the runtime,
 # the plugin import, the world files and the SDF without opening Gazebo.
 # Goals are fail-closed, so a route with several goals needs --goal.
+#
+# Pausing uses /world/<world>/control, so the plugin sees info.paused and stops
+# integrating: simulated time freezes and the telemetry stays consistent. The
+# timeout counts only the time the world is running, never the paused part.
 usage() {
   cat <<'EOF'
 Fly one planned route in Gazebo and leave the telemetry on disk.
@@ -27,12 +33,24 @@ Usage:
                                       [--container|--native] [--image NAME]
                                       [--gpu auto|nvidia|intel|software]
                                       [--keep-open]
+                                      [--pause-at S[,S...]] [--pause-on-error M]
+                                      [--slow R] [--hold S] [--keys]
   bash tools/simulate/run_simulate.sh --check | --no-build
 
 --check verifies Docker (or a native gz), the gz-sim 10 bindings, the plugin
 import, the world files, the SDF and the visual mesh without opening Gazebo.
 The default is the container ghcr.io/openrobotics/gazebo:jetty-full; --native
 runs the gz found on PATH. The GUI needs a display; --headless does not.
+
+Pausing:
+  --pause-at S          pause when simulated time reaches S (repeat or comma)
+  --pause-on-error M    pause the first time the tracking error passes M metres
+  --slow R              run the physics at R times real time (0.25 = slow motion)
+  --hold S              resume by itself after S seconds paused (default: wait)
+  --keys                space/p pause or resume, s +1 ms, d +100 ms, q stop
+  kill -USR1 <pid>      pause or resume from another terminal; -USR2 steps 100 ms
+Paused time does not count towards --timeout, and the telemetry keeps the same
+simulated timestamps, so a paused run validates like an unpaused one.
 EOF
 }
 set -euo pipefail
@@ -51,6 +69,11 @@ image='ghcr.io/openrobotics/gazebo:jetty-full'
 gpu=auto
 keep_open=false
 pull=false
+pause_at=''
+error_limit=''
+slow=''
+hold_s=''
+keys=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -68,6 +91,11 @@ while [[ $# -gt 0 ]]; do
     --gpu) gpu="$2"; shift 2 ;;
     --keep-open) keep_open=true; shift ;;
     --pull) pull=true; shift ;;
+    --pause-at) pause_at="${pause_at:+$pause_at,}$2"; shift 2 ;;
+    --pause-on-error) error_limit="$2"; shift 2 ;;
+    --slow) slow="$2"; shift 2 ;;
+    --hold) hold_s="$2"; shift 2 ;;
+    --keys) keys=true; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "run_simulate: unknown argument $1" >&2; exit 2 ;;
   esac
@@ -89,6 +117,48 @@ gui_home=''
 gazebo_pid=''
 
 fail() { echo "run_simulate: $*" >&2; exit 1; }
+
+is_number() { [[ "$1" =~ ^[0-9]+([.][0-9]+)?$ ]]; }
+
+timeout_ms=$(awk -v s="$timeout_s" 'BEGIN { printf "%d", (s + 0) * 1000 }')
+(( timeout_ms > 0 )) || fail '--timeout must be a positive number of seconds'
+
+pause_targets=()
+if [[ -n "$pause_at" ]]; then
+  IFS=',' read -r -a pause_targets <<<"$pause_at"
+  for target in "${pause_targets[@]}"; do
+    is_number "$target" || fail "--pause-at wants seconds, not '$target'"
+  done
+  if (( ${#pause_targets[@]} > 1 )); then
+    # run_to_sim_time only moves forward, so the targets have to be in order.
+    mapfile -t pause_targets < <(printf '%s\n' "${pause_targets[@]}" | sort -n)
+  fi
+fi
+for pair in "pause-on-error:$error_limit" "slow:$slow" "hold:$hold_s"; do
+  value="${pair#*:}"
+  [[ -n "$value" ]] || continue
+  is_number "$value" || fail "--${pair%%:*} wants a number, not '$value'"
+done
+if [[ -n "$error_limit" ]] && ! awk -v m="$error_limit" 'BEGIN { exit !(m + 0 > 0) }'; then
+  fail '--pause-on-error must be larger than zero'
+fi
+if [[ -n "$slow" ]] && ! awk -v r="$slow" 'BEGIN { exit !(r + 0 > 0) }'; then
+  fail '--slow must be larger than zero'
+fi
+
+# Session state shared by the signal traps and the wait loop.
+paused=false
+quit=false
+held_ms=0
+tick=0.25
+tick_ms=250
+status_ms=10000
+target_index=0
+last_t=''
+stall_ticks=0
+# A row appears every 0.1 simulated seconds; --slow stretches that in wall time,
+# so the stall limit has to grow with the inverse of the real-time factor.
+stall_limit=$(awk -v r="${slow:-1}" 'BEGIN { printf "%d", 5 / (r + 0) + 2 }')
 
 cleanup() {
   if [[ "$container" == true ]]; then
@@ -191,18 +261,32 @@ prepare_gui_home() {
     --output "$gui_home/.gz/sim/10/gui.config" >/dev/null
 }
 
+world_service() {
+  # world_service <service suffix> <request type> <request text>
+  # Prints the Boolean reply; empty when the world did not answer.
+  local service="/world/$world/$1" reqtype="$2" request="$3"
+  if [[ "$container" == true ]]; then
+    docker exec "$container_name" gz service -s "$service" --reqtype "$reqtype" \
+      --reptype gz.msgs.Boolean --timeout 5000 --req "$request" 2>/dev/null || true
+  else
+    /usr/bin/gz service -s "$service" --reqtype "$reqtype" \
+      --reptype gz.msgs.Boolean --timeout 5000 --req "$request" 2>/dev/null || true
+  fi
+}
+
+world_control() {
+  world_service control gz.msgs.WorldControl "$1" | grep -q 'data: true'
+}
+
+world_physics() {
+  world_service set_physics gz.msgs.Physics "$1" | grep -q 'data: true'
+}
+
 unpause_world() {
-  local request=(
-    service -s "/world/$world/control"
-    --reqtype gz.msgs.WorldControl --reptype gz.msgs.Boolean
-    --timeout 5000 --req 'pause: false'
-  )
-  for _ in 1 2 3; do
-    if [[ "$container" == true ]]; then
-      if docker exec "$container_name" gz "${request[@]}" 2>/dev/null | grep -q 'data: true'; then
-        return 0
-      fi
-    elif /usr/bin/gz "${request[@]}" 2>/dev/null | grep -q 'data: true'; then
+  local attempt
+  for attempt in 1 2 3; do
+    if world_control 'pause: false'; then
+      paused=false
       return 0
     fi
     sleep 1
@@ -210,19 +294,227 @@ unpause_world() {
   return 1
 }
 
-wait_for_completion() {
-  local elapsed=0
-  while [[ "$elapsed" -lt "$timeout_s" ]]; do
+split_seconds() {
+  # split_seconds <seconds>: whole and nanosecond parts in SEC_PART/NANO_PART.
+  read -r SEC_PART NANO_PART < <(awk -v v="$1" 'BEGIN {
+    n = int((v + 0) * 1e9 + .5); printf "%d %d\n", int(n / 1e9), n % 1000000000 }')
+}
+
+arm_target() {
+  # Run the world and let it stop by itself at the next --pause-at target, so
+  # the pause lands on the requested simulated time instead of one poll later.
+  if (( target_index >= ${#pause_targets[@]} )); then
+    unpause_world
+    return
+  fi
+  split_seconds "${pause_targets[$target_index]}"
+  if world_control "pause: false run_to_sim_time { sec: $SEC_PART, nsec: $NANO_PART }"; then
+    paused=false
+    return 0
+  fi
+  return 1
+}
+
+set_pause() {
+  # set_pause true|false; the plugin ignores ticks while paused, so simulated
+  # time stops and the telemetry keeps its normal timestamps.
+  local target="$1"
+  world_control "pause: $target" || return 1
+  paused="$target"
+  if [[ "$target" == true ]]; then held_ms=0; fi
+  return 0
+}
+
+read_sample() {
+  # Last telemetry row, in the globals s_t, s_err, s_seg, s_phase.
+  [[ -s "$csv" ]] || return 1
+  local line
+  line="$(tail -c 4000 "$csv" 2>/dev/null | tail -n 1)"
+  case "$line" in
+    ''|sim_time,*) return 1 ;;
+  esac
+  IFS=, read -r s_t s_x s_y s_z s_tx s_ty s_tz s_err s_vx s_vy s_vz \
+    s_tvx s_tvy s_tvz s_seg s_phase <<<"$line"
+  s_phase="${s_phase%$'\r'}"
+  [[ -n "$s_t" ]]
+}
+
+print_state() {
+  [[ -n "${s_t:-}" ]] || return 0
+  printf '[funnel]   t=%s s  seg=%s  err=%s m  phase=%s\n' \
+    "$(printf '%.1f' "$s_t")" "$s_seg" "$(printf '%.4f' "$s_err")" "$s_phase"
+}
+
+at_least() { awk -v a="$1" -v b="$2" 'BEGIN { exit !(a + 0 >= b + 0) }'; }
+
+reached() {
+  # Rows arrive every 0.1 simulated seconds, so a pause at T freezes the last
+  # row slightly before T; 0.15 s of slack is one row plus a little.
+  awk -v t="$1" -v target="$2" 'BEGIN { exit !(t + .15 >= target + 0) }'
+}
+
+print_keys() {
+  echo '[funnel] space/p pause or resume · s +1 ms · d +100 ms · c resume · q stop'
+}
+
+resume_hint() {
+  if [[ "$keys" == true ]]; then
+    print_keys
+  else
+    echo "[funnel] resume with: kill -USR1 $$"
+  fi
+}
+
+pause_notice() {
+  # pause_notice <reason>
+  echo "[funnel] paused: $1"
+  read_sample && print_state
+  resume_hint
+  held_ms=0
+}
+
+pause_now() {
+  if ! set_pause true; then
+    echo "run_simulate: could not pause /world/$world" >&2
+    return 1
+  fi
+  pause_notice "$1"
+}
+
+resume_world() {
+  # Skip targets that are already behind the frozen time, then let the world
+  # run to the next one; a plain resume would cancel a pending target.
+  while (( target_index < ${#pause_targets[@]} )) && [[ -n "${last_t:-}" ]] \
+      && reached "$last_t" "${pause_targets[$target_index]}"; do
+    target_index=$((target_index + 1))
+  done
+  if ! arm_target; then
+    echo "run_simulate: could not resume /world/$world" >&2
+    return 1
+  fi
+  echo '[funnel] resumed'
+  return 0
+}
+
+toggle_pause() {
+  if [[ "$paused" == true ]]; then
+    resume_world || true
+  else
+    pause_now 'requested' || true
+  fi
+}
+
+step_world() {
+  # step_world <milliseconds>; one step is 1 ms because build_world fixes it.
+  local ms="$1" request='pause: true step: true'
+  if (( ms > 1 )); then request="pause: true multi_step: $ms"; fi
+  if [[ "$paused" != true ]] && ! set_pause true; then
+    return 1
+  fi
+  if world_control "$request"; then
+    echo "[funnel] stepped ${ms} ms"
+    read_sample && print_state
+  else
+    echo "run_simulate: could not step /world/$world" >&2
+    return 1
+  fi
+}
+
+handle_key() {
+  case "$1" in
+    ' '|p|P) toggle_pause ;;
+    s) step_world 1 ;;
+    d|S) step_world 100 ;;
+    c|C) resume_world || true ;;
+    q|Q) echo '[funnel] stopping; the telemetry flown so far stays on disk'
+         quit=true ;;
+    h|'?') print_keys ;;
+  esac
+}
+
+wait_for_session() {
+  # 0 complete, 1 timeout, 2 stopped by the user.
+  local total_ms=0 since_status=0 key target
+  local error_paused=false
+  stall_ticks=0
+  last_t=''
+
+  while true; do
     if [[ -s "$csv" ]] && grep -q ',complete' "$csv"; then
       echo 'Route complete'
       sleep 3
       return 0
     fi
-    sleep 1
-    elapsed=$((elapsed + 1))
+
+    if [[ "$keys" == true ]]; then
+      if read -r -s -n 1 -t "$tick" key; then
+        handle_key "$key"
+        if [[ "$quit" == true ]]; then return 2; fi
+        continue
+      fi
+    else
+      sleep "$tick"
+    fi
+
+    if [[ "$paused" == true ]]; then
+      held_ms=$((held_ms + tick_ms))
+      if [[ -n "$hold_s" ]] && at_least "$(awk -v ms="$held_ms" 'BEGIN { printf "%.3f", ms / 1000 }')" "$hold_s"; then
+        resume_world || true
+      fi
+    else
+      total_ms=$((total_ms + tick_ms))
+      if (( total_ms >= timeout_ms )); then
+        return 1
+      fi
+    fi
+
+    read_sample || continue
+
+    # A sample that does not move means the world is frozen: by a --pause-at
+    # target, by the GUI pause button or by an error trigger.
+    if [[ -n "$last_t" && "$s_t" == "$last_t" ]]; then
+      stall_ticks=$((stall_ticks + 1))
+      if (( stall_ticks >= stall_limit )) && [[ "$paused" != true ]]; then
+        paused=true
+        held_ms=0
+      fi
+    else
+      stall_ticks=0
+      last_t="$s_t"
+      paused=false
+    fi
+
+    if (( target_index < ${#pause_targets[@]} )) \
+        && reached "$s_t" "${pause_targets[$target_index]}"; then
+      target="${pause_targets[$target_index]}"
+      target_index=$((target_index + 1))
+      paused=true
+      pause_notice "--pause-at $target s"
+    fi
+
+    if [[ -n "$error_limit" && "$error_paused" != true && "$paused" != true ]] \
+        && at_least "$s_err" "$error_limit"; then
+      error_paused=true
+      pause_now "$(printf -- '--pause-on-error %s m (row t=%.2f s, error %.4f m)' \
+        "$error_limit" "$s_t" "$s_err")" || true
+    fi
+
+    if [[ "$paused" != true ]]; then
+      since_status=$((since_status + tick_ms))
+      if (( since_status >= status_ms )); then
+        since_status=0
+        print_state
+      fi
+    fi
   done
-  return 1
 }
+
+trap 'toggle_pause || true' USR1
+trap 'step_world 100 || true' USR2
+if [[ "$keys" == true && ! -t 0 ]]; then
+  echo 'run_simulate: --keys needs a terminal on stdin; use kill -USR1 instead' >&2
+  keys=false
+fi
 
 resolve_gpu
 if [[ "$pull" == true && "$container" == true ]]; then
@@ -326,38 +618,44 @@ if [[ "$ready" != true ]]; then
 fi
 echo "Controller ready; unpausing $world"
 
-if ! unpause_world; then
+if [[ -n "$slow" ]]; then
+  if world_physics "real_time_factor: $slow"; then
+    echo "[funnel] real-time factor ${slow}x"
+  else
+    echo "run_simulate: could not set real_time_factor; the world runs at 1x" >&2
+  fi
+fi
+
+if ! arm_target; then
   if [[ "$headless" == true ]]; then
     fail "could not unpause /world/$world"
   fi
   echo "run_simulate: the world did not answer the unpause request; it already runs (-r)" >&2
 fi
 
+if [[ -n "$pause_at" || -n "$error_limit" ]]; then
+  echo "[funnel] controls:${pause_at:+ pause-at $pause_at}${error_limit:+ pause-on-error ${error_limit} m}${hold_s:+ hold ${hold_s} s}"
+fi
+if [[ "$keys" == true ]]; then print_keys; fi
 
-if [[ "$headless" == true ]]; then
-  if ! wait_for_completion; then
-    echo "run_simulate: timeout after ${timeout_s}s without a complete phase" >&2
-  fi
-  if [[ "$container" == true ]]; then
-    docker stop "$container_name" >/dev/null 2>&1 || true
-  else
-    kill "$gazebo_pid" 2>/dev/null || true
-  fi
-  wait "$gazebo_pid" 2>/dev/null || true
-else
-  if [[ "$keep_open" == true ]]; then
-    echo 'Gazebo is open; close the window to finish the session'
-    wait "$gazebo_pid" || true
-  elif ! wait_for_completion; then
-    echo "run_simulate: timeout after ${timeout_s}s without a complete phase" >&2
-  fi
-  if [[ "$container" == true ]]; then
-    docker stop "$container_name" >/dev/null 2>&1 || true
-  else
-    kill "$gazebo_pid" 2>/dev/null || true
-  fi
+session_status=0
+wait_for_session || session_status=$?
+case "$session_status" in
+  0) ;;
+  2) echo 'run_simulate: stopped before the route completed; the telemetry is a partial flight' >&2 ;;
+  *) echo "run_simulate: timeout after ${timeout_s}s without a complete phase" >&2 ;;
+esac
+
+if [[ "$keep_open" == true && "$headless" != true ]]; then
+  echo 'Gazebo is open; close the window to finish the session'
   wait "$gazebo_pid" 2>/dev/null || true
 fi
+if [[ "$container" == true ]]; then
+  docker stop "$container_name" >/dev/null 2>&1 || true
+else
+  kill "$gazebo_pid" 2>/dev/null || true
+fi
+wait "$gazebo_pid" 2>/dev/null || true
 
 [[ -f "$folder/physics_telemetry.csv" ]] || fail 'no telemetry was written'
 [[ -f "$folder/telemetry_metadata.json" ]] || fail 'no metadata was written'
