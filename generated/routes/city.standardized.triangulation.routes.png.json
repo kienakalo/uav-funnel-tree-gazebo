@@ -1,7 +1,7 @@
 {
   "image": "generated/routes/city.standardized.triangulation.routes.png",
-  "image_sha256": "d4887b4efbd1934d44bb82ce4bb262ced1023765db00c87e17c72cf7c42f05e1",
-  "generated_at": "2026-11-18T23:41:05+07:00",
+  "image_sha256": "0c1d18e6eb03e69ec03416262524a8e71c6f27355603a2665ad0da0dcaa47dbc",
+  "generated_at": "2026-11-19T10:32:59+07:00",
   "parameters": {
     "seconds": 900.0,
     "max_nodes": 800000,
@@ -9,16 +9,16 @@
   },
   "facts": {
     "routes": 3,
-    "planning": "1008.4 s",
+    "planning": "1022.4 s",
     "g1": "145.3 m",
-    "g2": "130.9 m",
-    "g3": "88.6 m"
+    "g2": "130.2 m",
+    "g3": "90.6 m"
   },
   "sources": {
     "mesh_sha256": "9cec5d09523e26375be0e491f4c92b366f1429af8976f4571c687ec330782b1d",
-    "mission_sha256": "995ab2a182c980de4525a5e9e1b4c087c29e2baa44b02addf97df68fa1899e45",
+    "mission_sha256": "a57067a3ef187200387bce1bb2580b01fda26498939d90ba5bb95508b14e72cd",
     "module_sha256": "42465e58992c985455afddfa62d145febfc96cbbb0597b209c0a1c2ca2947bf2",
-    "routes_sha256": "7c50ab3171854a6f364702727857f1ed9c8c615dae41c0ea7bd8e09ed29e48e8"
+    "routes_sha256": "b3ec5312284ab2497f42ca41b4ed4bcddd1e7191362f4193f22ef82c4c4252d8"
   },
   "script": "tools/plan/route_viz.py",
   "script_sha256": "351dd70c1d77c13639abf3390251a65c4bc975a561569fd9cf2e764edd8524e6",

@@ -1,7 +1,7 @@
 {
   "image": "generated/routes/icosahedron.routes.png",
-  "image_sha256": "e197d9ac189acdc74c9c0fb8c180e200494c55a7d6825fdf3c09803a8adc068d",
-  "generated_at": "2026-11-18T23:41:07+07:00",
+  "image_sha256": "b8cfbfa56e1d9468ceb7bb61a8b38eb3fd0edf331cfb6956175ac934fb02c4c4",
+  "generated_at": "2026-11-19T10:33:01+07:00",
   "parameters": {
     "seconds": 900.0,
     "max_nodes": 800000,
@@ -26,7 +26,7 @@
     "mesh_sha256": "b748d451a01b41479a1f29c1b639a6ce7fcfdd8b08682746d61571509c762de9",
     "mission_sha256": "fe6ba90e93cf3a89d7f3b1283684aa481e5330a307b67f75922653496d105577",
     "module_sha256": "42465e58992c985455afddfa62d145febfc96cbbb0597b209c0a1c2ca2947bf2",
-    "routes_sha256": "889e1a51f92e5fe52a660d9c43d694b1bd2f7578161629a545ac8c56b93464f9"
+    "routes_sha256": "612d859a1cfcea3f794b8b3e8e72845b941d0ccb8f168001432f67857ab130dd"
   },
   "script": "tools/plan/route_viz.py",
   "script_sha256": "351dd70c1d77c13639abf3390251a65c4bc975a561569fd9cf2e764edd8524e6",

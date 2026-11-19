@@ -1,7 +1,7 @@
 {
   "image": "generated/routes/dome.routes.png",
-  "image_sha256": "4b4eb69725cec0775cf87ece7e340883505ddeb93a99511a206d0c473ce912c3",
-  "generated_at": "2026-11-18T23:41:07+07:00",
+  "image_sha256": "429e190dd0d29c74964b157acdf7a8b4f2acddb84b13e95a5413f398a692de04",
+  "generated_at": "2026-11-19T10:33:01+07:00",
   "parameters": {
     "seconds": 900.0,
     "max_nodes": 800000,
