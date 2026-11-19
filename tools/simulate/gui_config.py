@@ -6,10 +6,12 @@
 Gazebo reads its GUI layout and the initial camera from
 ``$HOME/.gz/sim/10/gui.config``; the SDF ``<gui><camera>`` element is not
 supported (Gazebo logs "can't be converted yet"). The file written here keeps
-only the 3D view, the scene manager, mouse control, world control and the
-marker manager: the city fills the window instead of half of it, and the marker
-manager draws the flight trail published on ``/marker``. The camera pose comes
-from ``build_world.py`` (degrees in ``world_metadata.json``, radians here).
+only the 3D view, the scene manager, mouse control, the world control toolbar
+and the marker manager: the city fills the window instead of half of it, and the
+marker manager draws the flight trail published on ``/marker``. The world
+control toolbar is the play/pause and step button, so a flight can be stopped
+from the GUI as well as from the terminal. The camera pose comes from
+``build_world.py`` (degrees in ``world_metadata.json``, radians here).
 
 Example:
 
@@ -58,6 +60,24 @@ TEMPLATE = """<?xml version="1.0"?>
     <property key="state" type="string">floating</property>
     <property key="showTitleBar" type="bool">false</property>
   </gz-gui>
+</plugin>
+<plugin filename="WorldControl" name="World control">
+  <gz-gui>
+    <title>World control</title>
+    <property type="bool" key="showTitleBar">false</property>
+    <property type="bool" key="resizable">false</property>
+    <property type="double" key="height">72</property>
+    <property type="double" key="z">1</property>
+    <property type="string" key="state">floating</property>
+    <anchors target="3D View">
+      <line own="left" target="left"/>
+      <line own="bottom" target="bottom"/>
+    </anchors>
+  </gz-gui>
+  <play_pause>true</play_pause>
+  <step>true</step>
+  <start_paused>false</start_paused>
+  <use_event>true</use_event>
 </plugin>
 <plugin filename="MarkerManager" name="Marker manager">
   <gz-gui>

@@ -71,13 +71,17 @@ riêng, rồi mount vào container.
 
 <plugin filename="GzSceneManager" … />
 <plugin filename="InteractiveViewControl" … />
+<plugin filename="WorldControl" … />
 <plugin filename="MarkerManager" … />
 ```
 
 - Chỉ giữ 3D view + các plugin cần thiết, nên thành phố chiếm gần hết cửa sổ
   (không có panel World/Entity Tree bên phải).
 - `MarkerManager` vẽ vệt bay mà plugin publish lên `/marker`.
-- Không có `WorldControl`: world đã chạy bằng `-r`.
+- `WorldControl` là thanh **play/pause + step** neo ở góc dưới-trái của 3D view:
+  bấm pause thì world dừng, plugin bỏ qua tick và `run_simulate.sh` nhận ra world
+  đứng yên nên không tính giờ đó vào `--timeout`. `start_paused` để `false` vì
+  script tự chạy world bằng `run_to_sim_time`/`pause: false`.
 
 ## Camera
 

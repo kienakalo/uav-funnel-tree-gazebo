@@ -487,9 +487,17 @@ wait_for_session() {
     if (( target_index < ${#pause_targets[@]} )) \
         && reached "$s_t" "${pause_targets[$target_index]}"; then
       target="${pause_targets[$target_index]}"
-      target_index=$((target_index + 1))
-      paused=true
-      pause_notice "--pause-at $target s"
+      if (( stall_ticks >= 1 )) || [[ "$paused" == true ]]; then
+        target_index=$((target_index + 1))
+        paused=true
+        pause_notice "--pause-at $target s"
+      elif at_least "$s_t" "$(awk -v t="$target" 'BEGIN { printf "%.3f", t + .5 }')"; then
+        # Only something outside the script can carry the world past a target it
+        # was told to stop at, so say so instead of reporting a pause that is not
+        # there.
+        target_index=$((target_index + 1))
+        echo "run_simulate: --pause-at $target s was lost: the world was resumed outside the script" >&2
+      fi
     fi
 
     if [[ -n "$error_limit" && "$error_paused" != true && "$paused" != true ]] \
@@ -617,6 +625,9 @@ if [[ "$ready" != true ]]; then
   fail "the plugin did not initialize; read $log"
 fi
 echo "Controller ready; unpausing $world"
+if [[ "$keys" != true ]]; then
+  echo "[funnel] pause any time: kill -USR1 $$ (resume: the same; step 100 ms: kill -USR2 $$)"
+fi
 
 if [[ -n "$slow" ]]; then
   if world_physics "real_time_factor: $slow"; then

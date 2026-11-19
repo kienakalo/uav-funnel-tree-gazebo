@@ -99,13 +99,14 @@ ngoài các file trong thư mục run.
 
 ## Dừng, xem và chạy tiếp
 
-Cả bốn cách dưới đây đi qua `/world/<world>/control` (`gz.msgs.WorldControl`),
+Cả năm cách dưới đây đi qua `/world/<world>/control` (`gz.msgs.WorldControl`),
 nên plugin thấy `info.paused` và **bỏ qua tick**: thời gian mô phỏng đứng yên,
 telemetry không có mốc thời gian nào bị lệch.
 
 | Cách | Độ chính xác | Dùng khi |
 | --- | --- | --- |
 | `--pause-at 8.2` | đúng mốc (gửi `run_to_sim_time`) | muốn xem đúng chỗ `g2` lệch 1 m |
+| nút pause trong GUI | đúng mốc bấm | đang nhìn cửa sổ Gazebo, không muốn gõ terminal |
 | `--pause-on-error 0.8` | trễ khoảng 0,1–0,3 s mô phỏng (một đến ba dòng) và một lần gọi service | muốn dừng ngay khi vừa vượt mốc mà không biết trước mốc |
 | `kill -USR1 <pid>` | đúng lúc nhận signal | dừng ngẫu hứng khi đang xem GUI |
 | phím `p` (`--keys`) | như trên | dừng ngay trong terminal đang chạy |
@@ -136,6 +137,16 @@ Những điều script làm thêm khi có pause:
 | Nhận ra world đứng yên (kể cả khi bấm nút pause trong GUI) | `--pause-at`/GUI pause đều làm CSV ngừng tiến |
 | `q` dừng hẳn nhưng giữ telemetry đã bay | `validate.py` sẽ báo lần bay dở là không hợp lệ — đúng như nó xảy ra |
 | Không ghi sự kiện dừng vào file nào | Dừng không đổi số liệu nên không có gì phải chấm; log terminal là biên bản nếu cần |
+
+Script in lệnh `kill -USR1 <pid>` ngay khi world chạy, nên không cần nhớ PID.
+Nếu world bị dừng từ GUI, script nhận ra sau khoảng 1,75 s (một dòng telemetry
+không tiến) — GUI và terminal dùng chung một trạng thái.
+
+Một chỗ dễ sập bẫy: `run_to_sim_time` đang chờ sẽ bị **xoá** khi world được chạy
+tiếp bằng lệnh `pause: false` trơn, kể cả nút play trong GUI. Script tự nạp lại
+mốc khi *nó* chạy tiếp (`kill -USR1`, `--hold`), nhưng nếu bạn bấm play trong GUI
+thì mốc đó mất và script báo `--pause-at ... was lost`. Muốn giữ mốc thì chạy
+tiếp bằng `kill -USR1`.
 
 Đo trên fixture `terrain-v6` (7,48 m, 8,5 s): một phiên có `--pause-at 2 --hold 1`
 vẫn kết thúc `phase=complete` và `validate.py` chấm `valid: true`, `max_error`
