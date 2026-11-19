@@ -30,7 +30,7 @@ autopilot.
 Ba cấu hình đang có archive: lưới 5 m (`city792e`), 4 m (`cell4`) và 3 m
 (`cell3close`). Lưới 4 m là cấu hình duy nhất cả ba chuyến bay đạt mốc 1 m
 (0,399 / 0,591 / 0,601 m); lưới 3 m sát hình học hơn nhưng `g2` vượt mốc ở
-1,381 m vì quỹ đạo đòi leo dốc nhanh hơn mức 5 m/s · 3 m/s² cho phép. Đối chiếu
+1,380 m vì quỹ đạo đòi leo dốc nhanh hơn mức 5 m/s · 3 m/s² cho phép. Đối chiếu
 đường tham chiếu **5/5** mesh đạt ở cả ba.
 
 ## 2. Ảnh minh hoạ
@@ -223,11 +223,11 @@ commit file đó, vì `--fresh` không xoá và không sinh lại được lựa
 | --- | --- | --- | --- |
 | Bề mặt | 2.295 đ / 4.400 tg | 3.355 / 6.480 | 5.913 / 11.520 |
 | Tham số | half-width 1,6 · slope 0,5 | half-width 0,8 · slope 1,0 | half-width 0,6 · slope 1,0 |
-| Lập tuyến | 45,0 s | 186,2 s | **1.008 s** |
+| Lập tuyến | 45,0 s | 186,2 s | **1.022 s** |
 | Lan truyền | 104 | 187 | 429 |
-| Tuyến (m) | 142,42 · 125,64 · 86,15 | 142,91 · 127,30 · 86,19 | 145,31 · 130,89 · 88,61 |
-| Bay (s) | 35,9 · 33,1 · 25,0 | 35,9 · 33,2 · 25,1 | 36,5 · 33,4 · 25,0 |
-| `max_error` (m) | 0,365 · 1,022 · 0,852 | 0,399 · **0,591** · 0,601 | 0,508 · **1,381** · 0,580 |
+| Tuyến (m) | 142,42 · 125,64 · 86,15 | 142,91 · 127,30 · 86,19 | 145,31 · 130,17 · 90,56 |
+| Bay (s) | 35,9 · 33,1 · 25,0 | 35,9 · 33,2 · 25,1 | 36,3 · 33,2 · 25,1 |
+| `max_error` (m) | 0,365 · 1,022 · 0,852 | 0,399 · **0,591** · 0,601 | 0,507 · **1,380** · 0,785 |
 | Đạt mốc 1 m | 2/3 | **3/3** | 2/3 |
 | Đối chiếu reference | 5/5 | 5/5 | 5/5 |
 
@@ -238,14 +238,16 @@ Cả ba cấu hình đều `valid` ở cả ba goal; khác nhau nằm ở chỉ 
   không đều — tiếp tuyến Catmull–Rom dài gấp 7,6 lần đoạn ngắn.
 - **Lưới 4 m** (`cell4`, 0,5910 m): 59 waypoint thay vì 46, khoảng cách đều hơn,
   tỉ lệ đó xuống 3,15, quỹ đạo thôi lùi và sai số rơi.
-- **Lưới 3 m** (`cell3close`, 1,3808 m): sai số **100 % theo phương thẳng đứng**.
-  Lúc 8,19 s, máy bay ở cao độ 5,74 m trong khi đích đã lên 7,12 m; đích leo
+- **Lưới 3 m** (`cell3close`, 1,3801 m): sai số **100 % theo phương thẳng đứng**.
+  Lúc 8,18 s, máy bay ở cao độ 5,74 m trong khi đích đã lên 7,12 m; đích leo
   2,08 m/s trong khi vận tốc đứng của máy bay còn âm. Bề mặt dốc 1,0 m/m đòi leo
   nhanh hơn quỹ đạo 5 m/s · 3 m/s² có thể bám.
 
 Đó cũng là lý do `valid` được tách khỏi `passed`: hoàn thành nhiệm vụ và đạt chỉ
-tiêu chất lượng là hai câu hỏi khác nhau. Với lưới 3 m, cách sửa nằm ở tham số
-bay (giảm `speed` hoặc tăng `max-accel`), không phải ở bản đồ.
+tiêu chất lượng là hai câu hỏi khác nhau. Với lưới 3 m, cách sửa nằm ở `speed`,
+không phải ở bản đồ và cũng không phải `max-accel`: `max_accel` chỉ tạo hình
+thang vận tốc dọc, còn trần gia tốc hướng tâm và trần ±6 m/s² nằm cứng trong
+`tools/simulate/plugin/trajectory.py`.
 
 ### Lưu và so sánh nhiều lần chạy
 

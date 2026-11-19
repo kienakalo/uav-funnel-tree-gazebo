@@ -1,7 +1,7 @@
 {
   "label": "cell3close",
-  "created_at": "2026-11-18T23:51:23+07:00",
-  "commit": "0aa4a00",
+  "created_at": "2026-11-19T10:43:50+07:00",
+  "commit": "0e4f45c",
   "command": "main.py --archive cell3close --no-ask",
   "stages": [],
   "cleared": [],
@@ -87,15 +87,15 @@
       "waypoints": 65
     },
     "g2": {
-      "length": 130.891670308,
-      "waypoints": 73
+      "length": 130.166180171,
+      "waypoints": 76
     },
     "g3": {
-      "length": 88.611502245,
-      "waypoints": 68
+      "length": 90.560141344,
+      "waypoints": 71
     },
-    "planning_seconds": 1008.389,
-    "sha256": "7c50ab3171854a6f364702727857f1ed9c8c615dae41c0ea7bd8e09ed29e48e8",
+    "planning_seconds": 1022.392,
+    "sha256": "b3ec5312284ab2497f42ca41b4ed4bcddd1e7191362f4193f22ef82c4c4252d8",
     "solver": {
       "name": "funnel_tree",
       "module": "algo/funnel_tree.py",
@@ -114,46 +114,46 @@
   "simplify_tolerance": 0.1,
   "flight": {
     "g1": {
-      "duration": 36.466,
-      "max_error": 0.5075,
-      "mean_error": 0.0627,
-      "max_speed": 5.1764,
+      "duration": 36.262,
+      "max_error": 0.5074,
+      "mean_error": 0.063,
+      "max_speed": 5.1765,
       "final_error": 0.0001,
       "valid": true,
       "passed": true,
       "route_sha256": "b423e6295667e7fcc8f9eef980fa94bbc51cac45b68c1e0b49fed1be50709cef"
     },
     "g2": {
-      "duration": 33.447,
-      "max_error": 1.3808,
-      "mean_error": 0.1349,
-      "max_speed": 5.1646,
-      "final_error": 0.0014,
+      "duration": 33.245,
+      "max_error": 1.3801,
+      "mean_error": 0.1334,
+      "max_speed": 5.1647,
+      "final_error": 0.0016,
       "valid": true,
       "passed": false,
-      "route_sha256": "5e9044f248e327e09c82d3b45132fe006337e5052f44224886c959950cd57b32"
+      "route_sha256": "c697212070c71d0a502661beff2a709aa726b9575de43ae3b73f7068094989b4"
     },
     "g3": {
-      "duration": 24.995,
-      "max_error": 0.5796,
-      "mean_error": 0.0906,
-      "max_speed": 5.1204,
-      "final_error": 0.0005,
+      "duration": 25.095,
+      "max_error": 0.7849,
+      "mean_error": 0.1512,
+      "max_speed": 5.2883,
+      "final_error": 0.0003,
       "valid": true,
       "passed": true,
-      "route_sha256": "bd6e9e9ea777aeda1027918de6e5dcbcc4470e975a0f69e5172f6c36232f3f63"
+      "route_sha256": "0a1043045c77cd34c8fd4d4c87c1dc6585458b515a9260f2dacd3d686d13b446"
     }
   },
   "files": [
     {
       "path": "parameters.json",
       "source": "generated/parameters.json",
-      "sha256": "748d8781f9b8f5c04bae7570999a30eab514b5b9c69506d53d6ffb9365becc14"
+      "sha256": "40a37c76c97c6b8da2471fbf3cbde0b44db531074143b1504da1a628f8651b39"
     },
     {
       "path": "mission.json",
       "source": "data/processed/missions/city.standardized.triangulation.mission.json",
-      "sha256": "995ab2a182c980de4525a5e9e1b4c087c29e2baa44b02addf97df68fa1899e45"
+      "sha256": "a57067a3ef187200387bce1bb2580b01fda26498939d90ba5bb95508b14e72cd"
     },
     {
       "path": "surface.params.json",
@@ -163,17 +163,17 @@
     {
       "path": "routes.json",
       "source": "generated/routes/city.standardized.triangulation.routes.json",
-      "sha256": "7c50ab3171854a6f364702727857f1ed9c8c615dae41c0ea7bd8e09ed29e48e8"
+      "sha256": "b3ec5312284ab2497f42ca41b4ed4bcddd1e7191362f4193f22ef82c4c4252d8"
     },
     {
       "path": "routes.png",
       "source": "generated/routes/city.standardized.triangulation.routes.png",
-      "sha256": "d4887b4efbd1934d44bb82ce4bb262ced1023765db00c87e17c72cf7c42f05e1"
+      "sha256": "0c1d18e6eb03e69ec03416262524a8e71c6f27355603a2665ad0da0dcaa47dbc"
     },
     {
       "path": "routes.png.json",
       "source": "generated/routes/city.standardized.triangulation.routes.png.json",
-      "sha256": "175533c1d9d8f4b3fef8595968e6792fc9afb58e85fd312e3f2146890ad2b02a"
+      "sha256": "4829fa5b7d203e9d2c1fd8fd5c9b19a6e93fbdf44dc5dbbcafe085a1de2b2873"
     },
     {
       "path": "plan-summary.json",
@@ -183,12 +183,12 @@
     {
       "path": "g1/validation.json",
       "source": "generated/simulate/city.standardized.triangulation-g1/validation.json",
-      "sha256": "e16422eb43650b90f8f5be3b9fab034636b6c89838932544600f4e4d4dd47fbe"
+      "sha256": "f8d40fce3a999e2ebe0e66e6368d1ae75d22595a7633575cbf7701ed95ba120f"
     },
     {
       "path": "g1/world_metadata.json",
       "source": "generated/simulate/city.standardized.triangulation-g1/world_metadata.json",
-      "sha256": "3e44fc85ca157329389a69287df7a56b381a9c70d0f650abf9f78ee7922290a3"
+      "sha256": "c9c5db6be5d38b4cbe88d0d43492c8ca4abc89163b4cedce6e45857fdb80d17a"
     },
     {
       "path": "g1/flown_route.json",
@@ -198,77 +198,77 @@
     {
       "path": "g1/tracking.png",
       "source": "generated/simulate/city.standardized.triangulation-g1/tracking.png",
-      "sha256": "342569744eff57abbcfcd81e15f89a12e76a90bdb8dc57d5011c9f053db0c923"
+      "sha256": "669d318781a69463e3983ef5f7f9539e9ff4578e8ace2e0c1b6f35543ff7dff5"
     },
     {
       "path": "g1/tracking.png.json",
       "source": "generated/simulate/city.standardized.triangulation-g1/tracking.png.json",
-      "sha256": "704cb69c3ccb4c26591e3889f820953d5bbf98a929ccedf69aeebb37cfd34748"
+      "sha256": "c08f11508a3693f91f6310adc9e73b9f9f99b7fd00ac774d26e39a030fd8751b"
     },
     {
       "path": "g1/telemetry_metadata.json",
       "source": "generated/simulate/city.standardized.triangulation-g1/telemetry_metadata.json",
-      "sha256": "f90ddb9ee54ba033640a49e6ce06f4be8d8120ef23d4ed1a5852b28f4ff59375"
+      "sha256": "55a0c210dd7dcad5fd92069de6918d111df33b3992caee69308ff79a5c4bb89e"
     },
     {
       "path": "g2/validation.json",
       "source": "generated/simulate/city.standardized.triangulation-g2/validation.json",
-      "sha256": "70d447d37ac674fdd4de99072e45e9d192f6d0b6e0575e65ee67ec040f1a4c6d"
+      "sha256": "4f89dd2bf8f732b57291440b969d1020ac47ffce3cda1c2ad3b7fde25c8b8b79"
     },
     {
       "path": "g2/world_metadata.json",
       "source": "generated/simulate/city.standardized.triangulation-g2/world_metadata.json",
-      "sha256": "7e6ed881742919f923806c543c614be81bcb7d030ae5dd94bf6d001a7caffe65"
+      "sha256": "239f49ca9f98358413bd6ab5b52806f227ec5b5f93efe72a600491bbd6b09f82"
     },
     {
       "path": "g2/flown_route.json",
       "source": "generated/simulate/city.standardized.triangulation-g2/flown_route.json",
-      "sha256": "5e9044f248e327e09c82d3b45132fe006337e5052f44224886c959950cd57b32"
+      "sha256": "c697212070c71d0a502661beff2a709aa726b9575de43ae3b73f7068094989b4"
     },
     {
       "path": "g2/tracking.png",
       "source": "generated/simulate/city.standardized.triangulation-g2/tracking.png",
-      "sha256": "f3802af3205ec06d217fb7b07d4a625b0310a0fce05f6b2a22f08f438b220375"
+      "sha256": "b228633b640510e36005f458495e75a4147dadd0cc4c7381a31ba93cec967f03"
     },
     {
       "path": "g2/tracking.png.json",
       "source": "generated/simulate/city.standardized.triangulation-g2/tracking.png.json",
-      "sha256": "889f5192f125f443778a39e2733cdb093abf3807a27daeadc5002d02b0700a5e"
+      "sha256": "dbb74fbe6f82a8a4b1c94fb05d4aea5dffecb92076a5989fd86df4038f514d7c"
     },
     {
       "path": "g2/telemetry_metadata.json",
       "source": "generated/simulate/city.standardized.triangulation-g2/telemetry_metadata.json",
-      "sha256": "f5cbf4deb70d0187b77102bf01be638b535732fd077a3a1a6b8a4aa89cd034d2"
+      "sha256": "325394e1be76eb1c7ccab06b215261133825e31effa46f47666be0a480779eeb"
     },
     {
       "path": "g3/validation.json",
       "source": "generated/simulate/city.standardized.triangulation-g3/validation.json",
-      "sha256": "c7798a864f51fc2ce85d721d3d601bedfe8fadfc6778c230f5818d3d48986e8d"
+      "sha256": "dff84179e80783ad05ddf6ad53cf0f23a707995bd07c6f47503068b5b2bc3b5d"
     },
     {
       "path": "g3/world_metadata.json",
       "source": "generated/simulate/city.standardized.triangulation-g3/world_metadata.json",
-      "sha256": "33cfd9ad67b418591dbac7c7d7ad8a5146641416b83ca6db76d565cf3a4223a1"
+      "sha256": "c4f06b42983d26347c0b159293b116df72d486033904019ad511087416f6a9e6"
     },
     {
       "path": "g3/flown_route.json",
       "source": "generated/simulate/city.standardized.triangulation-g3/flown_route.json",
-      "sha256": "bd6e9e9ea777aeda1027918de6e5dcbcc4470e975a0f69e5172f6c36232f3f63"
+      "sha256": "0a1043045c77cd34c8fd4d4c87c1dc6585458b515a9260f2dacd3d686d13b446"
     },
     {
       "path": "g3/tracking.png",
       "source": "generated/simulate/city.standardized.triangulation-g3/tracking.png",
-      "sha256": "fdcc8220a5290a48c4823d273b7b7aecb060feb470876ebeab52714b641c9f4a"
+      "sha256": "721404e29f9120f99642e33547de659806f07d9c4aeb394397f5ba592c4d8bb6"
     },
     {
       "path": "g3/tracking.png.json",
       "source": "generated/simulate/city.standardized.triangulation-g3/tracking.png.json",
-      "sha256": "3ded9d4e9d49fc9aa53f7d10e9c9194ba6eeeb4faa5a291c6b9b7f9ee745d544"
+      "sha256": "0af4bf2c1719d182a4ea94851f3577dfb03f417a6ef7a71aeb904663470de918"
     },
     {
       "path": "g3/telemetry_metadata.json",
       "source": "generated/simulate/city.standardized.triangulation-g3/telemetry_metadata.json",
-      "sha256": "566ea85d262901ce0e44ce727ab5198ce23a32f04fce481f811bc2765d417cde"
+      "sha256": "b0fb5d9326340801da18381a8550ee099fa52b5c8e741bee8b64546aca9a3f2e"
     }
   ],
   "missing": []

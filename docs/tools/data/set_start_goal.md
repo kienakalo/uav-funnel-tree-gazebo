@@ -107,18 +107,20 @@ delivery trong repo cũ (`generated/city_three_goals/cases.json`, commit
 
 | | Đỉnh | xyz (m) | Vai trò |
 | --- | --- | --- | --- |
-| START | 1133 | −38,7521 · 22,1034 · 7,7372 | xuất phát, phía tây-trung tâm |
-| g1 | 2708 | 74,7366 · −55,3572 · 8,5793 | đích xa, góc đông-nam |
-| g2 | 2829 | 80,0000 · −12,0000 · 8,4556 | đích phía đông |
-| g3 | 2240 | 40,0000 · 48,0000 · 15,1724 | đích phía bắc |
+| START | 2015 | −38,7521 · 22,1034 · 6,6338 | xuất phát, phía tây-trung tâm |
+| g1 | 4762 | 74,7366 · −55,3572 · 7,7729 | đích xa, góc đông-nam |
+| g2 | 4997 | 81,0000 · −9,0000 · 7,4556 | đích phía đông |
+| g3 | 3923 | 39,0000 · 51,0000 · 9,3299 | đích phía bắc |
 
-Bảng trên là bề mặt lưới 4 m (`results/runs/cell4`). Với lưới 5 m
-(`results/runs/city792e`) các đỉnh là 792 / 1810 / 1910 / 1518, cùng toạ độ x/y
-nhưng z cao hơn — mission ghi z của bề mặt tại thời điểm chọn.
+Bảng trên là bề mặt lưới 3 m (`results/runs/cell3close`), cấu hình đang chạy. Với
+lưới 4 m (`results/runs/cell4`) các đỉnh là 1133 / 2708 / 2829 / 2240; với lưới
+5 m (`results/runs/city792e`) là 792 / 1810 / 1910 / 1518 — cùng toạ độ được yêu
+cầu, khác z vì mission ghi z của bề mặt tại thời điểm chọn.
 
-Hai đích phía đông và phía bắc lệch 2 m so với toạ độ gốc (`y = −10` và
-`y = 50`), vì lưới 4 m không có đường tại đúng hai giá trị đó; `refresh_mission`
-snap sang đỉnh gần nhất và ghi khoảng cách vào trường `snap`.
+Hai đích phía đông và phía bắc lệch **1,414 m** so với toạ độ yêu cầu (`y = −10`
+và `y = 50`), vì lưới 3 m không có đỉnh đúng ở đó; `refresh_mission` snap sang
+đỉnh gần nhất và ghi khoảng cách vào trường `snap`. Trên lưới 4 m khoảng cách đó
+là 2 m; trên lưới 5 m hai đích nằm đúng đỉnh.
 
 - Bề mặt **không** phụ thuộc mission: đổi START/GOAL chỉ đổi route, SHA bề mặt
   giữ nguyên.
